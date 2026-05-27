@@ -1,0 +1,10 @@
+# Ignorar as pastas pesadas do Node
+node_modules/
+backend/node_modules/
+
+# Ignorar os ficheiros de passwords e chaves secretas
+.env
+backend/.env
+
+# Ignorar ficheiros de sistema
+.DS_Store
