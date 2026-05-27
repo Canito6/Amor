@@ -20,6 +20,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ message: 'Conta criada com sucesso!' });
   } catch (error) {
+    console.error("🕵️ ERRO COMPLETO:", error);
     res.status(500).json({ error: 'Erro ao criar conta.' });
   }
 });

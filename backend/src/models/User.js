@@ -15,12 +15,12 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true }); // Cria automaticamente a data em que a conta foi criada
 
 // Segurança: Antes de guardar o utilizador na base de dados, encripta a password
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+// (Versão corrigida para o Mongoose v9)
+UserSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
   
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Ferramenta: Compara a password que escreveram no login com a que está encriptada
