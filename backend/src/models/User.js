@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     type: String, 
     default: 'user' 
   },
+  precisaMudarPassword: { 
+    type: Boolean,
+    default: false
+  },
   resetPasswordToken: { 
     type: String 
   },

@@ -34,5 +34,30 @@ router.delete('/users/:id', verificarAdmin, async (req, res) => {
     res.status(500).json({ error: 'Erro ao apagar utilizador.' });
   }
 });
+// 4. Editar o email e/ou repor a password de um utilizador
+router.put('/users/:id/editar', verificarAdmin, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Utilizador não encontrado.' });
+    }
 
+    if (email) {
+      user.email = email;
+    }
+    
+    // Se o admin escreveu uma nova password, alteramos e ativamos a obrigatoriedade de mudança
+    if (password) {
+      user.password = password;
+      user.precisaMudarPassword = true; 
+    }
+
+    await user.save();
+    res.json({ message: 'Utilizador atualizado com sucesso!' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao editar utilizador.' });
+  }
+});
 module.exports = router;

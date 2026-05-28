@@ -24,6 +24,13 @@ export default function Login() {
       const dados = await resposta.json();
 
       if (resposta.ok) {
+        // NOVO: Verifica se temos de mandar a pessoa para o ecrã de mudar password
+        if (dados.precisaMudarPassword) {
+          navigate('/forcar-password', { state: { userId: dados.userId } });
+          return; // Interrompe aqui para não fazer o login normal
+        }
+
+        // Se estiver tudo normal:
         localStorage.setItem('token', dados.token);
         localStorage.setItem('nome', dados.username);
         // Também guardamos a etiqueta para sabermos se é admin

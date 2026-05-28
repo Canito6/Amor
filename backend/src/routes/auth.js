@@ -54,7 +54,14 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: 'Password incorreta!' });
     }
-
+    // NOVO: Verifica se o admin forçou a mudança de password
+    if (user.precisaMudarPassword) {
+      return res.json({ 
+        precisaMudarPassword: true, 
+        userId: user._id, 
+        message: 'Precisas de definir uma nova password antes de entrar.' 
+      });
+    }
     // Cria o "bilhete" de acesso (Token) válido por 7 dias, incluindo também o cargo (role) no bilhete!
     const token = jwt.sign(
       { id: user._id, role: user.role }, 
@@ -130,5 +137,35 @@ router.post('/reset-password', async (req, res) => {
     res.status(500).json({ error: 'Erro ao tentar redefinir a password.' });
   }
 });
+// 5. ROTA: Mudar a password obrigatória após reset do Admin
+router.post('/forcar-mudanca-password', async (req, res) => {
+  try {
+    const { userId, novaPassword } = req.body;
+    const user = await User.findById(userId);
 
+    if (!user) {
+      return res.status(404).json({ error: 'Utilizador não encontrado.' });
+    }
+
+    user.password = novaPassword;
+    user.precisaMudarPassword = false; // Já não precisa de mudar
+    await user.save();
+
+    // Faz logo o login automático e devolve o token
+    const token = jwt.sign(
+      { id: user._id, role: user.role }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.json({ 
+      message: 'Password definida com sucesso!', 
+      token, 
+      username: user.username,
+      role: user.role
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao tentar definir nova password.' });
+  }
+});
 module.exports = router;
