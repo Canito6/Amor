@@ -1,31 +1,44 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true, // Garante que não há nomes repetidos
-    trim: true
+const userSchema = new mongoose.Schema({
+  username: { 
+    type: String, 
+    required: true, 
+    unique: true 
   },
-  password: {
-    type: String,
-    required: true
+  password: { 
+    type: String, 
+    required: true 
+  },
+  email: { 
+    type: String, 
+    required: true, 
+  },
+  role: { 
+    type: String, 
+    default: 'user' 
+  },
+  resetPasswordToken: { 
+    type: String 
+  },
+  resetPasswordExpires: { 
+    type: Date 
   }
-}, { timestamps: true }); // Cria automaticamente a data em que a conta foi criada
+});
 
-// Segurança: Antes de guardar o utilizador na base de dados, encripta a password
-// (Versão corrigida para o Mongoose v9)
-UserSchema.pre('save', async function() {
-  if (!this.isModified('password')) return;
-  
+// MAGIA DE SEGURANÇA (Sem o problemático "next")
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) {
+    return; // Se a password não mudou, sai daqui e continua a gravar
+  }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Ferramenta: Compara a password que escreveram no login com a que está encriptada
-UserSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+// MAGIA DO LOGIN
+userSchema.methods.comparePassword = async function(passwordEscrita) {
+  return await bcrypt.compare(passwordEscrita, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);
