@@ -14,6 +14,10 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// NOVO: Rotas de Administrador
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
+
 // Ligação ao MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Ligado com sucesso ao MongoDB Atlas!'))

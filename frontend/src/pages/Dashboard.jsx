@@ -5,6 +5,9 @@ export default function Dashboard() {
   const [nome, setNome] = useState('');
   const navigate = useNavigate();
 
+  // Vai buscar a "role" (cargo) que guardámos no login para saber se é admin
+  const roleGuardado = localStorage.getItem('role');
+
   // O useEffect corre automaticamente assim que a página abre
   useEffect(() => {
     // 1. Vai ao cofre do navegador ver se existe um bilhete (token) e o nome
@@ -65,13 +68,26 @@ export default function Dashboard() {
 
       <br /><br />
       
-      {/* Botão de Sair */}
-      <button 
-        onClick={terminarSessao}
-        style={{ padding: '10px 20px', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-      >
-        Sair / Logout
-      </button>
+      {/* Área dos botões de rodapé */}
+      <div style={{ marginTop: '20px' }}>
+        {/* O BOTÃO DE ADMIN - Só aparece se a role for 'admin' */}
+        {roleGuardado === 'admin' && (
+          <button 
+            onClick={() => navigate('/admin')}
+            style={{ padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
+          >
+            👑 Painel de Admin
+          </button>
+        )}
+
+        {/* Botão de Sair */}
+        <button 
+          onClick={terminarSessao}
+          style={{ padding: '10px 20px', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+        >
+          Sair / Logout
+        </button>
+      </div>
     </div>
   );
 }
