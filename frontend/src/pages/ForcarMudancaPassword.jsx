@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { apiFetch } from '../services/api';
 
 export default function ForcarMudancaPassword() {
   const [novaPassword, setNovaPassword] = useState('');
   const [erro, setErro] = useState('');
-  
   const navigate = useNavigate();
   const location = useLocation();
   const userId = location.state?.userId; // Recebe o ID do utilizador vindo do Login
 
   if (!userId) {
-    navigate('/'); // Se não houver ID, expulsa para o login
+    navigate('/'); 
     return null;
   }
 
@@ -19,49 +19,55 @@ export default function ForcarMudancaPassword() {
     setErro('');
 
     try {
-      const resposta = await fetch('http://localhost:5000/api/auth/forcar-mudanca-password', {
+      const dados = await apiFetch('/api/auth/forcar-mudanca-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, novaPassword })
+        body: { userId, novaPassword }
       });
 
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        // Faz o login automático e guarda os dados
-        localStorage.setItem('token', dados.token);
-        localStorage.setItem('nome', dados.username);
-        localStorage.setItem('role', dados.role);
-        alert('A tua password foi atualizada! Bem-vindo(a).');
-        navigate('/dashboard');
-      } else {
-        setErro(dados.error);
-      }
+      // Faz o login automático e guarda os dados
+      localStorage.setItem('token', dados.token);
+      localStorage.setItem('nome', dados.username);
+      localStorage.setItem('role', dados.role);
+      alert('A tua password foi atualizada! Bem-vindo(a).');
+      navigate('/dashboard');
     } catch (error) {
-      setErro('Erro ao ligar ao servidor.');
+      setErro(error.message || 'Erro ao tentar definir nova password.');
     }
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Aviso de Segurança ⚠️</h1>
-      <p>O administrador repôs a tua password. Por favor, define uma nova e segura.</p>
-      
-      <form onSubmit={guardarNovaPassword} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
-        <input 
-          type="password" 
-          placeholder="A tua Nova Password" 
-          value={novaPassword}
-          onChange={(e) => setNovaPassword(e.target.value)}
-          required
-          style={{ padding: '10px', width: '250px', borderRadius: '5px', border: '1px solid #ccc' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-          Gravar e Entrar
-        </button>
-      </form>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '85vh' }}>
+      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+        <h1 style={{ color: 'var(--danger-color)', fontSize: '28px', marginBottom: '10px' }}>Aviso de Segurança ⚠️</h1>
+        <p style={{ color: 'var(--text-main)', marginBottom: '20px', fontSize: '14px' }}>
+          O administrador repôs a tua password. Por favor, define uma nova credencial segura para aceder.
+        </p>
+        
+        <form onSubmit={guardarNovaPassword} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="form-group">
+            <label className="input-label" htmlFor="novaPassword">A tua Nova Password</label>
+            <input 
+              id="novaPassword"
+              type="password" 
+              placeholder="Escreve a tua nova password" 
+              value={novaPassword}
+              onChange={(e) => setNovaPassword(e.target.value)}
+              required
+              className="input-control"
+            />
+          </div>
+          
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '5px' }}>
+            Gravar e Entrar no Site 🚀
+          </button>
+        </form>
 
-      {erro && <p style={{ color: 'red', marginTop: '15px', fontWeight: 'bold' }}>{erro}</p>}
+        {erro && (
+          <div style={{ marginTop: '20px', padding: '10px', borderRadius: '8px', backgroundColor: '#ffe3e3', border: '1px solid #ffb3b3' }}>
+            <p style={{ color: 'var(--danger-color)', fontSize: '14px', fontWeight: '600', margin: 0 }}>{erro}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

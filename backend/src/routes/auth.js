@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
     }
     // Cria o "bilhete" de acesso (Token) válido por 7 dias, incluindo também o cargo (role) no bilhete!
     const token = jwt.sign(
-      { id: user._id, role: user.role }, 
+      { id: user._id, username: user.username, role: user.role }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -153,7 +153,7 @@ router.post('/forcar-mudanca-password', async (req, res) => {
 
     // Faz logo o login automático e devolve o token
     const token = jwt.sign(
-      { id: user._id, role: user.role }, 
+      { id: user._id, username: user.username, role: user.role }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );

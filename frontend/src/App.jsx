@@ -2,9 +2,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RecuperarPassword from './pages/RecuperarPassword';
-import Registar from './pages/Registar'; // <-- Importamos a página nova
+import Registar from './pages/Registar';
 import AdminDashboard from './pages/AdminDashboard';
 import ForcarMudancaPassword from './pages/ForcarMudancaPassword';
+import Mensagens from './pages/Mensagens';
+import Fotos from './pages/Fotos';
+import Memorias from './pages/Memorias';
 
 function App() {
   return (
@@ -13,9 +16,12 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
-        <Route path="/registar" element={<Registar />} /> {/* <-- Adicionamos a rota nova */}
+        <Route path="/registar" element={<Registar />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
+        <Route path="/mensagens" element={<Mensagens />} />
+        <Route path="/fotos" element={<Fotos />} />
+        <Route path="/memorias" element={<Memorias />} />
       </Routes>
     </BrowserRouter>
   );

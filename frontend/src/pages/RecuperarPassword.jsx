@@ -1,18 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../services/api';
 
 export default function RecuperarPassword() {
-  // Estados para guardar o que escrevemos
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
   const [novaPassword, setNovaPassword] = useState('');
-  
-  // Etapa 1 = Pedir Email | Etapa 2 = Pedir Código e Nova Password
-  const [etapa, setEtapa] = useState(1);
-  
+  const [etapa, setEtapa] = useState(1); // 1 = Pedir Email | 2 = Pedir Código e Nova Password
   const [mensagem, setMensagem] = useState('');
   const [erro, setErro] = useState('');
-  
   const navigate = useNavigate();
 
   // Função para pedir o código (Etapa 1)
@@ -22,23 +18,15 @@ export default function RecuperarPassword() {
     setMensagem('A enviar email... ⏳');
 
     try {
-      const resposta = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const dados = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: { email }
       });
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        setMensagem(dados.message); // "Email enviado!"
-        setEtapa(2); // Avança para a fase do código
-      } else {
-        setMensagem('');
-        setErro(dados.error);
-      }
+      setMensagem(dados.message || 'Código enviado com sucesso!'); 
+      setEtapa(2); 
     } catch (error) {
       setMensagem('');
-      setErro('Erro de ligação ao servidor.');
+      setErro(error.message || 'Erro ao tentar enviar o email.');
     }
   };
 
@@ -49,82 +37,104 @@ export default function RecuperarPassword() {
     setMensagem('A verificar... ⏳');
 
     try {
-      const resposta = await fetch('http://localhost:5000/api/auth/reset-password', {
+      await apiFetch('/api/auth/reset-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, codigo, novaPassword })
+        body: { email, codigo, novaPassword }
       });
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        alert('Password alterada com sucesso! Podes fazer login.');
-        navigate('/'); // Volta para o login
-      } else {
-        setMensagem('');
-        setErro(dados.error);
-      }
+      alert('Password alterada com sucesso! Podes fazer login.');
+      navigate('/'); 
     } catch (error) {
       setMensagem('');
-      setErro('Erro de ligação ao servidor.');
+      setErro(error.message || 'Erro ao tentar redefinir a password.');
     }
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Recuperar Password 🔐</h1>
-      
-      {etapa === 1 && (
-        <form onSubmit={pedirCodigo} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
-          <p>Escreve o teu email para receberes o código de 6 números.</p>
-          <input 
-            type="email" 
-            placeholder="O teu Email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ padding: '10px', width: '250px', borderRadius: '5px', border: '1px solid #ccc' }}
-          />
-          <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-            Enviar Código
-          </button>
-        </form>
-      )}
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh' }}>
+      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+        <h1 style={{ color: 'var(--primary-color)', fontSize: '30px', marginBottom: '10px' }}>Recuperar Password 🔐</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Redefine o teu acesso de forma segura</p>
+        
+        {etapa === 1 && (
+          <form onSubmit={pedirCodigo} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-main)', marginBottom: '10px' }}>
+              Escreve o teu email associado para receberes o código numérico de 6 dígitos.
+            </p>
+            <div className="form-group">
+              <label className="input-label" htmlFor="email">O teu Email</label>
+              <input 
+                id="email"
+                type="email" 
+                placeholder="Ex: joao@email.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="input-control"
+              />
+            </div>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              Enviar Código por Email ✉️
+            </button>
+          </form>
+        )}
 
-      {etapa === 2 && (
-        <form onSubmit={redefinirPassword} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
-          <p style={{ color: 'green', fontWeight: 'bold' }}>Código enviado para o teu email!</p>
-          
-          <input 
-            type="text" 
-            placeholder="Código de 6 números" 
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-            required
-            style={{ padding: '10px', width: '250px', borderRadius: '5px', border: '1px solid #ccc', textAlign: 'center', letterSpacing: '2px' }}
-          />
-          <input 
-            type="password" 
-            placeholder="A tua Nova Password" 
-            value={novaPassword}
-            onChange={(e) => setNovaPassword(e.target.value)}
-            required
-            style={{ padding: '10px', width: '250px', borderRadius: '5px', border: '1px solid #ccc' }}
-          />
-          <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-            Guardar Nova Password
-          </button>
-        </form>
-      )}
+        {etapa === 2 && (
+          <form onSubmit={redefinirPassword} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <p style={{ color: 'var(--success-color)', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
+              Código de verificação enviado! Verifica o teu email.
+            </p>
+            
+            <div className="form-group">
+              <label className="input-label" htmlFor="codigo">Código de 6 dígitos</label>
+              <input 
+                id="codigo"
+                type="text" 
+                placeholder="000000" 
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                required
+                className="input-control"
+                style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '18px', fontWeight: 'bold' }}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="input-label" htmlFor="novaPassword">A tua Nova Password</label>
+              <input 
+                id="novaPassword"
+                type="password" 
+                placeholder="Escreve a nova password" 
+                value={novaPassword}
+                onChange={(e) => setNovaPassword(e.target.value)}
+                required
+                className="input-control"
+              />
+            </div>
+            
+            <button type="submit" className="btn btn-secondary" style={{ width: '100%' }}>
+              Guardar Nova Password 💾
+            </button>
+          </form>
+        )}
 
-      {/* Mensagens de sucesso ou erro */}
-      {mensagem && etapa === 1 && <p style={{ color: '#666', marginTop: '15px' }}>{mensagem}</p>}
-      {erro && <p style={{ color: 'red', marginTop: '15px', fontWeight: 'bold' }}>{erro}</p>}
-      
-      <p style={{ marginTop: '30px' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', textDecoration: 'underline' }}>
-          Voltar ao Login
-        </button>
-      </p>
+        {mensagem && etapa === 1 && (
+          <div style={{ marginTop: '20px', padding: '10px', borderRadius: '8px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}>
+            <p style={{ color: 'var(--secondary-color)', fontSize: '14px', margin: 0 }}>{mensagem}</p>
+          </div>
+        )}
+        
+        {erro && (
+          <div style={{ marginTop: '20px', padding: '10px', borderRadius: '8px', backgroundColor: '#ffe3e3', border: '1px solid #ffb3b3' }}>
+            <p style={{ color: 'var(--danger-color)', fontSize: '14px', fontWeight: '600', margin: 0 }}>{erro}</p>
+          </div>
+        )}
+        
+        <div style={{ marginTop: '25px', borderTop: '1px dashed rgba(0, 0, 0, 0.1)', paddingTop: '20px' }}>
+          <button onClick={() => navigate('/')} className="btn btn-dark" style={{ width: '100%' }}>
+            Voltar ao Login
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

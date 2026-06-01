@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../services/api';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [erro, setErro] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  // URL da API preparada para quando publicares o site na net, ou usa o localhost
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  
-  // Vamos buscar o nome do admin atual para impedir que ele se apague a si próprio
   const meuNome = localStorage.getItem('nome');
 
   useEffect(() => {
@@ -22,197 +19,183 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Função para ir buscar os utilizadores
-    const carregarUtilizadores = async () => {
-      try {
-        const resposta = await fetch(`${API_URL}/api/admin/users`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const dados = await resposta.json();
-        
-        if (resposta.ok) {
-          setUsers(dados);
-        } else {
-          setErro(dados.error);
-        }
-      } catch (error) {
-        setErro('Erro de ligação ao servidor.');
-      }
-    };
-
     carregarUtilizadores();
-  }, [navigate, API_URL]);
+  }, [navigate]);
+
+  const carregarUtilizadores = async () => {
+    try {
+      setLoading(true);
+      const dados = await apiFetch('/api/admin/users');
+      setUsers(dados);
+    } catch (err) {
+      setErro(err.message || 'Erro ao procurar utilizadores.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 1. MUDAR CARGO (Admin <-> User)
   const mudarPermissao = async (user) => {
-    // PROTEÇÃO: O admin não pode tirar os seus próprios poderes
     if (user.username === meuNome) {
       return alert('Não podes tirar as tuas próprias permissões de Admin!');
     }
 
     const novaRole = user.role === 'admin' ? 'user' : 'admin';
-    const token = localStorage.getItem('token');
 
     try {
-      const resposta = await fetch(`${API_URL}/api/admin/users/${user._id}/role`, {
+      await apiFetch(`/api/admin/users/${user._id}/role`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ role: novaRole })
+        body: { role: novaRole }
       });
       
-      if (resposta.ok) {
-        setUsers(users.map(u => u._id === user._id ? { ...u, role: novaRole } : u));
-        alert('Permissões alteradas com sucesso!');
-      } else {
-        alert('O servidor recusou a ação.');
-      }
+      setUsers(users.map(u => u._id === user._id ? { ...u, role: novaRole } : u));
+      alert('Permissões alteradas com sucesso!');
     } catch (error) {
-      alert('Erro ao alterar permissões.');
+      alert(error.message || 'Erro ao alterar permissões.');
     }
   };
 
   // 2. APAGAR UTILIZADOR
   const apagarUtilizador = async (user) => {
-    // PROTEÇÃO: O admin não pode apagar a sua própria conta
     if (user.username === meuNome) {
       return alert('Não podes apagar a tua própria conta!');
     }
 
     if (!window.confirm(`Tens a certeza que queres apagar o/a ${user.username} para sempre?`)) return;
-    
-    const token = localStorage.getItem('token');
 
     try {
-      const resposta = await fetch(`${API_URL}/api/admin/users/${user._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      await apiFetch(`/api/admin/users/${user._id}`, {
+        method: 'DELETE'
       });
       
-      if (resposta.ok) {
-        setUsers(users.filter(u => u._id !== user._id));
-        alert('Utilizador apagado!');
-      } else {
-        alert('Erro ao apagar no servidor.');
-      }
+      setUsers(users.filter(u => u._id !== user._id));
+      alert('Utilizador apagado com sucesso!');
     } catch (error) {
-      alert('Erro ao apagar utilizador.');
+      alert(error.message || 'Erro ao apagar utilizador.');
     }
   };
 
-  // 3. EDITAR EMAIL E/OU PASSWORD (NOVO!)
+  // 3. EDITAR EMAIL E/OU PASSWORD
   const editarUtilizador = async (user) => {
-    // Pergunta qual é o novo email (já traz o email atual escrito na caixa)
     const novoEmail = window.prompt(`Editar o email de ${user.username}:`, user.email);
-    if (novoEmail === null) return; // Se clicou em "Cancelar", paramos aqui
+    if (novoEmail === null) return; 
 
-    // Pergunta se quer mudar a password (deixa em branco por defeito)
     const novaPassword = window.prompt(`Queres mudar a password do/a ${user.username}?\n\nEscreve a password temporária (Deixa em branco se NÃO quiseres alterar a password):`);
-    if (novaPassword === null) return; // Cancelou
+    if (novaPassword === null) return; 
 
-    // Prepara os dados a enviar para o Backend
     const corpo = {};
     if (novoEmail.trim() !== user.email) corpo.email = novoEmail.trim();
     if (novaPassword.trim() !== '') corpo.password = novaPassword.trim();
 
-    // Se não escreveu nada de novo nem no email nem na password, não vale a pena chatear o servidor
     if (Object.keys(corpo).length === 0) {
       return alert('Nenhuma alteração foi feita.');
     }
 
-    const token = localStorage.getItem('token');
-
     try {
-      const resposta = await fetch(`${API_URL}/api/admin/users/${user._id}/editar`, {
+      await apiFetch(`/api/admin/users/${user._id}/editar`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(corpo)
+        body: corpo
       });
       
-      if (resposta.ok) {
-        // Atualiza a tabela na hora para mostrar o novo email
-        setUsers(users.map(u => u._id === user._id ? { ...u, email: novoEmail || u.email } : u));
-        
-        if (corpo.password) {
-          alert('Utilizador atualizado! Na próxima vez que ele entrar, o site vai obrigá-lo a escolher uma password nova.');
-        } else {
-          alert('Email atualizado com sucesso!');
-        }
+      setUsers(users.map(u => u._id === user._id ? { ...u, email: novoEmail || u.email } : u));
+      
+      if (corpo.password) {
+        alert('Utilizador atualizado! Na próxima vez que ele entrar, o site vai obrigá-lo a escolher uma password nova.');
       } else {
-        const erroDados = await resposta.json();
-        alert(`Erro: ${erroDados.error}`);
+        alert('Email atualizado com sucesso!');
       }
     } catch (error) {
-      alert('Erro ao ligar ao servidor para editar utilizador.');
+      alert(error.message || 'Erro ao editar utilizador.');
     }
   };
 
   return (
-    <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ color: '#ff4d4d', textAlign: 'center' }}>Painel do Chefe (Admin) 👑</h1>
-      <button onClick={() => navigate('/dashboard')} style={{ marginBottom: '20px', cursor: 'pointer', padding: '10px', borderRadius: '5px' }}>
-        ⬅ Voltar ao Dashboard
-      </button>
+    <div className="app-container fade-in">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
+          ⬅ Voltar ao Dashboard
+        </button>
+        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>Painel do Chefe 👑</h1>
+        <div style={{ width: '150px' }}></div>
+      </div>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && (
+        <div style={{ marginBottom: '20px', padding: '10px', borderRadius: '8px', backgroundColor: '#ffe3e3', border: '1px solid #ffb3b3' }}>
+          <p style={{ color: 'var(--danger-color)', fontSize: '14px', fontWeight: '600', margin: 0 }}>{erro}</p>
+        </div>
+      )}
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-        <thead>
-          <tr style={{ backgroundColor: '#f2f2f2', borderBottom: '2px solid #ddd' }}>
-            <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Nome</th>
-            <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Email</th>
-            <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>Cargo</th>
-            <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id} style={{ borderBottom: '1px solid #ddd' }}>
-              <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                {user.username} {user.username === meuNome && '(Tu)'}
-              </td>
-              <td style={{ padding: '12px', border: '1px solid #ddd' }}>{user.email}</td>
-              <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center', fontWeight: 'bold', color: user.role === 'admin' ? 'red' : '#333' }}>
-                {user.role}
-              </td>
-              <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
-                {/* BOTÃO EDITAR EMAIL/PASSWORD */}
-                <button 
-                  onClick={() => editarUtilizador(user)}
-                  style={{ marginRight: '8px', padding: '6px 12px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  ✏️ Editar
-                </button>
+      <div className="glass-panel" style={{ padding: '30px' }}>
+        <h2 style={{ marginBottom: '20px', fontSize: '20px' }}>Gestão de Contas do Cantinho</h2>
 
-                {/* BOTÃO MUDAR CARGO */}
-                <button 
-                  onClick={() => mudarPermissao(user)}
-                  style={{ marginRight: '8px', padding: '6px 12px', backgroundColor: '#fffbe6', border: '1px solid #ffe58f', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Tornar {user.role === 'admin' ? 'User' : 'Admin'}
-                </button>
-
-                {/* BOTÃO APAGAR */}
-                <button 
-                  onClick={() => apagarUtilizador(user)}
-                  style={{ padding: '6px 12px', backgroundColor: '#fff1f0', border: '1px solid #ffa39e', color: 'red', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Apagar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {loading ? (
+          <p style={{ color: 'var(--text-muted)' }}>A carregar utilizadores... ⏳</p>
+        ) : (
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th style={{ textAlign: 'center' }}>Cargo</th>
+                  <th style={{ textAlign: 'center' }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id}>
+                    <td style={{ fontWeight: '600' }}>
+                      {user.username} {user.username === meuNome && <span style={{ color: 'var(--primary-color)' }}>(Tu)</span>}
+                    </td>
+                    <td>{user.email}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <span 
+                        style={{ 
+                          padding: '4px 10px', 
+                          borderRadius: '12px', 
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          backgroundColor: user.role === 'admin' ? '#ffe3e3' : '#e6fffa',
+                          color: user.role === 'admin' ? 'var(--danger-color)' : 'var(--success-color)'
+                        }}
+                      >
+                        {user.role}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => editarUtilizador(user)}
+                          className="btn"
+                          style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: '#e2e8f0', color: '#4a5568' }}
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button 
+                          onClick={() => mudarPermissao(user)}
+                          className="btn btn-secondary"
+                          style={{ padding: '6px 12px', fontSize: '13px' }}
+                        >
+                          Tornar {user.role === 'admin' ? 'User' : 'Admin'}
+                        </button>
+                        {user.username !== meuNome && (
+                          <button 
+                            onClick={() => apagarUtilizador(user)}
+                            className="btn btn-danger"
+                            style={{ padding: '6px 12px', fontSize: '13px' }}
+                          >
+                            Apagar
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

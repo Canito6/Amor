@@ -23,4 +23,20 @@ const verificarAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { verificarAdmin };
+const verificarToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Acesso negado. Não tens o bilhete de entrada.' });
+  }
+
+  try {
+    const decodificado = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decodificado;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Token inválido ou expirado.' });
+  }
+};
+
+module.exports = { verificarAdmin, verificarToken };
