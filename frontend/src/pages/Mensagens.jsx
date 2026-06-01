@@ -1,16 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import './Mensagens.css';
 
+const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
+
 export default function Mensagens() {
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState('');
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(true);
-  
+
+  // Estado para edição inline de mensagens
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+
+  // Estado para o painel de emoji aberto
+  const [emojiPanelId, setEmojiPanelId] = useState(null);
+
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
   const minhaRole = localStorage.getItem('role');
@@ -36,6 +45,15 @@ export default function Mensagens() {
 
     carregarMensagens();
   }, [navigate]);
+
+  // Fechar painel de emojis ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = () => setEmojiPanelId(null);
+    if (emojiPanelId) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [emojiPanelId]);
 
   const carregarMensagens = async () => {
     try {
@@ -66,6 +84,48 @@ export default function Mensagens() {
     }
   };
 
+  const iniciarEdicao = (msg) => {
+    setEditingId(msg._id);
+    setEditContent(msg.content);
+    setEmojiPanelId(null);
+  };
+
+  const cancelarEdicao = () => {
+    setEditingId(null);
+    setEditContent('');
+  };
+
+  const guardarEdicao = async (id) => {
+    if (!editContent.trim()) return;
+    try {
+      setErro('');
+      const atualizada = await apiFetch(`/api/messages/${id}`, {
+        method: 'PUT',
+        body: { content: editContent }
+      });
+      setMessages(messages.map(m => m._id === id ? atualizada : m));
+      setEditingId(null);
+      setEditContent('');
+    } catch (err) {
+      setErro(err.message || 'Erro ao editar mensagem.');
+    }
+  };
+
+  const reagirMensagem = async (e, msgId, emoji) => {
+    e.stopPropagation();
+    try {
+      const atualizada = await apiFetch(`/api/messages/${msgId}/react`, {
+        method: 'PUT',
+        body: { emoji }
+      });
+      setMessages(messages.map(m => m._id === msgId ? atualizada : m));
+    } catch (err) {
+      console.error('Erro ao reagir:', err);
+    } finally {
+      setEmojiPanelId(null);
+    }
+  };
+
   const apagarMensagem = async (id) => {
     if (!window.confirm(t.messages_delete_confirm)) return;
 
@@ -82,12 +142,12 @@ export default function Mensagens() {
 
   return (
     <div className="app-container fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="page-header">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{t.messages_title}</h1>
-        <div style={{ width: '150px' }}></div> {/* Spacer */}
+        <h1 className="page-title">{t.messages_title}</h1>
+        <div style={{ width: '150px' }}></div>
       </div>
 
       <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
@@ -123,7 +183,10 @@ export default function Mensagens() {
         <div className="notes-grid">
           {messages.map((msg, index) => {
             const cores = coresPostIt[index % coresPostIt.length];
+            const podeEditar = msg.sender === meuNome || minhaRole === 'admin';
             const podeApagar = msg.sender === meuNome || minhaRole === 'admin';
+            const isEditing = editingId === msg._id;
+            const minhaReacao = msg.reactions?.find(r => r.username === meuNome);
             
             return (
               <div 
@@ -134,9 +197,46 @@ export default function Mensagens() {
                   borderColor: cores.border 
                 }}
               >
-                <div className="post-it-content">
-                  {msg.content}
-                </div>
+                {/* Conteúdo ou Campo de Edição */}
+                {isEditing ? (
+                  <div className="post-it-edit-area">
+                    <textarea
+                      className="post-it-edit-input"
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      rows={4}
+                      autoFocus
+                      style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderColor: cores.border }}
+                    />
+                    <div className="post-it-edit-actions">
+                      <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={() => guardarEdicao(msg._id)}>
+                        💾 {t.save}
+                      </button>
+                      <button className="btn btn-dark" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={cancelarEdicao}>
+                        ✕ {t.cancel}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="post-it-content">
+                    {msg.content}
+                    {msg.isEdited && (
+                      <span className="post-it-edited">(editado)</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Reações existentes */}
+                {!isEditing && msg.reactions && msg.reactions.length > 0 && (
+                  <div className="post-it-reactions">
+                    {msg.reactions.map((r, i) => (
+                      <span key={i} className="reaction-badge" title={r.username}>
+                        {r.emoji}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="post-it-footer">
                   <div>
                     {t.messages_by} <span className="post-it-author">{msg.sender}</span>
@@ -151,21 +251,58 @@ export default function Mensagens() {
                       })}
                     </span>
                   </div>
-                  {podeApagar && (
-                    <button 
-                      onClick={() => apagarMensagem(msg._id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--danger-color)',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        padding: '4px'
-                      }}
-                      title={t.delete}
-                    >
-                      🗑️
-                    </button>
+
+                  {!isEditing && (
+                    <div className="post-it-actions">
+                      {/* Botão de reação */}
+                      <div style={{ position: 'relative' }}>
+                        <button
+                          className={`reaction-btn ${minhaReacao ? 'reacted' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEmojiPanelId(emojiPanelId === msg._id ? null : msg._id);
+                          }}
+                          title="Reagir"
+                        >
+                          {minhaReacao ? minhaReacao.emoji : '😊'}
+                        </button>
+                        {emojiPanelId === msg._id && (
+                          <div className="emoji-picker-panel" onClick={(e) => e.stopPropagation()}>
+                            {QUICK_EMOJIS.map(emoji => (
+                              <button
+                                key={emoji}
+                                className="emoji-option"
+                                onClick={(e) => reagirMensagem(e, msg._id, emoji)}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Botão de editar */}
+                      {podeEditar && (
+                        <button 
+                          onClick={() => iniciarEdicao(msg)}
+                          className="post-it-action-btn"
+                          title={t.edit}
+                        >
+                          ✏️
+                        </button>
+                      )}
+
+                      {/* Botão de apagar */}
+                      {podeApagar && (
+                        <button 
+                          onClick={() => apagarMensagem(msg._id)}
+                          className="post-it-action-btn danger"
+                          title={t.delete}
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

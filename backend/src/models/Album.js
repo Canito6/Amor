@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const albumSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 100
   },
   description: {
-    type: String
+    type: String,
+    maxlength: 1000
   },
   coupleId: {
     type: String,

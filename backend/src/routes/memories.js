@@ -46,6 +46,12 @@ router.post('/', verificarToken, async (req, res) => {
     if (!title || title.trim() === '') {
       return res.status(400).json({ error: 'O título do momento especial é obrigatório.' });
     }
+    if (title.trim().length > 100) {
+      return res.status(400).json({ error: 'O título não pode ter mais de 100 caracteres.' });
+    }
+    if (description && description.trim().length > 1000) {
+      return res.status(400).json({ error: 'A descrição não pode ter mais de 1000 caracteres.' });
+    }
     if (!date) {
       return res.status(400).json({ error: 'A data do momento é obrigatória.' });
     }
@@ -77,6 +83,69 @@ router.post('/', verificarToken, async (req, res) => {
     res.status(201).json(memObj);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao criar memória.' });
+  }
+});
+
+// 3. Editar uma memória (Apenas quem criou ou admin)
+router.put('/:id', verificarToken, async (req, res) => {
+  try {
+    const { title, description, date, isTimeCapsule, unlockDate } = req.body;
+
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ error: 'O título do momento especial é obrigatório.' });
+    }
+    if (title.trim().length > 100) {
+      return res.status(400).json({ error: 'O título não pode ter mais de 100 caracteres.' });
+    }
+    if (description && description.trim().length > 1000) {
+      return res.status(400).json({ error: 'A descrição não pode ter mais de 1000 caracteres.' });
+    }
+    if (!date) {
+      return res.status(400).json({ error: 'A data do momento é obrigatória.' });
+    }
+    if (isTimeCapsule && !unlockDate) {
+      return res.status(400).json({ error: 'A data de abertura da Cápsula do Tempo é obrigatória.' });
+    }
+
+    const memory = await Memory.findById(req.params.id);
+    if (!memory) {
+      return res.status(404).json({ error: 'Memória não encontrada.' });
+    }
+
+    // Garante que o utilizador pertence ao mesmo casal (ou é admin)
+    if (memory.coupleId !== req.coupleId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Não tens permissão para aceder a esta memória.' });
+    }
+
+    // Apenas o criador ou admin pode editar
+    if (memory.createdBy !== req.user.username && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Não tens permissão para editar este momento.' });
+    }
+
+    memory.title = title.trim();
+    memory.description = description ? description.trim() : '';
+    memory.date = new Date(date);
+    memory.isTimeCapsule = !!isTimeCapsule;
+    memory.unlockDate = isTimeCapsule ? new Date(unlockDate) : null;
+    
+    // Se a data de desbloqueio foi alterada para o futuro, reset notified para podermos notificar de novo!
+    if (isTimeCapsule && memory.unlockDate > new Date()) {
+      memory.notified = false;
+    }
+
+    await memory.save();
+
+    const memObj = memory.toObject();
+    const isLocked = memObj.isTimeCapsule && memObj.unlockDate && new Date(memObj.unlockDate) > new Date();
+    memObj.locked = isLocked;
+    if (isLocked) {
+      memObj.title = 'Cápsula do Tempo Trancada 🔒';
+      memObj.description = '';
+    }
+
+    res.json(memObj);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao editar memória.' });
   }
 });
 

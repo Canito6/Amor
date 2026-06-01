@@ -34,10 +34,12 @@ const uploadParaCloudinary = (buffer) => {
   });
 };
 
-// 1. Rota para obter todas as fotos (Mais recentes primeiro)
+// 1. Rota para obter todas as fotos (Mais recentes primeiro, suporta paginação opcional)
 router.get('/', verificarToken, async (req, res) => {
   try {
     const { albumId } = req.query;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
     const filtro = { coupleId: req.coupleId };
     
     if (albumId) {
@@ -48,8 +50,20 @@ router.get('/', verificarToken, async (req, res) => {
       }
     }
 
-    const photos = await Photo.find(filtro).sort({ createdAt: -1 });
-    res.json(photos);
+    if (page && limit) {
+      const skip = (page - 1) * limit;
+      const photos = await Photo.find(filtro).sort({ createdAt: -1 }).skip(skip).limit(limit);
+      const totalPhotos = await Photo.countDocuments(filtro);
+      res.json({
+        photos,
+        totalPhotos,
+        totalPages: Math.ceil(totalPhotos / limit),
+        currentPage: page
+      });
+    } else {
+      const photos = await Photo.find(filtro).sort({ createdAt: -1 });
+      res.json(photos);
+    }
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar fotos.' });
   }

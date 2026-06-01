@@ -4,11 +4,29 @@ const Photo = require('../models/Photo');
 const { verificarToken } = require('../middlewares/authMiddleware');
 const router = express.Router();
 
-// 1. Obter todos os álbuns do casal (Mais recentes primeiro)
+// 1. Obter todos os álbuns do casal com contagem de fotos (Mais recentes primeiro)
 router.get('/', verificarToken, async (req, res) => {
   try {
     const albums = await Album.find({ coupleId: req.coupleId }).sort({ createdAt: -1 });
-    res.json(albums);
+    
+    // Contar fotos para cada álbum
+    const albumsComContagem = await Promise.all(albums.map(async (alb) => {
+      const count = await Photo.countDocuments({ albumId: alb._id });
+      const albObj = alb.toObject();
+      albObj.photoCount = count;
+      return albObj;
+    }));
+
+    // Contar fotos que não pertencem a nenhum álbum (Geral)
+    const generalPhotoCount = await Photo.countDocuments({ 
+      coupleId: req.coupleId, 
+      albumId: { $in: [null, undefined] } 
+    });
+
+    res.json({
+      albums: albumsComContagem,
+      generalPhotoCount
+    });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar álbuns.' });
   }

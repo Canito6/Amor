@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const memorySchema = new mongoose.Schema({
   title: { 
     type: String, 
-    required: true 
+    required: true,
+    maxlength: 100
   },
   description: { 
-    type: String 
+    type: String,
+    maxlength: 1000
   },
   date: { 
     type: Date, 
@@ -30,6 +32,10 @@ const memorySchema = new mongoose.Schema({
   },
   unlockDate: {
     type: Date
+  },
+  notified: {
+    type: Boolean,
+    default: false
   }
 });
 

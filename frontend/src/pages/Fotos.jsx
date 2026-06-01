@@ -8,6 +8,7 @@ import './Fotos.css';
 export default function Fotos() {
   const [photos, setPhotos] = useState([]);
   const [albums, setAlbums] = useState([]);
+  const [generalPhotoCount, setGeneralPhotoCount] = useState(0);
   const [activeTab, setActiveTab] = useState('albums'); // 'albums' | 'todas'
   const [currentAlbum, setCurrentAlbum] = useState(null); // null ou objeto Álbum
 
@@ -25,6 +26,12 @@ export default function Fotos() {
   const [uploading, setUploading] = useState(false);
   const [creatingAlbum, setCreatingAlbum] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null); // Lightbox
+
+  // Estados de paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -44,19 +51,58 @@ export default function Fotos() {
     carregarGaleria();
   }, [navigate]);
 
+  // Carregar fotos sempre que muda a aba ativa ou o álbum selecionado
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && (activeTab === 'todas' || currentAlbum)) {
+      carregarFotos(1, false);
+    }
+  }, [activeTab, currentAlbum]);
+
   const carregarGaleria = async () => {
     try {
       setLoading(true);
-      const [dadosFotos, dadosAlbums] = await Promise.all([
-        apiFetch('/api/photos'),
-        apiFetch('/api/albums')
-      ]);
-      setPhotos(dadosFotos);
-      setAlbums(dadosAlbums);
+      const dadosAlbums = await apiFetch('/api/albums');
+      setAlbums(dadosAlbums.albums || []);
+      setGeneralPhotoCount(dadosAlbums.generalPhotoCount || 0);
     } catch (err) {
       setErro(err.message || 'Erro ao carregar a galeria.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const carregarFotos = async (page = 1, append = false) => {
+    try {
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoadingPhotos(true);
+      }
+      setErro('');
+
+      let url = `/api/photos?page=${page}&limit=12`;
+      if (currentAlbum) {
+        const albumParam = currentAlbum === 'sem-album' ? 'sem-album' : currentAlbum._id;
+        url += `&albumId=${albumParam}`;
+      }
+
+      const dados = await apiFetch(url);
+      const novasFotos = dados.photos || [];
+
+      if (append) {
+        setPhotos(prev => [...prev, ...novasFotos]);
+      } else {
+        setPhotos(novasFotos);
+      }
+
+      setCurrentPage(dados.currentPage || 1);
+      setTotalPages(dados.totalPages || 1);
+    } catch (err) {
+      setErro(err.message || 'Erro ao carregar fotos.');
+    } finally {
+      setLoadingPhotos(false);
+      setLoadingMore(false);
     }
   };
 
@@ -95,7 +141,22 @@ export default function Fotos() {
         body: formData
       });
 
-      setPhotos([novaFoto, ...photos]);
+      // Adicionar à lista atual de fotos exibidas se pertencer ao contexto
+      const pertenceAoContexto = !currentAlbum 
+        || (currentAlbum === 'sem-album' && !novaFoto.albumId)
+        || (currentAlbum && currentAlbum._id === novaFoto.albumId);
+
+      if (pertenceAoContexto) {
+        setPhotos([novaFoto, ...photos]);
+      }
+
+      // Atualizar contadores de fotos reativamente
+      if (novaFoto.albumId) {
+        setAlbums(albums.map(a => a._id === novaFoto.albumId ? { ...a, photoCount: (a.photoCount || 0) + 1 } : a));
+      } else {
+        setGeneralPhotoCount(prev => prev + 1);
+      }
+
       setCaption('');
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
@@ -118,7 +179,9 @@ export default function Fotos() {
         method: 'POST',
         body: { name: newAlbumName.trim(), description: newAlbumDesc.trim() }
       });
-      setAlbums([novo, ...albums]);
+      // Inicializar com contagem zero de fotos
+      const novoComContagem = { ...novo, photoCount: 0 };
+      setAlbums([novoComContagem, ...albums]);
       setNewAlbumName('');
       setNewAlbumDesc('');
       alert(t.photos_create_album_success);
@@ -138,8 +201,13 @@ export default function Fotos() {
       await apiFetch(`/api/albums/${id}`, {
         method: 'DELETE'
       });
+      
+      const albumApagado = albums.find(a => a._id === id);
+      const contagemFotos = albumApagado ? (albumApagado.photoCount || 0) : 0;
+
       setAlbums(albums.filter((a) => a._id !== id));
-      setPhotos(photos.map(p => p.albumId === id ? { ...p, albumId: undefined } : p));
+      // As fotos do álbum apagado voltam para o feed geral, então incrementamos o contador Geral
+      setGeneralPhotoCount(prev => prev + contagemFotos);
       
       if (currentAlbum && currentAlbum._id === id) {
         setCurrentAlbum(null);
@@ -158,7 +226,18 @@ export default function Fotos() {
       await apiFetch(`/api/photos/${id}`, {
         method: 'DELETE'
       });
+
+      const fotoApagada = photos.find(p => p._id === id);
       setPhotos(photos.filter((p) => p._id !== id));
+
+      if (fotoApagada) {
+        if (fotoApagada.albumId) {
+          setAlbums(albums.map(a => a._id === fotoApagada.albumId ? { ...a, photoCount: Math.max(0, (a.photoCount || 1) - 1) } : a));
+        } else {
+          setGeneralPhotoCount(prev => Math.max(0, prev - 1));
+        }
+      }
+
       if (selectedPhoto && selectedPhoto._id === id) {
         setSelectedPhoto(null);
       }
@@ -166,12 +245,6 @@ export default function Fotos() {
       setErro(err.message || 'Erro ao apagar foto.');
     }
   };
-
-  const photosExibidas = currentAlbum 
-    ? (currentAlbum === 'sem-album' 
-        ? photos.filter(p => !p.albumId) 
-        : photos.filter(p => p.albumId === currentAlbum._id))
-    : photos;
 
   return (
     <div className="app-container fade-in">
@@ -315,7 +388,7 @@ export default function Fotos() {
               {/* Cartão Fixo para Fotos Sem Álbum */}
               <div className="glass-panel album-card" onClick={() => setCurrentAlbum('sem-album')}>
                 <span className="album-badge">
-                  {photos.filter(p => !p.albumId).length}
+                  {generalPhotoCount}
                 </span>
                 <span className="album-icon">📂</span>
                 <h3 className="album-name">{t.photos_album_general_title}</h3>
@@ -324,7 +397,7 @@ export default function Fotos() {
 
               {/* Álbuns Dinâmicos */}
               {albums.map((alb) => {
-                const count = photos.filter(p => p.albumId === alb._id).length;
+                const count = alb.photoCount || 0;
                 const podeApagar = alb.createdBy === meuNome || minhaRole === 'admin';
                 return (
                   <div 
@@ -380,47 +453,63 @@ export default function Fotos() {
             </div>
           )}
 
-          {loading ? (
+          {loadingPhotos ? (
             <div style={{ textAlign: 'center', margin: '40px 0' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.photos_loading_photos}</p>
             </div>
-          ) : photosExibidas.length === 0 ? (
+          ) : photos.length === 0 ? (
             <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
               <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>
                 {t.photos_empty_album}
               </p>
             </div>
           ) : (
-            <div className="photo-grid">
-              {photosExibidas.map((photo) => {
-                const podeApagar = photo.uploadedBy === meuNome || minhaRole === 'admin';
-                return (
-                  <div 
-                    key={photo._id} 
-                    className="photo-card"
-                    onClick={() => setSelectedPhoto(photo)}
-                  >
-                    <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
-                    <div className="photo-overlay">
-                      <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
-                        {podeApagar && (
-                          <button
-                            className="btn btn-danger"
-                            onClick={(e) => apagarFoto(e, photo._id)}
-                            style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                            title={t.delete}
-                          >
-                            🗑️
-                          </button>
-                        )}
+            <>
+              <div className="photo-grid">
+                {photos.map((photo) => {
+                  const podeApagar = photo.uploadedBy === meuNome || minhaRole === 'admin';
+                  return (
+                    <div 
+                      key={photo._id} 
+                      className="photo-card"
+                      onClick={() => setSelectedPhoto(photo)}
+                    >
+                      <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
+                      <div className="photo-overlay">
+                        <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
+                          {podeApagar && (
+                            <button
+                              className="btn btn-danger"
+                              onClick={(e) => apagarFoto(e, photo._id)}
+                              style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
+                              title={t.delete}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+
+              {/* Botão Carregar Mais */}
+              {currentPage < totalPages && (
+                <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                  <button
+                    className="btn btn-dark"
+                    onClick={() => carregarFotos(currentPage + 1, true)}
+                    disabled={loadingMore}
+                    style={{ padding: '12px 28px', fontSize: '15px', opacity: loadingMore ? 0.7 : 1 }}
+                  >
+                    {loadingMore ? '⏳ A carregar...' : t.photos_load_more}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

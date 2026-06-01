@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const quizSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 100
   },
   createdBy: {
     type: String,
@@ -17,20 +18,24 @@ const quizSchema = new mongoose.Schema({
     {
       questionText: {
         type: String,
-        required: true
+        required: true,
+        maxlength: 500
       },
       options: [
         {
           type: String,
-          required: true
+          required: true,
+          maxlength: 200
         }
       ],
       creatorAnswer: {
         type: String,
-        required: true
+        required: true,
+        maxlength: 200
       },
       partnerGuess: {
-        type: String
+        type: String,
+        maxlength: 200
       }
     }
   ],

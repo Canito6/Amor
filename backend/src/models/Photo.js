@@ -6,7 +6,8 @@ const photoSchema = new mongoose.Schema({
     required: true 
   }, // URL público vindo do Cloudinary
   caption: { 
-    type: String 
+    type: String,
+    maxlength: 1000
   },
   uploadedBy: { 
     type: String, 

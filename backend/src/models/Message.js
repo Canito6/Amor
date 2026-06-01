@@ -7,7 +7,8 @@ const messageSchema = new mongoose.Schema({
   },
   content: { 
     type: String, 
-    required: true 
+    required: true,
+    maxlength: 5000
   },
   createdAt: { 
     type: Date, 
@@ -16,7 +17,17 @@ const messageSchema = new mongoose.Schema({
   coupleId: {
     type: String,
     default: 'default_couple'
-  }
+  },
+  isEdited: {
+    type: Boolean,
+    default: false
+  },
+  reactions: [
+    {
+      emoji: { type: String, required: true },
+      username: { type: String, required: true }
+    }
+  ]
 });
 
 module.exports = mongoose.model('Message', messageSchema);

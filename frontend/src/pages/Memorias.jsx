@@ -17,6 +17,10 @@ export default function Memorias() {
   const [isTimeCapsule, setIsTimeCapsule] = useState(false);
   const [unlockDate, setUnlockDate] = useState('');
 
+  // Estados para edição inline de memórias
+  const [editingMemId, setEditingMemId] = useState(null);
+  const [editMem, setEditMem] = useState({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '' });
+
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
   const minhaRole = localStorage.getItem('role');
@@ -125,6 +129,44 @@ export default function Memorias() {
       }
     } catch (err) {
       setErro(t.memories_error_delete || err.message);
+    }
+  };
+
+  const iniciarEdicaoMemoria = (mem) => {
+    setEditingMemId(mem._id);
+    setEditMem({
+      title: mem.title === 'Cápsula do Tempo Trancada 🔒' ? '' : mem.title,
+      description: mem.description || '',
+      date: mem.date ? new Date(mem.date).toISOString().split('T')[0] : '',
+      isTimeCapsule: mem.isTimeCapsule || false,
+      unlockDate: mem.unlockDate ? new Date(mem.unlockDate).toISOString().split('T')[0] : ''
+    });
+  };
+
+  const cancelarEdicaoMemoria = () => {
+    setEditingMemId(null);
+    setEditMem({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '' });
+  };
+
+  const guardarEdicaoMemoria = async (id) => {
+    if (!editMem.title.trim() || !editMem.date) return;
+    if (editMem.isTimeCapsule && !editMem.unlockDate) {
+      setErro(t.memories_unlock_error);
+      return;
+    }
+    try {
+      setErro('');
+      const atualizada = await apiFetch(`/api/memories/${id}`, {
+        method: 'PUT',
+        body: editMem
+      });
+      const novasMems = memories.map(m => m._id === id ? atualizada : m).sort((a, b) => new Date(a.date) - new Date(b.date));
+      setMemories(novasMems);
+      const ordenadas = [...novasMems].sort((a, b) => new Date(a.date) - new Date(b.date));
+      setPrimeiraData(ordenadas[0].date);
+      cancelarEdicaoMemoria();
+    } catch (err) {
+      setErro(err.message || 'Erro ao editar memória.');
     }
   };
 
@@ -254,7 +296,9 @@ export default function Memorias() {
         <div className="timeline">
           {memories.map((mem, index) => {
             const isLeft = index % 2 === 0;
+            const podeEditar = (mem.createdBy === meuNome || minhaRole === 'admin') && !mem.locked;
             const podeApagar = mem.createdBy === meuNome || minhaRole === 'admin';
+            const isEditing = editingMemId === mem._id;
             
             return (
               <div 
@@ -262,33 +306,94 @@ export default function Memorias() {
                 className={`timeline-item ${isLeft ? 'timeline-left' : 'timeline-right'}`}
               >
                 <div className="timeline-card" style={mem.locked ? { border: '1px dashed var(--secondary-color)', background: 'rgba(114, 9, 183, 0.05)' } : {}}>
-                  <span className="timeline-date">
-                    {formatarDataExtenso(mem.date)}
-                    {mem.isTimeCapsule && (mem.locked ? t.memories_timeline_locked : t.memories_timeline_unlocked)}
-                  </span>
-                  <h3 className="timeline-title" style={mem.locked ? { color: 'var(--secondary-color)' } : {}}>{mem.title}</h3>
-                  {mem.locked ? (
-                    <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '12px', marginTop: '10px', fontSize: '13px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
-                      {t.memories_timeline_unlock_desc.split('{date}')[0]}
-                      <strong>{formatarDataExtenso(mem.unlockDate)}</strong>
-                      {t.memories_timeline_unlock_desc.split('{date}')[1]}
+                  
+                  {/* Modo de Edição Inline */}
+                  {isEditing ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_title}</label>
+                        <input
+                          type="text"
+                          value={editMem.title}
+                          onChange={(e) => setEditMem({...editMem, title: e.target.value})}
+                          className="input-control"
+                          style={{ fontSize: '14px', padding: '8px 12px' }}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_date}</label>
+                        <input
+                          type="date"
+                          value={editMem.date}
+                          onChange={(e) => setEditMem({...editMem, date: e.target.value})}
+                          className="input-control"
+                          style={{ fontSize: '14px', padding: '8px 12px' }}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_desc}</label>
+                        <textarea
+                          value={editMem.description}
+                          onChange={(e) => setEditMem({...editMem, description: e.target.value})}
+                          rows={3}
+                          className="input-control"
+                          style={{ fontSize: '14px', padding: '8px 12px', resize: 'vertical' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '13px' }} onClick={() => guardarEdicaoMemoria(mem._id)}>
+                          💾 {t.save}
+                        </button>
+                        <button className="btn btn-dark" style={{ padding: '6px 16px', fontSize: '13px' }} onClick={cancelarEdicaoMemoria}>
+                          ✕ {t.cancel}
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    mem.description && <p className="timeline-desc">{mem.description}</p>
+                    <>
+                      <span className="timeline-date">
+                        {formatarDataExtenso(mem.date)}
+                        {mem.isTimeCapsule && (mem.locked ? t.memories_timeline_locked : t.memories_timeline_unlocked)}
+                      </span>
+                      <h3 className="timeline-title" style={mem.locked ? { color: 'var(--secondary-color)' } : {}}>{mem.title}</h3>
+                      {mem.locked ? (
+                        <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '12px', marginTop: '10px', fontSize: '13px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
+                          {t.memories_timeline_unlock_desc.split('{date}')[0]}
+                          <strong>{formatarDataExtenso(mem.unlockDate)}</strong>
+                          {t.memories_timeline_unlock_desc.split('{date}')[1]}
+                        </div>
+                      ) : (
+                        mem.description && <p className="timeline-desc">{mem.description}</p>
+                      )}
+                    </>
                   )}
                   
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', borderTop: '1px dashed rgba(0,0,0,0.1)', paddingTop: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
-                    <span>{t.memories_created_by} <strong>{mem.createdBy}</strong></span>
-                    {podeApagar && (
-                      <button 
-                        onClick={() => apagarMemoria(mem._id)}
-                        style={{ background: 'none', border: 'none', color: 'var(--danger-color)', cursor: 'pointer', fontSize: '14px', padding: '2px' }}
-                        title={t.delete}
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </div>
+                  {!isEditing && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', borderTop: '1px dashed rgba(0,0,0,0.1)', paddingTop: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                      <span>{t.memories_created_by} <strong>{mem.createdBy}</strong></span>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {podeEditar && (
+                          <button 
+                            onClick={() => iniciarEdicaoMemoria(mem)}
+                            style={{ background: 'none', border: 'none', color: 'var(--secondary-color)', cursor: 'pointer', fontSize: '14px', padding: '2px 4px', borderRadius: '4px' }}
+                            title={t.edit}
+                          >
+                            ✏️
+                          </button>
+                        )}
+                        {podeApagar && (
+                          <button 
+                            onClick={() => apagarMemoria(mem._id)}
+                            style={{ background: 'none', border: 'none', color: 'var(--danger-color)', cursor: 'pointer', fontSize: '14px', padding: '2px 4px', borderRadius: '4px' }}
+                            title={t.delete}
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

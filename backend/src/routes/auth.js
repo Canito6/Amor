@@ -1,20 +1,21 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const rateLimit = require('express-rate-limit');
+const { transporter } = require('../utils/mailer');
 const User = require('../models/User'); // Importamos o molde de utilizador com o bcrypt e o role
 const router = express.Router();
 
-// Configurar o nosso carteiro virtual com os dados do .env
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+// Rate limiting para login/registo para evitar ataques de força bruta
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  limit: 20, // Limite de 20 tentativas por IP por janela
+  message: { error: 'Demasiadas tentativas. Por favor, tente novamente após 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // 1. ROTA DE REGISTO (Atualizada para aceitar Email e criar Admin com código secreto)
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { username, email, password, codigoAdmin } = req.body;
     
@@ -24,9 +25,9 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Este utilizador ou email já existe!' });
     }
 
-    // A MAGIA DO ADMIN: Se o código secreto inserido for 'ChefeCanito', o cargo passa a ser 'admin'
-    // Caso contrário, fica o 'user' normal por defeito
-    const role = codigoAdmin === 'ChefeCanito' ? 'admin' : 'user';
+    // A MAGIA DO ADMIN: Se o código secreto inserido for o do .env, o cargo passa a ser 'admin'
+    const adminSecret = process.env.ADMIN_SECRET_CODE || 'ChefeCanito';
+    const role = codigoAdmin === adminSecret ? 'admin' : 'user';
 
     const user = new User({ username, email, password, role });
     await user.save();
@@ -39,7 +40,7 @@ router.post('/register', async (req, res) => {
 });
 
 // 2. ROTA DE LOGIN (Para entrar no site)
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
