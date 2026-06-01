@@ -1,0 +1,30 @@
+/* --- MAIN LAYOUT STRUCTURE STYLES --- */
+
+.layout-root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Modo Sidebar Layout */
+.layout-sidebar {
+  display: flex;
+}
+
+.layout-sidebar .layout-content-wrapper {
+  flex: 1;
+  min-height: 100vh;
+  padding-left: 280px;
+  width: 100%;
+  transition: padding-left 0.3s ease;
+}
+
+/* Modo Stacked Layout */
+.layout-stacked .layout-content-wrapper {
+  padding-top: 80px;
+  width: 100%;
+}
+
+.content-outlet {
+  width: 100%;
+  min-height: 100vh;
+}

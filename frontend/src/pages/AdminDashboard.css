@@ -1,0 +1,36 @@
+/* --- ADMIN DASHBOARD PAGE STYLES --- */
+
+.admin-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 25px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--card-border);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 18px;
+  font-weight: 700;
+  font-family: var(--font-title);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+
+.admin-table td {
+  padding: 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}

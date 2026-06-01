@@ -1,0 +1,81 @@
+/* --- MURAL DE NOTAS (MESSAGES) PAGE STYLES --- */
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+  margin-top: 40px;
+}
+
+.post-it {
+  padding: 26px;
+  min-height: 230px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: var(--transition-smooth);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transform: rotate(calc(var(--rotation, 0) * 1deg));
+}
+
+/* Rotações ligeiras aleatórias a cada post-it para aspeto natural */
+.post-it:nth-child(2n) { --rotation: 1.5; }
+.post-it:nth-child(3n) { --rotation: -1.8; }
+.post-it:nth-child(4n) { --rotation: 1.2; }
+.post-it:nth-child(5n) { --rotation: -1.3; }
+
+.post-it:hover {
+  transform: rotate(0deg) scale(1.04);
+  box-shadow: var(--shadow-hover);
+  z-index: 5;
+}
+
+/* Decoração de Fita Adesiva Translúcida */
+.post-it::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 90px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  border-left: 1px dashed rgba(0,0,0,0.1);
+  border-right: 1px dashed rgba(0,0,0,0.1);
+}
+
+.post-it-content {
+  font-family: 'Inter', sans-serif;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: #2b2d42;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding-top: 10px;
+}
+
+.post-it-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  padding-top: 12px;
+  font-size: 11.5px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.post-it-author {
+  font-weight: 700;
+  color: #111;
+}
+
+/* Dark mode override for post-its contents to keep them readable */
+.theme-dark .post-it-content {
+  color: #1a1a24;
+}

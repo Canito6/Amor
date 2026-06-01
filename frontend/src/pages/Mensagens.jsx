@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import './Mensagens.css';
 
 export default function Mensagens() {
   const [messages, setMessages] = useState([]);

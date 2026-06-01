@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import './AdminDashboard.css';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);

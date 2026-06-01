@@ -4,6 +4,7 @@ import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import Sidebar from './Sidebar';
 import SettingsModal from './SettingsModal';
+import './MainLayout.css';
 import '../pages/Dashboard.css';
 
 export default function MainLayout() {
