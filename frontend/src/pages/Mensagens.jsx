@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { messageService } from '../services/messageService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import './Mensagens.css';
@@ -58,7 +58,7 @@ export default function Mensagens() {
   const carregarMensagens = async () => {
     try {
       setLoading(true);
-      const dados = await apiFetch('/api/messages');
+      const dados = await messageService.getMessages();
       setMessages(dados);
     } catch (err) {
       setErro(t.messages_error_load);
@@ -73,10 +73,7 @@ export default function Mensagens() {
 
     try {
       setErro('');
-      const novaMsg = await apiFetch('/api/messages', {
-        method: 'POST',
-        body: { content }
-      });
+      const novaMsg = await messageService.createMessage(content);
       setMessages([...messages, novaMsg]);
       setContent('');
     } catch (err) {
@@ -99,10 +96,7 @@ export default function Mensagens() {
     if (!editContent.trim()) return;
     try {
       setErro('');
-      const atualizada = await apiFetch(`/api/messages/${id}`, {
-        method: 'PUT',
-        body: { content: editContent }
-      });
+      const atualizada = await messageService.updateMessage(id, editContent);
       setMessages(messages.map(m => m._id === id ? atualizada : m));
       setEditingId(null);
       setEditContent('');
@@ -114,10 +108,7 @@ export default function Mensagens() {
   const reagirMensagem = async (e, msgId, emoji) => {
     e.stopPropagation();
     try {
-      const atualizada = await apiFetch(`/api/messages/${msgId}/react`, {
-        method: 'PUT',
-        body: { emoji }
-      });
+      const atualizada = await messageService.reactToMessage(msgId, emoji);
       setMessages(messages.map(m => m._id === msgId ? atualizada : m));
     } catch (err) {
       console.error('Erro ao reagir:', err);
@@ -131,9 +122,7 @@ export default function Mensagens() {
 
     try {
       setErro('');
-      await apiFetch(`/api/messages/${id}`, {
-        method: 'DELETE'
-      });
+      await messageService.deleteMessage(id);
       setMessages(messages.filter((msg) => msg._id !== id));
     } catch (err) {
       setErro(t.messages_error_delete);

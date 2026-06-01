@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-const verificarAdmin = (req, res, next) => {
+const verificarAdmin = async (req, res, next) => {
   // O token vem no cabeçalho da requisição no formato "Bearer <token>"
   const token = req.headers.authorization?.split(' ')[1];
   
@@ -16,15 +17,20 @@ const verificarAdmin = (req, res, next) => {
       return res.status(403).json({ error: 'Acesso negado. Esta área é apenas para Administradores.' });
     }
     
+    const user = await User.findById(decodificado.id);
+    if (!user) {
+      return res.status(401).json({ error: 'Utilizador não encontrado.' });
+    }
+
     req.user = decodificado;
-    req.coupleId = decodificado.coupleId || 'default_couple';
+    req.coupleId = user.coupleId || 'default_couple';
     next(); // Se estiver tudo bem, avança para a rota!
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });
   }
 };
 
-const verificarToken = (req, res, next) => {
+const verificarToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
@@ -33,8 +39,12 @@ const verificarToken = (req, res, next) => {
 
   try {
     const decodificado = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decodificado.id);
+    if (!user) {
+      return res.status(401).json({ error: 'Utilizador não encontrado.' });
+    }
     req.user = decodificado;
-    req.coupleId = decodificado.coupleId || 'default_couple';
+    req.coupleId = user.coupleId || 'default_couple';
     next();
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });

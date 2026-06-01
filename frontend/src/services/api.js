@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' && window.location.port === '5173' ? 'http://localhost:5000' : '');
 
 /**
  * Função utilitária para efetuar pedidos à API do backend
@@ -41,6 +41,12 @@ export async function apiFetch(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.clear();
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
     throw new Error(data.error || `Erro do servidor (${response.status})`);
   }
 

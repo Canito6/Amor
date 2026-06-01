@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { memoryService } from '../services/memoryService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import DaysCounter from '../components/memories/DaysCounter';
+import MemoryForm from '../components/memories/MemoryForm';
+import MemoryTimeline from '../components/memories/MemoryTimeline';
 import './Memorias.css';
 
 export default function Memorias() {
@@ -58,7 +61,7 @@ export default function Memorias() {
   const carregarMemoras = async () => {
     try {
       setLoading(true);
-      const dados = await apiFetch('/api/memories');
+      const dados = await memoryService.getMemories();
       setMemories(dados);
 
       // Encontrar a memória mais antiga para servir de data de aniversário/início
@@ -86,16 +89,13 @@ export default function Memorias() {
 
     try {
       setErro('');
-      const novaMem = await apiFetch('/api/memories', {
-        method: 'POST',
-        body: { title, description, date, isTimeCapsule, unlockDate }
-      });
+      const novaMem = await memoryService.createMemory({ title, description, date, isTimeCapsule, unlockDate });
 
       // Insere na lista ordenada por data
       const novasMems = [...memories, novaMem].sort((a, b) => new Date(a.date) - new Date(b.date));
       setMemories(novasMems);
       
-      // Atualiza primeira data se for a mais antiga
+      // Utiliza primeira data se for a mais antiga
       const ordenadas = [...novasMems].sort((a, b) => new Date(a.date) - new Date(b.date));
       setPrimeiraData(ordenadas[0].date);
 
@@ -115,9 +115,7 @@ export default function Memorias() {
 
     try {
       setErro('');
-      await apiFetch(`/api/memories/${id}`, {
-        method: 'DELETE'
-      });
+      await memoryService.deleteMemory(id);
       const filtradas = memories.filter((m) => m._id !== id);
       setMemories(filtradas);
 
@@ -156,10 +154,7 @@ export default function Memorias() {
     }
     try {
       setErro('');
-      const atualizada = await apiFetch(`/api/memories/${id}`, {
-        method: 'PUT',
-        body: editMem
-      });
+      const atualizada = await memoryService.updateMemory(id, editMem);
       const novasMems = memories.map(m => m._id === id ? atualizada : m).sort((a, b) => new Date(a.date) - new Date(b.date));
       setMemories(novasMems);
       const ordenadas = [...novasMems].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -191,215 +186,47 @@ export default function Memorias() {
       </div>
 
       {/* Caixa do Contador de Dias Juntos */}
-      {primeiraData && (
-        <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', marginBottom: '40px', border: '2px solid var(--primary-color)' }}>
-          <h2 style={{ fontSize: '24px', color: 'var(--primary-color)', marginBottom: '8px' }}>
-            {t.memories_counter_title}
-          </h2>
-          <p style={{ fontSize: '18px', margin: '10px 0' }}>
-            {t.memories_counter_body.split('{count}')[0]}
-            <strong style={{ fontSize: '32px', color: 'var(--secondary-color)' }}>{contadorDias}</strong>
-            {t.memories_counter_body.split('{count}')[1]}
-          </p>
-          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            {t.memories_counter_footer.replace('{date}', formatarDataExtenso(primeiraData))}
-          </span>
-        </div>
-      )}
+      <DaysCounter
+        t={t}
+        primeiraData={primeiraData}
+        contadorDias={contadorDias}
+        formatarDataExtenso={formatarDataExtenso}
+      />
 
       {/* Formulário para Adicionar Memória */}
-      <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-        <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>{t.memories_add_title}</h2>
-        <form onSubmit={enviarMemoria} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
-            <div className="form-group">
-              <label className="input-label">{t.memories_input_title}</label>
-              <input
-                type="text"
-                placeholder={language === 'pt' ? 'Ex: O nosso primeiro encontro...' : 'E.g., Our first date...'}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                className="input-control"
-              />
-            </div>
-            <div className="form-group">
-              <label className="input-label">{t.memories_input_date}</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                className="input-control"
-              />
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="input-label">{t.memories_input_desc}</label>
-            <textarea
-              placeholder={t.memories_desc_placeholder}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows="3"
-              className="input-control"
-              style={{ resize: 'vertical' }}
-              disabled={isTimeCapsule} // Cápsulas trancadas não devem revelar detalhes antes de tempo
-            />
-          </div>
-
-          {/* Opções de Cápsula do Tempo */}
-          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.4)', borderRadius: '16px', marginBottom: '15px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: '600' }}>
-              <input
-                type="checkbox"
-                checked={isTimeCapsule}
-                onChange={(e) => setIsTimeCapsule(e.target.checked)}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              {t.memories_time_capsule_check}
-            </label>
-            
-            {isTimeCapsule && (
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="input-label">{t.memories_input_unlock_date}</label>
-                <input
-                  type="date"
-                  value={unlockDate}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setUnlockDate(e.target.value)}
-                  required
-                  className="input-control"
-                />
-              </div>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
-            <button type="submit" className="btn btn-primary">
-              {isTimeCapsule ? t.memories_submit_lock : t.memories_submit_normal}
-            </button>
-          </div>
-        </form>
-        {erro && <p style={{ color: 'var(--danger-color)', marginTop: '15px', fontWeight: 'bold' }}>{erro}</p>}
-      </div>
+      <MemoryForm
+        t={t}
+        enviarMemoria={enviarMemoria}
+        title={title}
+        setTitle={setTitle}
+        language={language}
+        date={date}
+        setDate={setDate}
+        description={description}
+        setDescription={setDescription}
+        isTimeCapsule={isTimeCapsule}
+        setIsTimeCapsule={setIsTimeCapsule}
+        unlockDate={unlockDate}
+        setUnlockDate={setUnlockDate}
+        erro={erro}
+      />
 
       {/* Linha do Tempo */}
-      {loading ? (
-        <div style={{ textAlign: 'center', margin: '40px 0' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.memories_loading}</p>
-        </div>
-      ) : memories.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
-          <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>{t.memories_empty}</p>
-        </div>
-      ) : (
-        <div className="timeline">
-          {memories.map((mem, index) => {
-            const isLeft = index % 2 === 0;
-            const podeEditar = (mem.createdBy === meuNome || minhaRole === 'admin') && !mem.locked;
-            const podeApagar = mem.createdBy === meuNome || minhaRole === 'admin';
-            const isEditing = editingMemId === mem._id;
-            
-            return (
-              <div 
-                key={mem._id} 
-                className={`timeline-item ${isLeft ? 'timeline-left' : 'timeline-right'}`}
-              >
-                <div className="timeline-card" style={mem.locked ? { border: '1px dashed var(--secondary-color)', background: 'rgba(114, 9, 183, 0.05)' } : {}}>
-                  
-                  {/* Modo de Edição Inline */}
-                  {isEditing ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div className="form-group">
-                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_title}</label>
-                        <input
-                          type="text"
-                          value={editMem.title}
-                          onChange={(e) => setEditMem({...editMem, title: e.target.value})}
-                          className="input-control"
-                          style={{ fontSize: '14px', padding: '8px 12px' }}
-                          autoFocus
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_date}</label>
-                        <input
-                          type="date"
-                          value={editMem.date}
-                          onChange={(e) => setEditMem({...editMem, date: e.target.value})}
-                          className="input-control"
-                          style={{ fontSize: '14px', padding: '8px 12px' }}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="input-label" style={{ fontSize: '12px' }}>{t.memories_input_desc}</label>
-                        <textarea
-                          value={editMem.description}
-                          onChange={(e) => setEditMem({...editMem, description: e.target.value})}
-                          rows={3}
-                          className="input-control"
-                          style={{ fontSize: '14px', padding: '8px 12px', resize: 'vertical' }}
-                        />
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '13px' }} onClick={() => guardarEdicaoMemoria(mem._id)}>
-                          💾 {t.save}
-                        </button>
-                        <button className="btn btn-dark" style={{ padding: '6px 16px', fontSize: '13px' }} onClick={cancelarEdicaoMemoria}>
-                          ✕ {t.cancel}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="timeline-date">
-                        {formatarDataExtenso(mem.date)}
-                        {mem.isTimeCapsule && (mem.locked ? t.memories_timeline_locked : t.memories_timeline_unlocked)}
-                      </span>
-                      <h3 className="timeline-title" style={mem.locked ? { color: 'var(--secondary-color)' } : {}}>{mem.title}</h3>
-                      {mem.locked ? (
-                        <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '12px', marginTop: '10px', fontSize: '13px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
-                          {t.memories_timeline_unlock_desc.split('{date}')[0]}
-                          <strong>{formatarDataExtenso(mem.unlockDate)}</strong>
-                          {t.memories_timeline_unlock_desc.split('{date}')[1]}
-                        </div>
-                      ) : (
-                        mem.description && <p className="timeline-desc">{mem.description}</p>
-                      )}
-                    </>
-                  )}
-                  
-                  {!isEditing && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', borderTop: '1px dashed rgba(0,0,0,0.1)', paddingTop: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
-                      <span>{t.memories_created_by} <strong>{mem.createdBy}</strong></span>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        {podeEditar && (
-                          <button 
-                            onClick={() => iniciarEdicaoMemoria(mem)}
-                            style={{ background: 'none', border: 'none', color: 'var(--secondary-color)', cursor: 'pointer', fontSize: '14px', padding: '2px 4px', borderRadius: '4px' }}
-                            title={t.edit}
-                          >
-                            ✏️
-                          </button>
-                        )}
-                        {podeApagar && (
-                          <button 
-                            onClick={() => apagarMemoria(mem._id)}
-                            style={{ background: 'none', border: 'none', color: 'var(--danger-color)', cursor: 'pointer', fontSize: '14px', padding: '2px 4px', borderRadius: '4px' }}
-                            title={t.delete}
-                          >
-                            🗑️
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <MemoryTimeline
+        t={t}
+        loading={loading}
+        memories={memories}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        editingMemId={editingMemId}
+        editMem={editMem}
+        setEditMem={setEditMem}
+        guardarEdicaoMemoria={guardarEdicaoMemoria}
+        cancelarEdicaoMemoria={cancelarEdicaoMemoria}
+        formatarDataExtenso={formatarDataExtenso}
+        iniciarEdicaoMemoria={iniciarEdicaoMemoria}
+        apagarMemoria={apagarMemoria}
+      />
     </div>
   );
 }

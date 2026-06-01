@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { authService } from '../services/authService';
 
 export default function ForcarMudancaPassword() {
   const [novaPassword, setNovaPassword] = useState('');
@@ -19,10 +19,7 @@ export default function ForcarMudancaPassword() {
     setErro('');
 
     try {
-      const dados = await apiFetch('/api/auth/forcar-mudanca-password', {
-        method: 'POST',
-        body: { userId, novaPassword }
-      });
+      const dados = await authService.forcarMudancaPassword(userId, novaPassword);
 
       // Faz o login automático e guarda os dados
       localStorage.setItem('token', dados.token);

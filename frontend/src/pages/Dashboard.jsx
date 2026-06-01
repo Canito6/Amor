@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
-import { usePreferences, themePresets } from '../context/PreferencesContext';
+import { eventService } from '../services/eventService';
+import { authService } from '../services/authService';
+import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import WelcomeBanner from '../components/dashboard/WelcomeBanner';
+import EventCountdown from '../components/dashboard/EventCountdown';
+import NavigationCards from '../components/dashboard/NavigationCards';
+import SpotifyWidget from '../components/dashboard/SpotifyWidget';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -10,26 +15,65 @@ export default function Dashboard() {
   const [nextEvent, setNextEvent] = useState(null);
   const [daysRemaining, setDaysRemaining] = useState(null);
   const navigate = useNavigate();
-  const roleGuardado = localStorage.getItem('role');
 
   const { language, layoutStyle, customTabs } = usePreferences();
   const t = translations[language];
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const nomeGuardado = localStorage.getItem('nome');
+  // Couple States
+  const [coupleInfo, setCoupleInfo] = useState({
+    coupleId: '',
+    names: '',
+    partnerNames: [],
+    relationshipDate: null,
+    spotifyPlaylist: ''
+  });
 
-    if (!token) {
-      navigate('/');
-    } else {
-      setNome(nomeGuardado || 'Amor');
-      carregarProximoEvento();
+  // Time Together Counter State
+  const [timeTogether, setTimeTogether] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  // Edit Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editNames, setEditNames] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editSpotify, setEditSpotify] = useState('');
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState('');
+
+  const loadCoupleInfo = async () => {
+    try {
+      const info = await authService.getCoupleInfo();
+      setCoupleInfo(info);
+      if (info.names) {
+        setNome(info.names);
+      } else if (info.partnerNames && info.partnerNames.length > 0) {
+        setNome(info.partnerNames.join(' & '));
+      } else {
+        setNome(localStorage.getItem('nome') || 'Amor');
+      }
+
+      // Prepopulate edit fields
+      setEditNames(info.names || '');
+      setEditSpotify(info.spotifyPlaylist || '');
+      if (info.relationshipDate) {
+        const d = new Date(info.relationshipDate);
+        // Format as YYYY-MM-DD
+        const formattedDate = d.toISOString().split('T')[0];
+        setEditDate(formattedDate);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar informações de casal:', err);
+      setNome(localStorage.getItem('nome') || 'Amor');
     }
-  }, [navigate]);
+  };
 
   const carregarProximoEvento = async () => {
     try {
-      const events = await apiFetch('/api/events');
+      const events = await eventService.getEvents();
       if (events.length > 0) {
         const hoje = new Date();
         hoje.setHours(0,0,0,0);
@@ -52,139 +96,163 @@ export default function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    } else {
+      loadCoupleInfo();
+      carregarProximoEvento();
+    }
+
+    const handleRefresh = () => {
+      loadCoupleInfo();
+    };
+    window.addEventListener('refreshCoupleInfo', handleRefresh);
+    return () => {
+      window.removeEventListener('refreshCoupleInfo', handleRefresh);
+    };
+  }, [navigate]);
+
+  // Live Timer together counter
+  useEffect(() => {
+    if (!coupleInfo.relationshipDate) return;
+
+    const calculateTime = () => {
+      const start = new Date(coupleInfo.relationshipDate);
+      const now = new Date();
+      const diffMs = now.getTime() - start.getTime();
+
+      if (diffMs < 0) {
+        setTimeTogether({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      const seconds = Math.floor((diffMs / 1000) % 60);
+      const minutes = Math.floor((diffMs / 1000 / 60) % 60);
+      const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      setTimeTogether({ days, hours, minutes, seconds });
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [coupleInfo.relationshipDate]);
+
   const terminarSessao = () => {
     localStorage.clear();
     navigate('/');
   };
 
-  const formatarDataExtenso = (dataStr) => {
-    const dataObj = new Date(dataStr);
-    return dataObj.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  const handleUpdateCoupleInfo = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    setEditSuccess('');
+
+    try {
+      const data = {
+        names: editNames.trim(),
+        relationshipDate: editDate ? new Date(editDate) : null,
+        spotifyPlaylist: editSpotify.trim()
+      };
+
+      const updated = await authService.updateCoupleInfo(data);
+      setCoupleInfo(updated);
+      if (updated.names) {
+        setNome(updated.names);
+      } else if (updated.partnerNames && updated.partnerNames.length > 0) {
+        setNome(updated.partnerNames.join(' & '));
+      }
+
+      // Dispatch event to update topbar names
+      window.dispatchEvent(new Event('refreshCoupleInfo'));
+
+      setEditSuccess('Informações atualizadas com sucesso! ❤️');
+      setTimeout(() => {
+        setIsEditModalOpen(false);
+        setEditSuccess('');
+      }, 1500);
+    } catch (err) {
+      setEditError(err.message || 'Erro ao guardar definições.');
+    }
   };
 
-  const formatarDiasRestantes = (dias) => {
-    if (dias === 0) return t.days_remaining_today;
-    if (dias === 1) return t.days_remaining_one;
-    return t.days_remaining_many.replace('{count}', dias);
-  };
-
-  // Cartões de navegação padrão
-  const defaultCards = [
-    { path: '/mensagens', label: t.messages, icon: '💌', desc: language === 'pt' ? 'Deixa mensagens de carinho e cartas românticas' : 'Leave sweet messages and love letters', preset: 'romance' },
-    { path: '/fotos', label: t.photos, icon: '📸', desc: language === 'pt' ? 'Guarda e recorda os nossos momentos felizes' : 'Save and recall our happy moments', preset: 'sunset' },
-    { path: '/memorias', label: t.memories, icon: '⏳', desc: language === 'pt' ? 'A nossa linha do tempo e contadores especiais' : 'Our timeline and special counters', preset: 'lavender' },
-    { path: '/quizzes', label: t.quizzes, icon: '🎮', desc: language === 'pt' ? 'O quanto me conheces? Jogo de perguntas' : 'How well do you know me? Trivia game', preset: 'mint' },
-    { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
-  ];
+  const formattedRelationshipDate = coupleInfo.relationshipDate 
+    ? new Date(coupleInfo.relationshipDate).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-PT', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : '';
 
   return (
     <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '20px' }}>
-      {/* Mensagem de Boas-Vindas */}
-      <div className="glass-panel" style={{ padding: '30px 20px', marginBottom: '30px' }}>
-        <h1 style={{ color: 'var(--primary-color)', fontSize: '34px', marginBottom: '8px' }}>
-          {t.welcome}, {nome}! ❤️
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
-          {t.what_to_do}
-        </p>
+      
+      {/* Botão de Edição do Dashboard */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+        <button 
+          className="btn-edit-dashboard"
+          onClick={() => setIsEditModalOpen(true)}
+        >
+          ✏️ {t.edit_couple_info || 'Editar Casal'}
+        </button>
       </div>
+
+      {/* Mensagem de Boas-Vindas */}
+      <WelcomeBanner nome={nome} t={t} />
+
+      {/* Contador do Amor */}
+      {coupleInfo.relationshipDate && (
+        <div className="counter-widget fade-in">
+          <h2 className="counter-title">
+            <span>💖</span> {t.memories_counter_title || 'Contador do Amor'} <span>💖</span>
+          </h2>
+          <div className="counter-grid">
+            <div className="counter-item">
+              <span className="counter-value">{timeTogether.days}</span>
+              <span className="counter-label">{language === 'en' ? 'Days' : 'Dias'}</span>
+            </div>
+            <div className="counter-item">
+              <span className="counter-value">{String(timeTogether.hours).padStart(2, '0')}</span>
+              <span className="counter-label">{language === 'en' ? 'Hours' : 'Horas'}</span>
+            </div>
+            <div className="counter-item">
+              <span className="counter-value">{String(timeTogether.minutes).padStart(2, '0')}</span>
+              <span className="counter-label">{language === 'en' ? 'Mins' : 'Minutos'}</span>
+            </div>
+            <div className="counter-item">
+              <span className="counter-value">{String(timeTogether.seconds).padStart(2, '0')}</span>
+              <span className="counter-label">{language === 'en' ? 'Secs' : 'Segundos'}</span>
+            </div>
+          </div>
+          <p className="counter-footer">
+            {language === 'en' 
+              ? `Together since ${formattedRelationshipDate} ✨` 
+              : `Juntos desde ${formattedRelationshipDate} ✨`}
+          </p>
+        </div>
+      )}
 
       {/* Widget de Contagem Decrescente */}
-      {nextEvent && (
-        <div 
-          className="glass-panel" 
-          style={{ 
-            padding: '20px 25px', 
-            marginBottom: '30px', 
-            border: '2px dashed var(--primary-color)', 
-            background: 'rgba(255, 77, 109, 0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <span style={{ fontSize: '24px' }}>{t.countdown}</span>
-          <h2 style={{ fontSize: '18px', color: 'var(--text-main)', margin: 0 }}>
-            {t.next_event}: <strong style={{ color: 'var(--primary-color)' }}>{nextEvent.title}</strong>
-          </h2>
-          <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>
-            {formatarDataExtenso(nextEvent.date)}
-          </p>
-          <span 
-            style={{ 
-              fontSize: '18px', 
-              fontWeight: '700', 
-              color: 'var(--secondary-color)',
-              background: 'white',
-              padding: '6px 16px',
-              borderRadius: '12px',
-              marginTop: '5px',
-              border: '1px solid rgba(114, 9, 183, 0.15)'
-            }}
-          >
-            {formatarDiasRestantes(daysRemaining)}
-          </span>
-        </div>
-      )}
+      <EventCountdown 
+        nextEvent={nextEvent} 
+        daysRemaining={daysRemaining} 
+        language={language} 
+        t={t} 
+      />
 
       {/* LAYOUT DE CARTÕES (Apenas quando layoutStyle === 'stacked') */}
-      {layoutStyle === 'stacked' && (
-        <div className="stacked-cards-list" style={{ display: 'flex', flexDirection: 'column', gap: '18px', margin: '30px 0' }}>
-          {defaultCards.map(card => (
-            <div 
-              key={card.path}
-              className="glass-panel nav-card-stacked preset-theme-card"
-              onClick={() => navigate(card.path)}
-              style={{ '--card-accent': themePresets[card.preset].accent }}
-            >
-              <div className="card-stacked-icon">{card.icon}</div>
-              <div className="card-stacked-info">
-                <h3>{card.label}</h3>
-                <p>{card.desc}</p>
-              </div>
-              <div className="card-stacked-arrow">➔</div>
-            </div>
-          ))}
+      <NavigationCards 
+        layoutStyle={layoutStyle} 
+        customTabs={customTabs} 
+        t={t} 
+        language={language} 
+      />
 
-          {/* Abas personalizadas incluídas nos cartões stacked */}
-          {customTabs.map(tab => (
-            <div 
-              key={tab._id}
-              className="glass-panel nav-card-stacked custom-theme-card"
-              onClick={() => navigate(`/tab/${tab._id}`)}
-              style={{ '--card-accent': tab.accentColor }}
-            >
-              <div className="card-stacked-icon">{tab.icon}</div>
-              <div className="card-stacked-info">
-                <h3>{tab.title}</h3>
-                <p>{tab.contentType === 'notes' ? t.content_notes : (tab.contentType === 'media' ? t.content_media : t.content_link)}</p>
-              </div>
-              <div className="card-stacked-arrow">➔</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Widget do Spotify */}
-      <div className="glass-panel" style={{ padding: '20px', marginTop: '30px', border: '1px solid rgba(255, 77, 109, 0.2)' }}>
-        <h3 style={{ marginBottom: '12px', color: 'var(--primary-color)', fontSize: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          {t.playlist}
-        </h3>
-        <iframe 
-          style={{ borderRadius: '12px', border: 'none' }} 
-          src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5YxZ2718Eld?utm_source=generator&theme=0" 
-          width="100%" 
-          height="80" 
-          allowFullScreen="" 
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-          loading="lazy"
-        ></iframe>
-      </div>
+      {/* Widget do Spotify com playlist dinâmica */}
+      <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />
 
       {/* Área dos botões de rodapé */}
       <div style={{ marginTop: '35px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
@@ -198,6 +266,106 @@ export default function Dashboard() {
           </button>
         )}
       </div>
+
+      {/* Modal de Edição de Informações de Casal */}
+      {isEditModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div 
+            className="glass-panel fade-in" 
+            style={{ 
+              padding: '30px', 
+              width: '100%', 
+              maxWidth: '480px', 
+              textAlign: 'left',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              style={{
+                position: 'absolute', top: '15px', right: '15px', 
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px'
+              }}
+              onClick={() => setIsEditModalOpen(false)}
+            >
+              ✕
+            </button>
+
+            <h2 style={{ color: 'var(--primary-color)', marginBottom: '20px', textAlign: 'center' }}>
+              {t.edit_couple_info || 'Editar Casal'} ❤️
+            </h2>
+
+            <form onSubmit={handleUpdateCoupleInfo} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="form-group">
+                <label className="input-label" htmlFor="coupleNames">
+                  {t.names_label || 'Nome do Casal (ex: Miguel & Maria)'}
+                </label>
+                <input 
+                  id="coupleNames"
+                  type="text"
+                  placeholder="Ex: Miguel & Maria"
+                  value={editNames}
+                  onChange={(e) => setEditNames(e.target.value)}
+                  className="input-control"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="input-label" htmlFor="relDate">
+                  {t.relationship_date_label || 'Data de Início do Namoro'}
+                </label>
+                <input 
+                  id="relDate"
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="input-control"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="input-label" htmlFor="spotifyUrl">
+                  {t.spotify_playlist_label || 'Link da Playlist Especial do Spotify'}
+                </label>
+                <input 
+                  id="spotifyUrl"
+                  type="text"
+                  placeholder="Ex: https://open.spotify.com/playlist/..."
+                  value={editSpotify}
+                  onChange={(e) => setEditSpotify(e.target.value)}
+                  className="input-control"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '15px' }}>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                  {t.save || 'Guardar'}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-dark" 
+                  style={{ flex: 1 }}
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  {t.cancel || 'Cancelar'}
+                </button>
+              </div>
+            </form>
+
+            {editError && (
+              <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', backgroundColor: '#ffe3e3', border: '1px solid #ffb3b3' }}>
+                <p style={{ color: 'var(--danger-color)', fontSize: '13px', fontWeight: '600', margin: 0, textAlign: 'center' }}>{editError}</p>
+              </div>
+            )}
+
+            {editSuccess && (
+              <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', backgroundColor: '#e6fffa', border: '1px solid #b2f5ea' }}>
+                <p style={{ color: 'var(--success-color)', fontSize: '13px', fontWeight: '600', margin: 0, textAlign: 'center' }}>{editSuccess}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

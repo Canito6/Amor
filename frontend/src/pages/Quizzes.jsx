@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { quizService } from '../services/quizService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import QuizCreator from '../components/quizzes/QuizCreator';
+import QuizPlayer from '../components/quizzes/QuizPlayer';
+import QuizFeedback from '../components/quizzes/QuizFeedback';
 
 export default function Quizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -42,7 +45,7 @@ export default function Quizzes() {
   const carregarQuizzes = async () => {
     try {
       setLoading(true);
-      const dados = await apiFetch('/api/quizzes');
+      const dados = await quizService.getQuizzes();
       setQuizzes(dados);
     } catch (err) {
       setErro(err.message || (language === 'pt' ? 'Erro ao carregar quizzes.' : 'Error loading quizzes.'));
@@ -97,10 +100,7 @@ export default function Quizzes() {
 
     try {
       setErro('');
-      const novo = await apiFetch('/api/quizzes', {
-        method: 'POST',
-        body: { title: quizTitle, questions }
-      });
+      const novo = await quizService.createQuiz({ title: quizTitle, questions });
       setQuizzes([novo, ...quizzes]);
       setQuizTitle('');
       setQuestions([{ questionText: '', options: ['', '', ''], creatorAnswer: '' }]);
@@ -126,10 +126,7 @@ export default function Quizzes() {
 
     try {
       setErro('');
-      const atualizado = await apiFetch(`/api/quizzes/${activeQuiz._id}/guess`, {
-        method: 'PUT',
-        body: { guesses: currentGuesses }
-      });
+      const atualizado = await quizService.submitGuesses(activeQuiz._id, currentGuesses);
 
       // Atualiza na lista de quizzes
       setQuizzes(quizzes.map(q => q._id === atualizado._id ? atualizado : q));
@@ -144,7 +141,7 @@ export default function Quizzes() {
     if (!window.confirm(t.quizzes_confirm_delete)) return;
     try {
       setErro('');
-      await apiFetch(`/api/quizzes/${id}`, { method: 'DELETE' });
+      await quizService.deleteQuiz(id);
       setQuizzes(quizzes.filter(q => q._id !== id));
       if (selectedCompletedQuiz && selectedCompletedQuiz._id === id) {
         setSelectedCompletedQuiz(null);
@@ -174,283 +171,39 @@ export default function Quizzes() {
 
       {/* TELA DE JOGAR QUIZ (RESPONDER) */}
       {activeQuiz && (
-        <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-          <h2 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>{t.quizzes_playing_title.replace('{title}', activeQuiz.title)}</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>
-            {t.quizzes_playing_desc.replace('{creator}', activeQuiz.createdBy)}
-          </p>
-
-          <form onSubmit={submeterRespostas} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-            {activeQuiz.questions.map((q, qIndex) => (
-              <div 
-                key={q._id || qIndex} 
-                className="glass-panel" 
-                style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.4)', borderRadius: '16px', borderLeft: '5px solid var(--primary-color)' }}
-              >
-                <h3 style={{ fontSize: '17px', marginBottom: '15px' }}>
-                  {qIndex + 1}. {q.questionText}
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {q.options.map((opt, oIndex) => (
-                    <label 
-                      key={oIndex} 
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '10px', 
-                        padding: '12px 16px', 
-                        background: currentGuesses[qIndex] === opt ? 'rgba(255, 77, 109, 0.15)' : 'white',
-                        border: currentGuesses[qIndex] === opt ? '2px solid var(--primary-color)' : '1px solid #ddd',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        fontWeight: currentGuesses[qIndex] === opt ? '600' : 'normal',
-                        transition: 'var(--transition-smooth)'
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name={`question-${qIndex}`}
-                        value={opt}
-                        checked={currentGuesses[qIndex] === opt}
-                        onChange={() => {
-                          const novosGuesses = [...currentGuesses];
-                          novosGuesses[qIndex] = opt;
-                          setCurrentGuesses(novosGuesses);
-                        }}
-                        style={{ display: 'none' }}
-                      />
-                      <span style={{ fontSize: '15px' }}>{opt}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-              <button type="button" className="btn btn-dark" onClick={() => setActiveQuiz(null)}>
-                {t.quizzes_button_giveup}
-              </button>
-              <button type="submit" className="btn btn-primary">
-                {t.quizzes_button_submit}
-              </button>
-            </div>
-          </form>
-        </div>
+        <QuizPlayer
+          t={t}
+          activeQuiz={activeQuiz}
+          setActiveQuiz={setActiveQuiz}
+          currentGuesses={currentGuesses}
+          setCurrentGuesses={setCurrentGuesses}
+          submeterRespostas={submeterRespostas}
+        />
       )}
 
       {/* FEEDBACK DE QUIZ CONCLUÍDO (LIGHTBOX MODAL) */}
       {selectedCompletedQuiz && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            zIndex: 9999,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px'
-          }}
-          onClick={() => setSelectedCompletedQuiz(null)}
-        >
-          <div 
-            className="glass-panel" 
-            style={{ 
-              maxWidth: '650px', 
-              width: '100%', 
-              maxHeight: '90vh', 
-              overflowY: 'auto', 
-              padding: '30px', 
-              background: '#fff',
-              position: 'relative'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '20px',
-                background: 'none',
-                border: 'none',
-                fontSize: '28px',
-                cursor: 'pointer',
-                color: 'var(--text-muted)'
-              }}
-              onClick={() => setSelectedCompletedQuiz(null)}
-            >
-              &times;
-            </button>
-
-            <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-              <span style={{ fontSize: '60px' }}>🎉</span>
-              <h2 style={{ color: 'var(--primary-color)', fontSize: '24px', marginTop: '10px' }}>
-                {t.quizzes_lightbox_result.replace('{title}', selectedCompletedQuiz.title)}
-              </h2>
-              <p style={{ fontSize: '18px', margin: '15px 0' }}>
-                {t.quizzes_lightbox_score.replace('{score}', selectedCompletedQuiz.score).replace('{total}', selectedCompletedQuiz.questions.length)}
-              </p>
-            </div>
-
-            <h3 style={{ fontSize: '16px', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '15px' }}>
-              {t.quizzes_lightbox_review}
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {selectedCompletedQuiz.questions.map((q, index) => {
-                const acertou = q.creatorAnswer === q.partnerGuess;
-                return (
-                  <div 
-                    key={index} 
-                    style={{ 
-                      padding: '15px', 
-                      borderRadius: '12px', 
-                      background: acertou ? 'rgba(42, 157, 143, 0.08)' : 'rgba(230, 57, 70, 0.08)',
-                      border: acertou ? '1px solid rgba(42, 157, 143, 0.3)' : '1px solid rgba(230, 57, 70, 0.3)'
-                    }}
-                  >
-                    <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>
-                      {index + 1}. {q.questionText}
-                    </p>
-                    <div style={{ fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ color: '#2a9d8f' }}>
-                        {t.quizzes_lightbox_correct.replace('{creator}', selectedCompletedQuiz.createdBy).replace('{answer}', q.creatorAnswer)}
-                      </span>
-                      <span style={{ color: acertou ? '#2a9d8f' : '#e63946' }}>
-                        {acertou 
-                          ? t.quizzes_lightbox_guess_correct.replace('{guess}', q.partnerGuess) 
-                          : t.quizzes_lightbox_guess_wrong.replace('{guess}', q.partnerGuess)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '25px' }}>
-              <button className="btn btn-primary" onClick={() => setSelectedCompletedQuiz(null)}>
-                {t.quizzes_lightbox_close}
-              </button>
-            </div>
-          </div>
-        </div>
+        <QuizFeedback
+          t={t}
+          selectedCompletedQuiz={selectedCompletedQuiz}
+          setSelectedCompletedQuiz={setSelectedCompletedQuiz}
+        />
       )}
 
       {/* FORMULÁRIO DE CRIAÇÃO DE QUIZ */}
       {showCreator && (
-        <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '20px', margin: 0 }}>{t.quizzes_create_title}</h2>
-            <button className="btn btn-dark" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setShowCreator(false)}>
-              {t.quizzes_create_close}
-            </button>
-          </div>
-
-          <form onSubmit={submeterNovoQuiz} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="form-group">
-              <label className="input-label">{t.quizzes_create_quiz_title}</label>
-              <input
-                type="text"
-                placeholder={t.quizzes_placeholder_title}
-                value={quizTitle}
-                onChange={(e) => setQuizTitle(e.target.value)}
-                required
-                className="input-control"
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', marginTop: '10px' }}>
-              {questions.map((q, pIndex) => (
-                <div 
-                  key={pIndex} 
-                  className="glass-panel" 
-                  style={{ padding: '20px', background: 'rgba(255, 255, 255, 0.4)', borderRadius: '16px', position: 'relative' }}
-                >
-                  {questions.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removerPergunta(pIndex)}
-                      style={{
-                        position: 'absolute',
-                        top: '15px',
-                        right: '15px',
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--danger-color)',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '16px'
-                      }}
-                      title="Remover pergunta"
-                    >
-                      🗑️
-                    </button>
-                  )}
-
-                  <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--primary-color)' }}>
-                    {t.quizzes_create_question_num.replace('{num}', pIndex + 1)}
-                  </h3>
-
-                  <div className="form-group" style={{ marginBottom: '15px' }}>
-                    <label className="input-label">{t.quizzes_create_question_text}</label>
-                    <input
-                      type="text"
-                      placeholder={t.quizzes_placeholder_qtext}
-                      value={q.questionText}
-                      onChange={(e) => atualizarPergunta(pIndex, 'questionText', e.target.value)}
-                      required
-                      className="input-control"
-                    />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-                    {q.options.map((opt, oIndex) => (
-                      <div key={oIndex} className="form-group" style={{ margin: 0 }}>
-                        <label className="input-label">{t.quizzes_create_option_num.replace('{num}', oIndex + 1)}</label>
-                        <input
-                          type="text"
-                          placeholder={t.quizzes_create_option_num.replace('{num}', oIndex + 1)}
-                          value={opt}
-                          onChange={(e) => atualizarOpcao(pIndex, oIndex, e.target.value)}
-                          required
-                          className="input-control"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label className="input-label">{t.quizzes_create_correct_select}</label>
-                    <select
-                      value={q.creatorAnswer}
-                      onChange={(e) => atualizarPergunta(pIndex, 'creatorAnswer', e.target.value)}
-                      required
-                      className="input-control"
-                      style={{ appearance: 'auto' }}
-                    >
-                      <option value="">{t.quizzes_create_correct_placeholder}</option>
-                      {q.options.filter(o => o.trim() !== '').map((opt, oIndex) => (
-                        <option key={oIndex} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-              <button type="button" className="btn btn-secondary" onClick={adicionarPergunta}>
-                {t.quizzes_create_add_question}
-              </button>
-              <button type="submit" className="btn btn-primary">
-                {t.quizzes_create_publish}
-              </button>
-            </div>
-          </form>
-        </div>
+        <QuizCreator
+          t={t}
+          quizTitle={quizTitle}
+          setQuizTitle={setQuizTitle}
+          questions={questions}
+          adicionarPergunta={adicionarPergunta}
+          removerPergunta={removerPergunta}
+          atualizarPergunta={atualizarPergunta}
+          atualizarOpcao={atualizarOpcao}
+          submeterNovoQuiz={submeterNovoQuiz}
+          setShowCreator={setShowCreator}
+        />
       )}
 
       {/* DASHBOARD PRINCIPAL DE QUIZZES */}

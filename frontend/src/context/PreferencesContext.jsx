@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { apiFetch } from '../services/api';
+import { tabService } from '../services/tabService';
 
 const PreferencesContext = createContext();
 
@@ -34,7 +34,7 @@ export const themePresets = {
 export const PreferencesProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'pt');
   const [layoutStyle, setLayoutStyle] = useState(() => localStorage.getItem('layoutStyle') || 'sidebar');
-  const [globalTheme, setGlobalTheme] = useState(() => localStorage.getItem('globalTheme') || 'system');
+  const [globalTheme, setTheme] = useState(() => localStorage.getItem('globalTheme') || 'system');
   const [customTabs, setCustomTabs] = useState([]);
   const [loadingTabs, setLoadingTabs] = useState(false);
   const [activeTabTheme, setActiveTabTheme] = useState(null);
@@ -51,7 +51,7 @@ export const PreferencesProvider = ({ children }) => {
   };
 
   const changeGlobalTheme = (theme) => {
-    setGlobalTheme(theme);
+    setTheme(theme);
     localStorage.setItem('globalTheme', theme);
   };
 
@@ -61,7 +61,7 @@ export const PreferencesProvider = ({ children }) => {
     if (!token) return;
     try {
       setLoadingTabs(true);
-      const data = await apiFetch('/api/tabs');
+      const data = await tabService.getTabs();
       setCustomTabs(data);
     } catch (err) {
       console.error('Erro ao carregar abas personalizadas:', err);
@@ -73,10 +73,7 @@ export const PreferencesProvider = ({ children }) => {
   // 3. Criar nova aba no backend
   const addCustomTab = async (tabData) => {
     try {
-      const newTab = await apiFetch('/api/tabs', {
-        method: 'POST',
-        body: tabData
-      });
+      const newTab = await tabService.createTab(tabData);
       setCustomTabs(prev => [...prev, newTab]);
       return newTab;
     } catch (err) {
@@ -88,10 +85,7 @@ export const PreferencesProvider = ({ children }) => {
   // 4. Atualizar aba personalizada no backend
   const updateCustomTab = async (id, tabData) => {
     try {
-      const updatedTab = await apiFetch(`/api/tabs/${id}`, {
-        method: 'PUT',
-        body: tabData
-      });
+      const updatedTab = await tabService.updateTab(id, tabData);
       setCustomTabs(prev => prev.map(t => t._id === id ? updatedTab : t));
       return updatedTab;
     } catch (err) {
@@ -103,9 +97,7 @@ export const PreferencesProvider = ({ children }) => {
   // 5. Eliminar aba no backend
   const deleteCustomTab = async (id) => {
     try {
-      await apiFetch(`/api/tabs/${id}`, {
-        method: 'DELETE'
-      });
+      await tabService.deleteTab(id);
       setCustomTabs(prev => prev.filter(t => t._id !== id));
     } catch (err) {
       console.error('Erro ao eliminar aba:', err);

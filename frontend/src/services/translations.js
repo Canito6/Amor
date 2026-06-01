@@ -197,7 +197,32 @@ export const translations = {
     calendar_past_empty: "Ainda não há histórico de eventos passados registados no calendário.",
     calendar_event_created_by: "Criado por:",
     calendar_success_alert: "Data importante adicionada com sucesso! 📅💖",
-    calendar_placeholder_title: "Ex: O nosso aniversário de namoro"
+    calendar_placeholder_title: "Ex: O nosso aniversário de namoro",
+    
+    // --- NOVO: VINCULAÇÃO E SEGURANÇA ---
+    login_security_method: "Método de Segurança no Login",
+    direct_login: "Entrada Direta (Sem verificação extra)",
+    email_login: "Código por Email",
+    mobile_login: "Código por Telemóvel",
+    phone_number: "Número de Telemóvel",
+    invite_code_opt: "Código de Convite (Opcional)",
+    trust_device: "Confiar neste dispositivo (Guardar sessão)",
+    verify_code_label: "Insere o código de 6 dígitos enviado",
+    verify_code_sent_email: "Enviámos um código de verificação para o teu email.",
+    verify_code_sent_mobile: "Enviámos um código de verificação para o teu telemóvel.",
+    verify_code_btn: "Verificar Código 🔑",
+    connect_partner_btn: "🔗 Conectar Parceiro(a)",
+    connect_partner_title: "Conectar Parceiro(a) ❤️",
+    your_couple_token: "O teu código de casal:",
+    invite_link: "Link de convite para partilhar:",
+    enter_partner_token: "Já tens o código da tua namorada? Insere-o abaixo:",
+    partner_token_placeholder: "Insere o código ou utilizador...",
+    connect_now_btn: "Conectar Agora 💑",
+    relationship_date_label: "Data de Início do Namoro",
+    spotify_playlist_label: "Link Spotify Embed",
+    edit_couple_info: "Editar Informações do Casal",
+    names_label: "Nome do Casal (ex: Miguel & Maria)",
+    copy_btn: "Copiar"
   },
   en: {
     dashboard: "Home",
@@ -397,6 +422,31 @@ export const translations = {
     calendar_past_empty: "No history of past events recorded in the calendar yet.",
     calendar_event_created_by: "Created by:",
     calendar_success_alert: "Important date added successfully! 📅💖",
-    calendar_placeholder_title: "E.g., Our dating anniversary"
+    calendar_placeholder_title: "E.g., Our dating anniversary",
+    
+    // --- NEW: COUPLING AND SECURITY ---
+    login_security_method: "Login Security Method",
+    direct_login: "Direct Entry (No extra verification)",
+    email_login: "Code by Email",
+    mobile_login: "Code by Mobile",
+    phone_number: "Mobile Phone Number",
+    invite_code_opt: "Invite Code (Optional)",
+    trust_device: "Trust this device (Keep session)",
+    verify_code_label: "Enter the sent 6-digit code",
+    verify_code_sent_email: "We sent a verification code to your email.",
+    verify_code_sent_mobile: "We sent a verification code to your mobile.",
+    verify_code_btn: "Verify Code 🔑",
+    connect_partner_btn: "🔗 Connect Partner",
+    connect_partner_title: "Connect Partner ❤️",
+    your_couple_token: "Your couple code:",
+    invite_link: "Invite link to share:",
+    enter_partner_token: "Already have your partner's code? Enter below:",
+    partner_token_placeholder: "Enter code or username...",
+    connect_now_btn: "Connect Now 💑",
+    relationship_date_label: "Relationship Start Date",
+    spotify_playlist_label: "Spotify Embed Link",
+    edit_couple_info: "Edit Couple Information",
+    names_label: "Couple Display Names (e.g. Miguel & Maria)",
+    copy_btn: "Copy"
   }
 };

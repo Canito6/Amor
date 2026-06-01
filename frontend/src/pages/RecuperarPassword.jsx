@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { authService } from '../services/authService';
 
 export default function RecuperarPassword() {
   const [email, setEmail] = useState('');
@@ -18,10 +18,7 @@ export default function RecuperarPassword() {
     setMensagem('A enviar email... ⏳');
 
     try {
-      const dados = await apiFetch('/api/auth/forgot-password', {
-        method: 'POST',
-        body: { email }
-      });
+      const dados = await authService.forgotPassword(email);
       setMensagem(dados.message || 'Código enviado com sucesso!'); 
       setEtapa(2); 
     } catch (error) {
@@ -37,10 +34,7 @@ export default function RecuperarPassword() {
     setMensagem('A verificar... ⏳');
 
     try {
-      await apiFetch('/api/auth/reset-password', {
-        method: 'POST',
-        body: { email, codigo, novaPassword }
-      });
+      await authService.resetPassword(email, codigo, novaPassword);
       alert('Password alterada com sucesso! Podes fazer login.');
       navigate('/'); 
     } catch (error) {

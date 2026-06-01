@@ -1,8 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { photoService } from '../services/photoService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import PhotoUploader from '../components/photos/PhotoUploader';
+import AlbumCreator from '../components/photos/AlbumCreator';
+import AlbumGrid from '../components/photos/AlbumGrid';
+import PhotoGrid from '../components/photos/PhotoGrid';
+import PhotoLightbox from '../components/photos/PhotoLightbox';
 import './Fotos.css';
 
 export default function Fotos() {
@@ -62,7 +67,7 @@ export default function Fotos() {
   const carregarGaleria = async () => {
     try {
       setLoading(true);
-      const dadosAlbums = await apiFetch('/api/albums');
+      const dadosAlbums = await photoService.getAlbums();
       setAlbums(dadosAlbums.albums || []);
       setGeneralPhotoCount(dadosAlbums.generalPhotoCount || 0);
     } catch (err) {
@@ -81,13 +86,8 @@ export default function Fotos() {
       }
       setErro('');
 
-      let url = `/api/photos?page=${page}&limit=12`;
-      if (currentAlbum) {
-        const albumParam = currentAlbum === 'sem-album' ? 'sem-album' : currentAlbum._id;
-        url += `&albumId=${albumParam}`;
-      }
-
-      const dados = await apiFetch(url);
+      const albumParam = currentAlbum ? (currentAlbum === 'sem-album' ? 'sem-album' : currentAlbum._id) : null;
+      const dados = await photoService.getPhotos(page, 12, albumParam);
       const novasFotos = dados.photos || [];
 
       if (append) {
@@ -136,10 +136,7 @@ export default function Fotos() {
         formData.append('albumId', albumAlvo);
       }
 
-      const novaFoto = await apiFetch('/api/photos/upload', {
-        method: 'POST',
-        body: formData
-      });
+      const novaFoto = await photoService.uploadPhoto(formData);
 
       // Adicionar à lista atual de fotos exibidas se pertencer ao contexto
       const pertenceAoContexto = !currentAlbum 
@@ -150,7 +147,7 @@ export default function Fotos() {
         setPhotos([novaFoto, ...photos]);
       }
 
-      // Atualizar contadores de fotos reativamente
+      // Otimização: Atualizar contadores de fotos reativamente
       if (novaFoto.albumId) {
         setAlbums(albums.map(a => a._id === novaFoto.albumId ? { ...a, photoCount: (a.photoCount || 0) + 1 } : a));
       } else {
@@ -175,10 +172,7 @@ export default function Fotos() {
     try {
       setCreatingAlbum(true);
       setErro('');
-      const novo = await apiFetch('/api/albums', {
-        method: 'POST',
-        body: { name: newAlbumName.trim(), description: newAlbumDesc.trim() }
-      });
+      const novo = await photoService.createAlbum(newAlbumName.trim(), newAlbumDesc.trim());
       // Inicializar com contagem zero de fotos
       const novoComContagem = { ...novo, photoCount: 0 };
       setAlbums([novoComContagem, ...albums]);
@@ -198,9 +192,7 @@ export default function Fotos() {
 
     try {
       setErro('');
-      await apiFetch(`/api/albums/${id}`, {
-        method: 'DELETE'
-      });
+      await photoService.deleteAlbum(id);
       
       const albumApagado = albums.find(a => a._id === id);
       const contagemFotos = albumApagado ? (albumApagado.photoCount || 0) : 0;
@@ -223,9 +215,7 @@ export default function Fotos() {
 
     try {
       setErro('');
-      await apiFetch(`/api/photos/${id}`, {
-        method: 'DELETE'
-      });
+      await photoService.deletePhoto(id);
 
       const fotoApagada = photos.find(p => p._id === id);
       setPhotos(photos.filter((p) => p._id !== id));
@@ -274,324 +264,82 @@ export default function Fotos() {
       </div>
 
       {/* Formulário de upload de fotos */}
-      {(activeTab === 'todas' || currentAlbum) && (
-        <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-          <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>
-            {currentAlbum 
-              ? `${t.photos_add_album_prefix} "${currentAlbum === 'sem-album' ? t.photos_album_general_title : currentAlbum.name}" 📸`
-              : t.photos_add_general}
-          </h2>
-          <form onSubmit={enviarFoto} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
-              <div className="form-group">
-                <label className="input-label">{t.photos_input_select}</label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={lidarComFicheiro}
-                  required
-                  className="input-control"
-                  style={{ padding: '8px 12px' }}
-                />
-              </div>
-              <div className="form-group">
-                <label className="input-label">{t.photos_input_caption}</label>
-                <input
-                  type="text"
-                  placeholder={t.photos_caption_placeholder}
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                  className="input-control"
-                />
-              </div>
-
-              {!currentAlbum && activeTab === 'todas' && (
-                <div className="form-group">
-                  <label className="input-label">{t.photos_input_album}</label>
-                  <select 
-                    value={selectedAlbumId}
-                    onChange={(e) => setSelectedAlbumId(e.target.value)}
-                    className="input-control"
-                    style={{ appearance: 'auto' }}
-                  >
-                    <option value="sem-album">{t.photos_album_none}</option>
-                    {albums.map((alb) => (
-                      <option key={alb._id} value={alb._id}>{alb.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
-              <button 
-                type="submit" 
-                className="btn btn-primary"
-                disabled={uploading || !selectedFile}
-                style={{ opacity: uploading || !selectedFile ? 0.7 : 1 }}
-              >
-                {uploading ? t.photos_sending : t.photos_send_submit}
-              </button>
-            </div>
-          </form>
-          {erro && <p style={{ color: 'var(--danger-color)', marginTop: '15px', fontWeight: 'bold' }}>{erro}</p>}
-        </div>
-      )}
+      <PhotoUploader
+        t={t}
+        activeTab={activeTab}
+        currentAlbum={currentAlbum}
+        selectedAlbumId={selectedAlbumId}
+        setSelectedAlbumId={setSelectedAlbumId}
+        albums={albums}
+        caption={caption}
+        setCaption={setCaption}
+        uploading={uploading}
+        selectedFile={selectedFile}
+        lidarComFicheiro={lidarComFicheiro}
+        enviarFoto={enviarFoto}
+        fileInputRef={fileInputRef}
+        erro={erro}
+      />
 
       {/* SECÇÃO DE ÁLBUNS */}
       {activeTab === 'albums' && !currentAlbum && (
         <div>
           {/* Formulário para Criar Novo Álbum */}
-          <div className="glass-panel" style={{ padding: '30px', marginBottom: '45px' }}>
-            <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>{t.photos_create_album_title}</h2>
-            <form onSubmit={criarAlbum} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
-                <div className="form-group">
-                  <label className="input-label">{t.photos_input_album_name}</label>
-                  <input
-                    type="text"
-                    placeholder={t.photos_album_name_placeholder}
-                    value={newAlbumName}
-                    onChange={(e) => setNewAlbumName(e.target.value)}
-                    required
-                    className="input-control"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="input-label">{t.photos_input_album_desc}</label>
-                  <input
-                    type="text"
-                    placeholder={t.photos_album_desc_placeholder}
-                    value={newAlbumDesc}
-                    onChange={(e) => setNewAlbumDesc(e.target.value)}
-                    className="input-control"
-                  />
-                </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" className="btn btn-secondary" disabled={creatingAlbum}>
-                  {creatingAlbum ? '...' : t.photos_create_album_submit}
-                </button>
-              </div>
-            </form>
-          </div>
+          <AlbumCreator
+            t={t}
+            newAlbumName={newAlbumName}
+            setNewAlbumName={setNewAlbumName}
+            newAlbumDesc={newAlbumDesc}
+            setNewAlbumDesc={setNewAlbumDesc}
+            creatingAlbum={creatingAlbum}
+            criarAlbum={criarAlbum}
+          />
 
           <h2 style={{ marginBottom: '20px', fontSize: '22px' }}>{t.photos_album_title}</h2>
           
-          {loading ? (
-            <div style={{ textAlign: 'center', margin: '30px 0' }}>
-              <p style={{ color: 'var(--text-muted)' }}>{t.photos_loading_albums}</p>
-            </div>
-          ) : (
-            <div className="album-grid">
-              {/* Cartão Fixo para Fotos Sem Álbum */}
-              <div className="glass-panel album-card" onClick={() => setCurrentAlbum('sem-album')}>
-                <span className="album-badge">
-                  {generalPhotoCount}
-                </span>
-                <span className="album-icon">📂</span>
-                <h3 className="album-name">{t.photos_album_general_title}</h3>
-                <p className="album-desc">{t.photos_album_general_desc}</p>
-              </div>
-
-              {/* Álbuns Dinâmicos */}
-              {albums.map((alb) => {
-                const count = alb.photoCount || 0;
-                const podeApagar = alb.createdBy === meuNome || minhaRole === 'admin';
-                return (
-                  <div 
-                    key={alb._id} 
-                    className="glass-panel album-card" 
-                    onClick={() => setCurrentAlbum(alb)}
-                  >
-                    <span className="album-badge">{count}</span>
-                    <span className="album-icon">📁</span>
-                    <h3 className="album-name">{alb.name}</h3>
-                    <p className="album-desc">{alb.description || t.photos_no_desc}</p>
-                    {podeApagar && (
-                      <button
-                        onClick={(e) => apagarAlbum(e, alb._id)}
-                        style={{
-                          position: 'absolute',
-                          bottom: '15px',
-                          right: '15px',
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--danger-color)',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}
-                        title={t.delete}
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <AlbumGrid
+            t={t}
+            loading={loading}
+            albums={albums}
+            generalPhotoCount={generalPhotoCount}
+            setCurrentAlbum={setCurrentAlbum}
+            meuNome={meuNome}
+            minhaRole={minhaRole}
+            apagarAlbum={apagarAlbum}
+          />
         </div>
       )}
 
       {/* LISTAGEM DE FOTOS */}
       {(activeTab === 'todas' || currentAlbum) && (
-        <div>
-          {currentAlbum && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
-              <button 
-                className="btn btn-dark" 
-                onClick={() => setCurrentAlbum(null)}
-                style={{ padding: '8px 16px', fontSize: '13px' }}
-              >
-                {t.photos_back_albums}
-              </button>
-              <h2 style={{ margin: 0, fontSize: '22px' }}>
-                {t.photos_tab_folders.replace('📁 ', '')}: <span style={{ color: 'var(--primary-color)' }}>{currentAlbum === 'sem-album' ? t.photos_album_general_title : currentAlbum.name}</span>
-              </h2>
-            </div>
-          )}
-
-          {loadingPhotos ? (
-            <div style={{ textAlign: 'center', margin: '40px 0' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.photos_loading_photos}</p>
-            </div>
-          ) : photos.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
-              <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>
-                {t.photos_empty_album}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="photo-grid">
-                {photos.map((photo) => {
-                  const podeApagar = photo.uploadedBy === meuNome || minhaRole === 'admin';
-                  return (
-                    <div 
-                      key={photo._id} 
-                      className="photo-card"
-                      onClick={() => setSelectedPhoto(photo)}
-                    >
-                      <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
-                      <div className="photo-overlay">
-                        <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
-                          {podeApagar && (
-                            <button
-                              className="btn btn-danger"
-                              onClick={(e) => apagarFoto(e, photo._id)}
-                              style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                              title={t.delete}
-                            >
-                              🗑️
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Botão Carregar Mais */}
-              {currentPage < totalPages && (
-                <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                  <button
-                    className="btn btn-dark"
-                    onClick={() => carregarFotos(currentPage + 1, true)}
-                    disabled={loadingMore}
-                    style={{ padding: '12px 28px', fontSize: '15px', opacity: loadingMore ? 0.7 : 1 }}
-                  >
-                    {loadingMore ? '⏳ A carregar...' : t.photos_load_more}
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <PhotoGrid
+          t={t}
+          loadingPhotos={loadingPhotos}
+          photos={photos}
+          currentAlbum={currentAlbum}
+          setCurrentAlbum={setCurrentAlbum}
+          meuNome={meuNome}
+          minhaRole={minhaRole}
+          language={language}
+          apagarFoto={apagarFoto}
+          setSelectedPhoto={setSelectedPhoto}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          loadingMore={loadingMore}
+          carregarFotos={carregarFotos}
+        />
       )}
 
       {/* MODAL LIGHTBOX */}
-      {selectedPhoto && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px'
-          }}
-          onClick={() => setSelectedPhoto(null)}
-        >
-          <button
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontSize: '36px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              lineHeight: 1
-            }}
-            onClick={() => setSelectedPhoto(null)}
-          >
-            &times;
-          </button>
-
-          <img 
-            src={selectedPhoto.url} 
-            alt={selectedPhoto.caption}
-            style={{
-              maxWidth: '90%',
-              maxHeight: '75vh',
-              objectFit: 'contain',
-              borderRadius: '8px',
-              boxShadow: '0 0 20px rgba(0,0,0,0.5)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          <div 
-            style={{
-              marginTop: '20px',
-              color: 'white',
-              textAlign: 'center',
-              maxWidth: '600px',
-              padding: '10px 20px'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ color: 'var(--primary-color)', fontSize: '20px', marginBottom: '8px' }}>
-              {selectedPhoto.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}
-            </h3>
-            <p style={{ fontSize: '14px', color: '#ccc' }}>
-              {t.photos_lightbox_by} <strong>{selectedPhoto.uploadedBy}</strong> {t.photos_lightbox_on} {new Date(selectedPhoto.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US')}
-            </p>
-            {(selectedPhoto.uploadedBy === meuNome || minhaRole === 'admin') && (
-              <button
-                className="btn btn-danger"
-                onClick={(e) => apagarFoto(e, selectedPhoto._id)}
-                style={{ marginTop: '15px', padding: '8px 16px', fontSize: '13px' }}
-              >
-                {t.photos_lightbox_delete}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      <PhotoLightbox
+        t={t}
+        selectedPhoto={selectedPhoto}
+        setSelectedPhoto={setSelectedPhoto}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        language={language}
+        apagarFoto={apagarFoto}
+      />
     </div>
   );
 }

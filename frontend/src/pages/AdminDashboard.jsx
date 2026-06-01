@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { adminService } from '../services/adminService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import './AdminDashboard.css';
@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   const carregarUtilizadores = async () => {
     try {
       setLoading(true);
-      const dados = await apiFetch('/api/admin/users');
+      const dados = await adminService.getUsers();
       setUsers(dados);
     } catch (err) {
       setErro(err.message || (language === 'pt' ? 'Erro ao procurar utilizadores.' : 'Error fetching users.'));
@@ -49,10 +49,7 @@ export default function AdminDashboard() {
     const novaRole = user.role === 'admin' ? 'user' : 'admin';
 
     try {
-      await apiFetch(`/api/admin/users/${user._id}/role`, {
-        method: 'PUT',
-        body: { role: novaRole }
-      });
+      await adminService.updateUserRole(user._id, novaRole);
       
       setUsers(users.map(u => u._id === user._id ? { ...u, role: novaRole } : u));
       alert(language === 'pt' ? 'Permissões alteradas com sucesso!' : 'Permissions updated successfully!');
@@ -70,9 +67,7 @@ export default function AdminDashboard() {
     if (!window.confirm(language === 'pt' ? `Tens a certeza que queres apagar o/a ${user.username} para sempre?` : `Are you sure you want to delete ${user.username} forever?`)) return;
 
     try {
-      await apiFetch(`/api/admin/users/${user._id}`, {
-        method: 'DELETE'
-      });
+      await adminService.deleteUser(user._id);
       
       setUsers(users.filter(u => u._id !== user._id));
       alert(language === 'pt' ? 'Utilizador apagado com sucesso!' : 'User deleted successfully!');
@@ -100,10 +95,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await apiFetch(`/api/admin/users/${user._id}/editar`, {
-        method: 'PUT',
-        body: corpo
-      });
+      await adminService.editUser(user._id, corpo.email, corpo.password);
       
       setUsers(users.map(u => u._id === user._id ? { ...u, email: novoEmail || u.email } : u));
       

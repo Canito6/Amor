@@ -1,26 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { authService } from '../services/authService';
 
 export default function Registar() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [codigoAdmin, setCodigoAdmin] = useState('');
+  const [loginSecurityMethod, setLoginSecurityMethod] = useState('direct');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invite = params.get('invite');
+    if (invite) {
+      setInviteCode(invite);
+    }
+  }, []);
 
   const criarConta = async (e) => {
     e.preventDefault();
     setErro('');
     setSucesso('');
 
+    if (loginSecurityMethod === 'mobile' && !phoneNumber.trim()) {
+      setErro('O número de telemóvel é obrigatório para a verificação por SMS.');
+      return;
+    }
+
     try {
-      const dados = await apiFetch('/api/auth/register', {
-        method: 'POST',
-        body: { username, email, password, codigoAdmin }
-      });
+      await authService.register(
+        username, 
+        email, 
+        password, 
+        codigoAdmin, 
+        loginSecurityMethod, 
+        phoneNumber, 
+        inviteCode
+      );
       
       setSucesso('Conta criada com sucesso! A redirecionar para o Login... 🚀');
       setTimeout(() => navigate('/'), 2000); 
@@ -30,8 +51,8 @@ export default function Registar() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh' }}>
-      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh', padding: '20px' }}>
+      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '500px', textAlign: 'center' }}>
         <h1 style={{ color: 'var(--primary-color)', fontSize: '30px', marginBottom: '10px' }}>Criar Nova Conta ✨</h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Junta-te ao nosso cantinho de amor</p>
         
@@ -74,6 +95,76 @@ export default function Registar() {
               className="input-control"
             />
           </div>
+
+          <div className="form-group">
+            <label className="input-label">Segurança de Entrada (2FA)</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', textAlign: 'left', marginTop: '4px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
+                <input 
+                  type="radio" 
+                  name="securityMethod" 
+                  value="direct" 
+                  checked={loginSecurityMethod === 'direct'} 
+                  onChange={() => setLoginSecurityMethod('direct')} 
+                  style={{ accentColor: 'var(--primary-color)' }}
+                />
+                Entrada Direta (Sem verificação extra)
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
+                <input 
+                  type="radio" 
+                  name="securityMethod" 
+                  value="email" 
+                  checked={loginSecurityMethod === 'email'} 
+                  onChange={() => setLoginSecurityMethod('email')} 
+                  style={{ accentColor: 'var(--primary-color)' }}
+                />
+                Código por Email (Segurança recomendada)
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
+                <input 
+                  type="radio" 
+                  name="securityMethod" 
+                  value="mobile" 
+                  checked={loginSecurityMethod === 'mobile'} 
+                  onChange={() => setLoginSecurityMethod('mobile')} 
+                  style={{ accentColor: 'var(--primary-color)' }}
+                />
+                Código por Telemóvel
+              </label>
+            </div>
+          </div>
+
+          {loginSecurityMethod === 'mobile' && (
+            <div className="form-group fade-in">
+              <label className="input-label" htmlFor="phone">Número de Telemóvel</label>
+              <input 
+                id="phone"
+                type="tel" 
+                placeholder="Ex: +351 912 345 678" 
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+                className="input-control"
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label className="input-label" htmlFor="inviteCode">Código de Convite do Parceiro (Opcional)</label>
+            <input 
+              id="inviteCode"
+              type="text" 
+              placeholder="Ex: 60a7fc9..." 
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              className="input-control"
+              style={{ borderStyle: 'dashed', borderColor: 'var(--primary-color)' }}
+            />
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'left', marginTop: '2px' }}>
+              *Introduz o código que o teu parceiro partilhou para se ligarem imediatamente!
+            </span>
+          </div>
           
           <div className="form-group">
             <label className="input-label" htmlFor="codigoAdmin">Código Admin (Opcional)</label>
@@ -84,11 +175,8 @@ export default function Registar() {
               value={codigoAdmin}
               onChange={(e) => setCodigoAdmin(e.target.value)}
               className="input-control"
-              style={{ borderStyle: 'dashed', borderColor: 'var(--primary-color)' }}
+              style={{ borderStyle: 'dashed', borderColor: 'rgba(0,0,0,0.1)' }}
             />
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'left', marginTop: '2px' }}>
-              *Deixa em branco se for uma conta normal.
-            </span>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>

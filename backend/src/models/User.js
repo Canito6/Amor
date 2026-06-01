@@ -32,6 +32,25 @@ const userSchema = new mongoose.Schema({
   coupleId: {
     type: String,
     default: 'default_couple'
+  },
+  loginSecurityMethod: {
+    type: String,
+    enum: ['direct', 'email', 'mobile'],
+    default: 'direct'
+  },
+  phoneNumber: {
+    type: String,
+    default: ''
+  },
+  trustedDevices: [{
+    deviceToken: { type: String, required: true },
+    expiresAt: { type: Date, required: true }
+  }],
+  loginVerificationCode: {
+    type: String
+  },
+  loginVerificationExpires: {
+    type: Date
   }
 });
 
