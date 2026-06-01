@@ -8,6 +8,8 @@ import ForcarMudancaPassword from './pages/ForcarMudancaPassword';
 import Mensagens from './pages/Mensagens';
 import Fotos from './pages/Fotos';
 import Memorias from './pages/Memorias';
+import Quizzes from './pages/Quizzes';
+import Calendario from './pages/Calendario';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/mensagens" element={<Mensagens />} />
         <Route path="/fotos" element={<Fotos />} />
         <Route path="/memorias" element={<Memorias />} />
+        <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/calendario" element={<Calendario />} />
       </Routes>
     </BrowserRouter>
   );

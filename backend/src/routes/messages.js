@@ -6,7 +6,7 @@ const router = express.Router();
 // 1. Obter todas as mensagens (Ordenadas por data de criação - mais antigas primeiro)
 router.get('/', verificarToken, async (req, res) => {
   try {
-    const messages = await Message.find().sort({ createdAt: 1 });
+    const messages = await Message.find({ coupleId: req.coupleId }).sort({ createdAt: 1 });
     res.json(messages);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar mensagens.' });
@@ -23,7 +23,8 @@ router.post('/', verificarToken, async (req, res) => {
 
     const message = new Message({
       sender: req.user.username,
-      content: content.trim()
+      content: content.trim(),
+      coupleId: req.coupleId
     });
 
     await message.save();
@@ -41,7 +42,12 @@ router.delete('/:id', verificarToken, async (req, res) => {
       return res.status(404).json({ error: 'Mensagem não encontrada.' });
     }
 
-    // Verifica se é o autor ou se é um admin
+    // Garante que o utilizador pertence ao mesmo casal da mensagem (ou é admin)
+    if (message.coupleId !== req.coupleId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Não tens permissão para aceder a esta mensagem.' });
+    }
+
+    // Verifica se é o autor ou se é um admin para poder apagar
     if (message.sender !== req.user.username && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Não tens permissão para apagar esta mensagem.' });
     }

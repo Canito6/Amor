@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
     }
     // Cria o "bilhete" de acesso (Token) válido por 7 dias, incluindo também o cargo (role) no bilhete!
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role }, 
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId || 'default_couple' }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -73,7 +73,8 @@ router.post('/login', async (req, res) => {
       message: 'Login feito com sucesso!', 
       token, 
       username: user.username,
-      role: user.role // Devolvemos o cargo para o Frontend saber se és Admin ou não
+      role: user.role,
+      coupleId: user.coupleId || 'default_couple'
     });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao fazer login.' });
@@ -153,7 +154,7 @@ router.post('/forcar-mudanca-password', async (req, res) => {
 
     // Faz logo o login automático e devolve o token
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role }, 
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId || 'default_couple' }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -162,7 +163,8 @@ router.post('/forcar-mudanca-password', async (req, res) => {
       message: 'Password definida com sucesso!', 
       token, 
       username: user.username,
-      role: user.role
+      role: user.role,
+      coupleId: user.coupleId || 'default_couple'
     });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao tentar definir nova password.' });

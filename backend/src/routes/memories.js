@@ -6,8 +6,33 @@ const router = express.Router();
 // 1. Obter todas as memórias cronologicamente (Mais antigas primeiro, para a Timeline)
 router.get('/', verificarToken, async (req, res) => {
   try {
-    const memories = await Memory.find().sort({ date: 1 });
-    res.json(memories);
+    const memories = await Memory.find({ coupleId: req.coupleId }).sort({ date: 1 });
+    
+    // Processar memórias para ocultar detalhes de cápsulas trancadas
+    const processedMemories = memories.map(mem => {
+      const isLocked = mem.isTimeCapsule && mem.unlockDate && new Date(mem.unlockDate) > new Date();
+      if (isLocked) {
+        // Retorna objeto simplificado sem a descrição nem o título real
+        return {
+          _id: mem._id,
+          title: 'Cápsula do Tempo Trancada 🔒',
+          description: '',
+          date: mem.date,
+          createdBy: mem.createdBy,
+          createdAt: mem.createdAt,
+          isTimeCapsule: true,
+          unlockDate: mem.unlockDate,
+          locked: true
+        };
+      }
+      
+      // Retorna a memória normal convertida para objeto simples, adicionando locked: false
+      const memObj = mem.toObject();
+      memObj.locked = false;
+      return memObj;
+    });
+
+    res.json(processedMemories);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar memórias.' });
   }
@@ -16,7 +41,7 @@ router.get('/', verificarToken, async (req, res) => {
 // 2. Criar uma nova memória
 router.post('/', verificarToken, async (req, res) => {
   try {
-    const { title, description, date } = req.body;
+    const { title, description, date, isTimeCapsule, unlockDate } = req.body;
 
     if (!title || title.trim() === '') {
       return res.status(400).json({ error: 'O título do momento especial é obrigatório.' });
@@ -24,16 +49,32 @@ router.post('/', verificarToken, async (req, res) => {
     if (!date) {
       return res.status(400).json({ error: 'A data do momento é obrigatória.' });
     }
+    if (isTimeCapsule && !unlockDate) {
+      return res.status(400).json({ error: 'A data de abertura da Cápsula do Tempo é obrigatória.' });
+    }
 
     const novaMemoria = new Memory({
       title: title.trim(),
       description: description ? description.trim() : '',
       date: new Date(date),
-      createdBy: req.user.username
+      createdBy: req.user.username,
+      coupleId: req.coupleId,
+      isTimeCapsule: !!isTimeCapsule,
+      unlockDate: isTimeCapsule ? new Date(unlockDate) : null
     });
 
     await novaMemoria.save();
-    res.status(201).json(novaMemoria);
+    
+    // Retorna a memória com campo locked incluído para consistência no frontend
+    const memObj = novaMemoria.toObject();
+    const isLocked = memObj.isTimeCapsule && memObj.unlockDate && new Date(memObj.unlockDate) > new Date();
+    memObj.locked = isLocked;
+    if (isLocked) {
+      memObj.title = 'Cápsula do Tempo Trancada 🔒';
+      memObj.description = '';
+    }
+    
+    res.status(201).json(memObj);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao criar memória.' });
   }
@@ -45,6 +86,11 @@ router.delete('/:id', verificarToken, async (req, res) => {
     const memory = await Memory.findById(req.params.id);
     if (!memory) {
       return res.status(404).json({ error: 'Memória não encontrada.' });
+    }
+
+    // Garante que o utilizador pertence ao mesmo casal (ou é admin)
+    if (memory.coupleId !== req.coupleId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Não tens permissão para aceder a esta memória.' });
     }
 
     // Verifica se é o autor ou se é um admin

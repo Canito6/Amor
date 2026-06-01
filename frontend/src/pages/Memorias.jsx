@@ -11,6 +11,8 @@ export default function Memorias() {
   const [loading, setLoading] = useState(true);
   const [contadorDias, setContadorDias] = useState(0);
   const [primeiraData, setPrimeiraData] = useState(null);
+  const [isTimeCapsule, setIsTimeCapsule] = useState(false);
+  const [unlockDate, setUnlockDate] = useState('');
 
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
@@ -67,12 +69,16 @@ export default function Memorias() {
   const enviarMemoria = async (e) => {
     e.preventDefault();
     if (!title.trim() || !date) return;
+    if (isTimeCapsule && !unlockDate) {
+      setErro('Define a data de abertura da Cápsula do Tempo.');
+      return;
+    }
 
     try {
       setErro('');
       const novaMem = await apiFetch('/api/memories', {
         method: 'POST',
-        body: { title, description, date }
+        body: { title, description, date, isTimeCapsule, unlockDate }
       });
 
       // Insere na lista ordenada por data
@@ -86,7 +92,9 @@ export default function Memorias() {
       setTitle('');
       setDescription('');
       setDate('');
-      alert('Momento marcante guardado na Timeline! ⏳💖');
+      setIsTimeCapsule(false);
+      setUnlockDate('');
+      alert(isTimeCapsule ? 'Cápsula do Tempo criada com sucesso! 🔒⏳' : 'Momento marcante guardado na Timeline! ⏳💖');
     } catch (err) {
       setErro(err.message || 'Erro ao guardar momento.');
     }
@@ -185,12 +193,40 @@ export default function Memorias() {
               rows="3"
               className="input-control"
               style={{ resize: 'vertical' }}
+              disabled={isTimeCapsule} // Cápsulas trancadas não devem revelar detalhes antes de tempo
             />
+          </div>
+
+          {/* Opções de Cápsula do Tempo */}
+          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.4)', borderRadius: '16px', marginBottom: '15px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: '600' }}>
+              <input
+                type="checkbox"
+                checked={isTimeCapsule}
+                onChange={(e) => setIsTimeCapsule(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              🔒 Criar como Cápsula do Tempo (Trancar até uma data futura)
+            </label>
+            
+            {isTimeCapsule && (
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="input-label">Data de Abertura (Quando ficará visível?)</label>
+                <input
+                  type="date"
+                  value={unlockDate}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setUnlockDate(e.target.value)}
+                  required
+                  className="input-control"
+                />
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
             <button type="submit" className="btn btn-primary">
-              Registar Acontecimento 💕
+              {isTimeCapsule ? 'Trancar Cápsula do Tempo 🔒' : 'Registar Acontecimento 💕'}
             </button>
           </div>
         </form>
@@ -217,10 +253,19 @@ export default function Memorias() {
                 key={mem._id} 
                 className={`timeline-item ${isLeft ? 'timeline-left' : 'timeline-right'}`}
               >
-                <div className="timeline-card">
-                  <span className="timeline-date">{formatarDataExtenso(mem.date)}</span>
-                  <h3 className="timeline-title">{mem.title}</h3>
-                  {mem.description && <p className="timeline-desc">{mem.description}</p>}
+                <div className="timeline-card" style={mem.locked ? { border: '1px dashed var(--secondary-color)', background: 'rgba(114, 9, 183, 0.05)' } : {}}>
+                  <span className="timeline-date">
+                    {formatarDataExtenso(mem.date)}
+                    {mem.isTimeCapsule && (mem.locked ? ' 🔒 (Trancado)' : ' 🔓 (Cápsula Aberta)')}
+                  </span>
+                  <h3 className="timeline-title" style={mem.locked ? { color: 'var(--secondary-color)' } : {}}>{mem.title}</h3>
+                  {mem.locked ? (
+                    <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '12px', marginTop: '10px', fontSize: '13px', border: '1px solid rgba(114, 9, 183, 0.15)' }}>
+                      ⏳ Esta Cápsula do Tempo só abre a <strong>{formatarDataExtenso(mem.unlockDate)}</strong>. O segredo está guardado até lá! ❤️
+                    </div>
+                  ) : (
+                    mem.description && <p className="timeline-desc">{mem.description}</p>
+                  )}
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', borderTop: '1px dashed rgba(0,0,0,0.1)', paddingTop: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
                     <span>Registo por: <strong>{mem.createdBy}</strong></span>

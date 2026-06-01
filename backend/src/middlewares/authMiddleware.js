@@ -17,6 +17,7 @@ const verificarAdmin = (req, res, next) => {
     }
     
     req.user = decodificado;
+    req.coupleId = decodificado.coupleId || 'default_couple';
     next(); // Se estiver tudo bem, avança para a rota!
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });
@@ -33,6 +34,7 @@ const verificarToken = (req, res, next) => {
   try {
     const decodificado = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decodificado;
+    req.coupleId = decodificado.coupleId || 'default_couple';
     next();
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });

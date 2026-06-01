@@ -12,6 +12,10 @@ const messageSchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  coupleId: {
+    type: String,
+    default: 'default_couple'
   }
 });
 

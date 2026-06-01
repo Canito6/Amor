@@ -19,6 +19,17 @@ const memorySchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  coupleId: {
+    type: String,
+    default: 'default_couple'
+  },
+  isTimeCapsule: {
+    type: Boolean,
+    default: false
+  },
+  unlockDate: {
+    type: Date
   }
 });
 

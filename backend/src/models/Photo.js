@@ -15,6 +15,14 @@ const photoSchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  coupleId: {
+    type: String,
+    default: 'default_couple'
+  },
+  albumId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Album'
   }
 });
 

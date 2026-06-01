@@ -37,7 +37,18 @@ const uploadParaCloudinary = (buffer) => {
 // 1. Rota para obter todas as fotos (Mais recentes primeiro)
 router.get('/', verificarToken, async (req, res) => {
   try {
-    const photos = await Photo.find().sort({ createdAt: -1 });
+    const { albumId } = req.query;
+    const filtro = { coupleId: req.coupleId };
+    
+    if (albumId) {
+      if (albumId === 'sem-album') {
+        filtro.albumId = { $in: [null, undefined] };
+      } else {
+        filtro.albumId = albumId;
+      }
+    }
+
+    const photos = await Photo.find(filtro).sort({ createdAt: -1 });
     res.json(photos);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar fotos.' });
@@ -51,7 +62,7 @@ router.post('/upload', verificarToken, upload.single('image'), async (req, res) 
       return res.status(400).json({ error: 'Por favor, seleciona um ficheiro de imagem.' });
     }
 
-    const { caption } = req.body;
+    const { caption, albumId } = req.body;
 
     // Enviar o buffer do ficheiro para o Cloudinary
     const resultado = await uploadParaCloudinary(req.file.buffer);
@@ -60,7 +71,9 @@ router.post('/upload', verificarToken, upload.single('image'), async (req, res) 
     const novaFoto = new Photo({
       url: resultado.secure_url,
       caption: caption || '',
-      uploadedBy: req.user.username
+      uploadedBy: req.user.username,
+      coupleId: req.coupleId,
+      albumId: albumId && albumId !== 'sem-album' ? albumId : undefined
     });
 
     await novaFoto.save();
@@ -77,6 +90,11 @@ router.delete('/:id', verificarToken, async (req, res) => {
     const photo = await Photo.findById(req.params.id);
     if (!photo) {
       return res.status(404).json({ error: 'Foto não encontrada.' });
+    }
+
+    // Garante que o utilizador pertence ao mesmo casal da foto (ou é admin)
+    if (photo.coupleId !== req.coupleId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Não tens permissão para aceder a esta foto.' });
     }
 
     // Apenas quem fez upload ou admin pode apagar

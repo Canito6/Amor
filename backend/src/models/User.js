@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordExpires: { 
     type: Date 
+  },
+  coupleId: {
+    type: String,
+    default: 'default_couple'
   }
 });
 
