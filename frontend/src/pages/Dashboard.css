@@ -1,0 +1,121 @@
+/* ==========================================================================
+   COMPONENTE: TOPBAR (MOBILE / STACKED)
+   ========================================================================== */
+.app-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  z-index: 150;
+  border-radius: 0 0 24px 24px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  padding: 0 20px;
+}
+
+.topbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.topbar-toggle {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 5px;
+}
+
+.topbar-brand {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-settings-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 5px;
+  transition: var(--transition-smooth);
+}
+
+.topbar-settings-btn:hover {
+  transform: rotate(45deg);
+}
+
+/* ==========================================================================
+   COMPONENTE: CARTÕES ACUMULADOS / VERTICAIS (STACKED)
+   ========================================================================== */
+.stacked-cards-list {
+  max-width: 600px;
+  margin: 30px auto !important;
+}
+
+.nav-card-stacked {
+  display: flex;
+  align-items: center;
+  padding: 22px 25px;
+  border-radius: 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  border-left: 6px solid var(--card-accent, var(--primary-color));
+}
+
+.nav-card-stacked:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.card-stacked-icon {
+  font-size: 32px;
+  transition: var(--transition-smooth);
+}
+
+.nav-card-stacked:hover .card-stacked-icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.card-stacked-info {
+  flex: 1;
+}
+
+.card-stacked-info h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.card-stacked-info p {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.card-stacked-arrow {
+  font-size: 18px;
+  color: var(--card-accent, var(--primary-color));
+  transition: var(--transition-smooth);
+}
+
+.nav-card-stacked:hover .card-stacked-arrow {
+  transform: translateX(5px);
+}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
+import { usePreferences } from '../context/PreferencesContext';
+import { translations } from '../services/translations';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -8,6 +10,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
+
+  const { language } = usePreferences();
+  const t = translations[language];
 
   useEffect(() => {
     const role = localStorage.getItem('role');
@@ -28,7 +33,7 @@ export default function AdminDashboard() {
       const dados = await apiFetch('/api/admin/users');
       setUsers(dados);
     } catch (err) {
-      setErro(err.message || 'Erro ao procurar utilizadores.');
+      setErro(err.message || (language === 'pt' ? 'Erro ao procurar utilizadores.' : 'Error fetching users.'));
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,7 @@ export default function AdminDashboard() {
   // 1. MUDAR CARGO (Admin <-> User)
   const mudarPermissao = async (user) => {
     if (user.username === meuNome) {
-      return alert('Não podes tirar as tuas próprias permissões de Admin!');
+      return alert(language === 'pt' ? 'Não podes tirar as tuas próprias permissões de Admin!' : 'You cannot remove your own Admin permissions!');
     }
 
     const novaRole = user.role === 'admin' ? 'user' : 'admin';
@@ -49,19 +54,19 @@ export default function AdminDashboard() {
       });
       
       setUsers(users.map(u => u._id === user._id ? { ...u, role: novaRole } : u));
-      alert('Permissões alteradas com sucesso!');
+      alert(language === 'pt' ? 'Permissões alteradas com sucesso!' : 'Permissions updated successfully!');
     } catch (error) {
-      alert(error.message || 'Erro ao alterar permissões.');
+      alert(error.message || (language === 'pt' ? 'Erro ao alterar permissões.' : 'Error updating permissions.'));
     }
   };
 
   // 2. APAGAR UTILIZADOR
   const apagarUtilizador = async (user) => {
     if (user.username === meuNome) {
-      return alert('Não podes apagar a tua própria conta!');
+      return alert(language === 'pt' ? 'Não podes apagar a tua própria conta!' : 'You cannot delete your own account!');
     }
 
-    if (!window.confirm(`Tens a certeza que queres apagar o/a ${user.username} para sempre?`)) return;
+    if (!window.confirm(language === 'pt' ? `Tens a certeza que queres apagar o/a ${user.username} para sempre?` : `Are you sure you want to delete ${user.username} forever?`)) return;
 
     try {
       await apiFetch(`/api/admin/users/${user._id}`, {
@@ -69,18 +74,20 @@ export default function AdminDashboard() {
       });
       
       setUsers(users.filter(u => u._id !== user._id));
-      alert('Utilizador apagado com sucesso!');
+      alert(language === 'pt' ? 'Utilizador apagado com sucesso!' : 'User deleted successfully!');
     } catch (error) {
-      alert(error.message || 'Erro ao apagar utilizador.');
+      alert(error.message || (language === 'pt' ? 'Erro ao apagar utilizador.' : 'Error deleting user.'));
     }
   };
 
   // 3. EDITAR EMAIL E/OU PASSWORD
   const editarUtilizador = async (user) => {
-    const novoEmail = window.prompt(`Editar o email de ${user.username}:`, user.email);
+    const novoEmail = window.prompt(language === 'pt' ? `Editar o email de ${user.username}:` : `Edit email for ${user.username}:`, user.email);
     if (novoEmail === null) return; 
 
-    const novaPassword = window.prompt(`Queres mudar a password do/a ${user.username}?\n\nEscreve a password temporária (Deixa em branco se NÃO quiseres alterar a password):`);
+    const novaPassword = window.prompt(language === 'pt' 
+      ? `Queres mudar a password do/a ${user.username}?\n\nEscreve a password temporária (Deixa em branco se NÃO quiseres alterar a password):` 
+      : `Do you want to change the password for ${user.username}?\n\nType the temporary password (Leave blank if you do NOT want to change the password):`);
     if (novaPassword === null) return; 
 
     const corpo = {};
@@ -88,7 +95,7 @@ export default function AdminDashboard() {
     if (novaPassword.trim() !== '') corpo.password = novaPassword.trim();
 
     if (Object.keys(corpo).length === 0) {
-      return alert('Nenhuma alteração foi feita.');
+      return alert(language === 'pt' ? 'Nenhuma alteração foi feita.' : 'No changes were made.');
     }
 
     try {
@@ -100,12 +107,14 @@ export default function AdminDashboard() {
       setUsers(users.map(u => u._id === user._id ? { ...u, email: novoEmail || u.email } : u));
       
       if (corpo.password) {
-        alert('Utilizador atualizado! Na próxima vez que ele entrar, o site vai obrigá-lo a escolher uma password nova.');
+        alert(language === 'pt' 
+          ? 'Utilizador atualizado! Na próxima vez que ele entrar, o site vai obrigá-lo a escolher uma password nova.' 
+          : 'User updated! Next time they log in, the website will require them to choose a new password.');
       } else {
-        alert('Email atualizado com sucesso!');
+        alert(language === 'pt' ? 'Email atualizado com sucesso!' : 'Email updated successfully!');
       }
     } catch (error) {
-      alert(error.message || 'Erro ao editar utilizador.');
+      alert(error.message || (language === 'pt' ? 'Erro ao editar utilizador.' : 'Error editing user.'));
     }
   };
 
@@ -113,9 +122,9 @@ export default function AdminDashboard() {
     <div className="app-container fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
-          ⬅ Voltar ao Dashboard
+          ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>Painel do Chefe 👑</h1>
+        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{language === 'pt' ? 'Painel do Chefe 👑' : 'Admin Panel 👑'}</h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
@@ -126,26 +135,26 @@ export default function AdminDashboard() {
       )}
 
       <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ marginBottom: '20px', fontSize: '20px' }}>Gestão de Contas do Cantinho</h2>
+        <h2 style={{ marginBottom: '20px', fontSize: '20px' }}>{language === 'pt' ? 'Gestão de Contas do Cantinho' : "Corner's Account Management"}</h2>
 
         {loading ? (
-          <p style={{ color: 'var(--text-muted)' }}>A carregar utilizadores... ⏳</p>
+          <p style={{ color: 'var(--text-muted)' }}>{language === 'pt' ? 'A carregar utilizadores... ⏳' : 'Loading users... ⏳'}</p>
         ) : (
           <div className="admin-table-container">
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Nome</th>
+                  <th>{language === 'pt' ? 'Nome' : 'Name'}</th>
                   <th>Email</th>
-                  <th style={{ textAlign: 'center' }}>Cargo</th>
-                  <th style={{ textAlign: 'center' }}>Ações</th>
+                  <th style={{ textAlign: 'center' }}>{language === 'pt' ? 'Cargo' : 'Role'}</th>
+                  <th style={{ textAlign: 'center' }}>{language === 'pt' ? 'Ações' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user._id}>
                     <td style={{ fontWeight: '600' }}>
-                      {user.username} {user.username === meuNome && <span style={{ color: 'var(--primary-color)' }}>(Tu)</span>}
+                      {user.username} {user.username === meuNome && <span style={{ color: 'var(--primary-color)' }}>{language === 'pt' ? '(Tu)' : '(You)'}</span>}
                     </td>
                     <td>{user.email}</td>
                     <td style={{ textAlign: 'center' }}>
@@ -169,14 +178,14 @@ export default function AdminDashboard() {
                           className="btn"
                           style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: '#e2e8f0', color: '#4a5568' }}
                         >
-                          ✏️ Editar
+                          ✏️ {language === 'pt' ? 'Editar' : 'Edit'}
                         </button>
                         <button 
                           onClick={() => mudarPermissao(user)}
                           className="btn btn-secondary"
                           style={{ padding: '6px 12px', fontSize: '13px' }}
                         >
-                          Tornar {user.role === 'admin' ? 'User' : 'Admin'}
+                          {language === 'pt' ? 'Tornar' : 'Make'} {user.role === 'admin' ? 'User' : 'Admin'}
                         </button>
                         {user.username !== meuNome && (
                           <button 
@@ -184,7 +193,7 @@ export default function AdminDashboard() {
                             className="btn btn-danger"
                             style={{ padding: '6px 12px', fontSize: '13px' }}
                           >
-                            Apagar
+                            {language === 'pt' ? 'Apagar' : 'Delete'}
                           </button>
                         )}
                       </div>

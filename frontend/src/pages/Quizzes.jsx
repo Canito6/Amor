@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
+import { usePreferences } from '../context/PreferencesContext';
+import { translations } from '../services/translations';
 
 export default function Quizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -25,6 +27,9 @@ export default function Quizzes() {
   const meuNome = localStorage.getItem('nome');
   const minhaRole = localStorage.getItem('role');
 
+  const { language } = usePreferences();
+  const t = translations[language];
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -40,7 +45,7 @@ export default function Quizzes() {
       const dados = await apiFetch('/api/quizzes');
       setQuizzes(dados);
     } catch (err) {
-      setErro(err.message || 'Erro ao carregar quizzes.');
+      setErro(err.message || (language === 'pt' ? 'Erro ao carregar quizzes.' : 'Error loading quizzes.'));
     } finally {
       setLoading(false);
     }
@@ -77,15 +82,15 @@ export default function Quizzes() {
     // Validações básicas
     for (const [index, q] of questions.entries()) {
       if (!q.questionText.trim()) {
-        alert(`A pergunta nº ${index + 1} está sem texto.`);
+        alert(t.quizzes_alert_empty_question.replace('{num}', index + 1));
         return;
       }
       if (q.options.some(opt => !opt.trim())) {
-        alert(`Preenche todas as opções da pergunta nº ${index + 1}.`);
+        alert(t.quizzes_alert_empty_option.replace('{num}', index + 1));
         return;
       }
       if (!q.creatorAnswer) {
-        alert(`Escolhe a resposta correta para a pergunta nº ${index + 1}.`);
+        alert(t.quizzes_alert_no_correct.replace('{num}', index + 1));
         return;
       }
     }
@@ -100,9 +105,9 @@ export default function Quizzes() {
       setQuizTitle('');
       setQuestions([{ questionText: '', options: ['', '', ''], creatorAnswer: '' }]);
       setShowCreator(false);
-      alert('Quiz criado com sucesso! O teu parceiro já pode jogar! 🎮💖');
+      alert(t.quizzes_alert_created_success);
     } catch (err) {
-      setErro(err.message || 'Erro ao criar quiz.');
+      setErro(err.message || (language === 'pt' ? 'Erro ao criar quiz.' : 'Error creating quiz.'));
     }
   };
 
@@ -115,7 +120,7 @@ export default function Quizzes() {
   const submeterRespostas = async (e) => {
     e.preventDefault();
     if (currentGuesses.some(g => g === '')) {
-      alert('Responde a todas as perguntas antes de submeter.');
+      alert(t.quizzes_alert_unanswered);
       return;
     }
 
@@ -131,12 +136,12 @@ export default function Quizzes() {
       setActiveQuiz(null);
       setSelectedCompletedQuiz(atualizado); // Abre o feedback
     } catch (err) {
-      setErro(err.message || 'Erro ao submeter respostas.');
+      setErro(err.message || (language === 'pt' ? 'Erro ao submeter respostas.' : 'Error submitting answers.'));
     }
   };
 
   const apagarQuiz = async (id) => {
-    if (!window.confirm('Queres apagar este quiz?')) return;
+    if (!window.confirm(t.quizzes_confirm_delete)) return;
     try {
       setErro('');
       await apiFetch(`/api/quizzes/${id}`, { method: 'DELETE' });
@@ -145,7 +150,7 @@ export default function Quizzes() {
         setSelectedCompletedQuiz(null);
       }
     } catch (err) {
-      setErro(err.message || 'Erro ao apagar quiz.');
+      setErro(err.message || (language === 'pt' ? 'Erro ao apagar quiz.' : 'Error deleting quiz.'));
     }
   };
 
@@ -159,9 +164,9 @@ export default function Quizzes() {
       {/* Cabeçalho */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
-          ⬅ Voltar ao Dashboard
+          ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>Quizzes do Amor 🎮</h1>
+        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{t.quizzes_title}</h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
@@ -170,9 +175,9 @@ export default function Quizzes() {
       {/* TELA DE JOGAR QUIZ (RESPONDER) */}
       {activeQuiz && (
         <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-          <h2 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>Jogando: {activeQuiz.title}</h2>
+          <h2 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>{t.quizzes_playing_title.replace('{title}', activeQuiz.title)}</h2>
           <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>
-            Criado por: <strong>{activeQuiz.createdBy}</strong>. Consegues adivinhar todas as respostas?
+            {t.quizzes_playing_desc.replace('{creator}', activeQuiz.createdBy)}
           </p>
 
           <form onSubmit={submeterRespostas} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
@@ -223,10 +228,10 @@ export default function Quizzes() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
               <button type="button" className="btn btn-dark" onClick={() => setActiveQuiz(null)}>
-                Desistir / Cancelar ❌
+                {t.quizzes_button_giveup}
               </button>
               <button type="submit" className="btn btn-primary">
-                Submeter Respostas 🏁
+                {t.quizzes_button_submit}
               </button>
             </div>
           </form>
@@ -283,15 +288,15 @@ export default function Quizzes() {
             <div style={{ textAlign: 'center', marginBottom: '25px' }}>
               <span style={{ fontSize: '60px' }}>🎉</span>
               <h2 style={{ color: 'var(--primary-color)', fontSize: '24px', marginTop: '10px' }}>
-                Resultado do Quiz: {selectedCompletedQuiz.title}
+                {t.quizzes_lightbox_result.replace('{title}', selectedCompletedQuiz.title)}
               </h2>
               <p style={{ fontSize: '18px', margin: '15px 0' }}>
-                Pontuação: <strong style={{ fontSize: '28px', color: 'var(--secondary-color)' }}>{selectedCompletedQuiz.score}</strong> de {selectedCompletedQuiz.questions.length} acertadas!
+                {t.quizzes_lightbox_score.replace('{score}', selectedCompletedQuiz.score).replace('{total}', selectedCompletedQuiz.questions.length)}
               </p>
             </div>
 
             <h3 style={{ fontSize: '16px', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '15px' }}>
-              Revisão das Perguntas:
+              {t.quizzes_lightbox_review}
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -312,10 +317,12 @@ export default function Quizzes() {
                     </p>
                     <div style={{ fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <span style={{ color: '#2a9d8f' }}>
-                        ✔️ Resposta Correta ({selectedCompletedQuiz.createdBy}): <strong>{q.creatorAnswer}</strong>
+                        {t.quizzes_lightbox_correct.replace('{creator}', selectedCompletedQuiz.createdBy).replace('{answer}', q.creatorAnswer)}
                       </span>
                       <span style={{ color: acertou ? '#2a9d8f' : '#e63946' }}>
-                        {acertou ? '🎯 Teu palpite:' : '❌ Teu palpite:'} <strong>{q.partnerGuess}</strong>
+                        {acertou 
+                          ? t.quizzes_lightbox_guess_correct.replace('{guess}', q.partnerGuess) 
+                          : t.quizzes_lightbox_guess_wrong.replace('{guess}', q.partnerGuess)}
                       </span>
                     </div>
                   </div>
@@ -325,7 +332,7 @@ export default function Quizzes() {
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '25px' }}>
               <button className="btn btn-primary" onClick={() => setSelectedCompletedQuiz(null)}>
-                Fechar Detalhes 🚪
+                {t.quizzes_lightbox_close}
               </button>
             </div>
           </div>
@@ -336,18 +343,18 @@ export default function Quizzes() {
       {showCreator && (
         <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '20px', margin: 0 }}>Criar Novo Quiz Personalizado 📝</h2>
+            <h2 style={{ fontSize: '20px', margin: 0 }}>{t.quizzes_create_title}</h2>
             <button className="btn btn-dark" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setShowCreator(false)}>
-              Fechar Criador ✕
+              {t.quizzes_create_close}
             </button>
           </div>
 
           <form onSubmit={submeterNovoQuiz} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="form-group">
-              <label className="input-label">Título do Quiz</label>
+              <label className="input-label">{t.quizzes_create_quiz_title}</label>
               <input
                 type="text"
-                placeholder="Ex: O quanto conheces os meus gostos?"
+                placeholder={t.quizzes_placeholder_title}
                 value={quizTitle}
                 onChange={(e) => setQuizTitle(e.target.value)}
                 required
@@ -384,14 +391,14 @@ export default function Quizzes() {
                   )}
 
                   <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--primary-color)' }}>
-                    Pergunta #{pIndex + 1}
+                    {t.quizzes_create_question_num.replace('{num}', pIndex + 1)}
                   </h3>
 
                   <div className="form-group" style={{ marginBottom: '15px' }}>
-                    <label className="input-label">Texto da Pergunta</label>
+                    <label className="input-label">{t.quizzes_create_question_text}</label>
                     <input
                       type="text"
-                      placeholder="Ex: Qual é o meu prato de comida favorito?"
+                      placeholder={t.quizzes_placeholder_qtext}
                       value={q.questionText}
                       onChange={(e) => atualizarPergunta(pIndex, 'questionText', e.target.value)}
                       required
@@ -402,10 +409,10 @@ export default function Quizzes() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '15px' }}>
                     {q.options.map((opt, oIndex) => (
                       <div key={oIndex} className="form-group" style={{ margin: 0 }}>
-                        <label className="input-label">Opção {oIndex + 1}</label>
+                        <label className="input-label">{t.quizzes_create_option_num.replace('{num}', oIndex + 1)}</label>
                         <input
                           type="text"
-                          placeholder={`Opção ${oIndex + 1}`}
+                          placeholder={t.quizzes_create_option_num.replace('{num}', oIndex + 1)}
                           value={opt}
                           onChange={(e) => atualizarOpcao(pIndex, oIndex, e.target.value)}
                           required
@@ -416,7 +423,7 @@ export default function Quizzes() {
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="input-label">Qual é a resposta correta?</label>
+                    <label className="input-label">{t.quizzes_create_correct_select}</label>
                     <select
                       value={q.creatorAnswer}
                       onChange={(e) => atualizarPergunta(pIndex, 'creatorAnswer', e.target.value)}
@@ -424,7 +431,7 @@ export default function Quizzes() {
                       className="input-control"
                       style={{ appearance: 'auto' }}
                     >
-                      <option value="">-- Escolhe a resposta --</option>
+                      <option value="">{t.quizzes_create_correct_placeholder}</option>
                       {q.options.filter(o => o.trim() !== '').map((opt, oIndex) => (
                         <option key={oIndex} value={opt}>{opt}</option>
                       ))}
@@ -436,10 +443,10 @@ export default function Quizzes() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
               <button type="button" className="btn btn-secondary" onClick={adicionarPergunta}>
-                ➕ Adicionar Outra Pergunta
+                {t.quizzes_create_add_question}
               </button>
               <button type="submit" className="btn btn-primary">
-                Criar e Publicar Quiz 🎮💖
+                {t.quizzes_create_publish}
               </button>
             </div>
           </form>
@@ -454,7 +461,7 @@ export default function Quizzes() {
           {!showCreator && (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button className="btn btn-primary" onClick={() => setShowCreator(true)}>
-                ✍️ Criar Novo Quiz sobre Mim
+                {t.quizzes_dashboard_create_btn}
               </button>
             </div>
           )}
@@ -462,14 +469,14 @@ export default function Quizzes() {
           {/* LISTA: QUIZZES PENDENTES DE RESPONDER */}
           <div className="glass-panel" style={{ padding: '25px' }}>
             <h2 style={{ fontSize: '20px', color: 'var(--primary-color)', marginBottom: '15px' }}>
-              🎮 Quizzes do meu Amor por Responder ({quizzesPendentesParaMim.length})
+              {t.quizzes_dashboard_pending_title.replace('{count}', quizzesPendentesParaMim.length)}
             </h2>
             
             {loading ? (
-              <p style={{ color: 'var(--text-muted)' }}>A carregar quizzes...</p>
+              <p style={{ color: 'var(--text-muted)' }}>{language === 'pt' ? 'A carregar quizzes...' : 'Loading quizzes...'}</p>
             ) : quizzesPendentesParaMim.length === 0 ? (
               <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>
-                Estás em dia! Não há quizzes pendentes para responder.
+                {t.quizzes_dashboard_pending_empty}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -494,7 +501,7 @@ export default function Quizzes() {
                       </span>
                     </div>
                     <button className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => iniciarQuiz(q)}>
-                      Responder 🎯
+                      {t.quizzes_dashboard_pending_btn}
                     </button>
                   </div>
                 ))}
@@ -505,14 +512,14 @@ export default function Quizzes() {
           {/* LISTA: MEUS QUIZZES CRIADOS */}
           <div className="glass-panel" style={{ padding: '25px' }}>
             <h2 style={{ fontSize: '20px', color: 'var(--secondary-color)', marginBottom: '15px' }}>
-              ✍️ Os Quizzes que eu criei ({meusQuizzesCriados.length})
+              {t.quizzes_dashboard_my_title.replace('{count}', meusQuizzesCriados.length)}
             </h2>
             
             {loading ? (
-              <p style={{ color: 'var(--text-muted)' }}>A carregar quizzes...</p>
+              <p style={{ color: 'var(--text-muted)' }}>{language === 'pt' ? 'A carregar quizzes...' : 'Loading quizzes...'}</p>
             ) : meusQuizzesCriados.length === 0 ? (
               <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>
-                Ainda não criaste nenhum quiz sobre ti. Experimenta criar um!
+                {t.quizzes_dashboard_my_empty}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -533,7 +540,7 @@ export default function Quizzes() {
                     <div>
                       <h3 style={{ fontSize: '16px', margin: '0 0 4px 0' }}>{q.title}</h3>
                       <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        Perguntas: {q.questions.length} | Criado em: {new Date(q.createdAt).toLocaleDateString('pt-PT')}
+                        {language === 'pt' ? 'Perguntas' : 'Questions'}: {q.questions.length} | {language === 'pt' ? 'Criado em' : 'Created on'}: {new Date(q.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US')}
                       </span>
                     </div>
                     
@@ -550,9 +557,9 @@ export default function Quizzes() {
                             cursor: 'pointer'
                           }}
                           onClick={() => setSelectedCompletedQuiz(q)}
-                          title="Carrega para ver as respostas"
+                          title={language === 'pt' ? "Carrega para ver as respostas" : "Click to view responses"}
                         >
-                          Respondido! Pontuação: {q.score}/{q.questions.length} 📊
+                          {t.quizzes_dashboard_my_completed_status.replace('{score}', q.score).replace('{total}', q.questions.length)}
                         </span>
                       ) : (
                         <span 
@@ -564,7 +571,7 @@ export default function Quizzes() {
                             borderRadius: '10px'
                           }}
                         >
-                          Aguardando parceiro(a) ⏳
+                          {t.quizzes_dashboard_my_pending_status}
                         </span>
                       )}
 
@@ -592,14 +599,14 @@ export default function Quizzes() {
           {/* LISTA: HISTÓRICO DE QUIZZES QUE JÁ RESPONDI */}
           <div className="glass-panel" style={{ padding: '25px' }}>
             <h2 style={{ fontSize: '20px', color: 'var(--text-main)', marginBottom: '15px' }}>
-              📜 Quizzes Concluídos que eu respondi ({historicoQuizzesCompletados.length})
+              {t.quizzes_dashboard_history_title.replace('{count}', historicoQuizzesCompletados.length)}
             </h2>
             
             {loading ? (
-              <p style={{ color: 'var(--text-muted)' }}>A carregar quizzes...</p>
+              <p style={{ color: 'var(--text-muted)' }}>{language === 'pt' ? 'A carregar quizzes...' : 'Loading quizzes...'}</p>
             ) : historicoQuizzesCompletados.length === 0 ? (
               <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>
-                Ainda não respondeste a nenhum quiz do teu amor.
+                {t.quizzes_dashboard_history_empty}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -629,7 +636,7 @@ export default function Quizzes() {
                         style={{ padding: '6px 12px', fontSize: '12.5px' }} 
                         onClick={() => setSelectedCompletedQuiz(q)}
                       >
-                        Ver Respostas 📊
+                        {t.quizzes_dashboard_history_btn}
                       </button>
                     </div>
                   </div>

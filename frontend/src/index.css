@@ -204,73 +204,6 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-3px);
 }
 
-/* Cartões do Dashboard Principal */
-.nav-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 28px;
-  margin: 45px 0;
-}
-
-.nav-card {
-  padding: 35px 25px;
-  text-align: center;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  height: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-  opacity: 0;
-  transition: var(--transition-smooth);
-  pointer-events: none;
-}
-
-.nav-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-hover);
-  border-color: rgba(255, 77, 109, 0.4);
-}
-
-.nav-card:hover::after {
-  opacity: 0.3;
-}
-
-.nav-card-icon {
-  font-size: 46px;
-  margin-bottom: 12px;
-  display: inline-block;
-  transition: var(--transition-smooth);
-}
-
-.nav-card:hover .nav-card-icon {
-  transform: scale(1.25) rotate(8deg);
-  filter: drop-shadow(0 10px 15px rgba(255, 77, 109, 0.3));
-}
-
-.nav-card-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.nav-card-desc {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  max-width: 90%;
-}
 
 /* Mural de Notas/Post-its com Estilo Fita-Cola */
 .notes-grid {
@@ -650,5 +583,76 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   padding: 4px 8px;
   border-radius: 10px;
+}
+
+/* ==========================================================================
+   TEMA ESCURO (DARK MODE) OVERRIDES & TRANSITIONS
+   ========================================================================== */
+body {
+  transition: background 0.5s ease;
+}
+
+/* Transição suave das variáveis CSS no root */
+:root {
+  transition: --primary-color 0.4s ease, --primary-hover 0.4s ease, --bg-gradient 0.5s ease;
+}
+
+.theme-dark {
+  --card-bg: rgba(26, 27, 41, 0.75);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f8f9fa;
+  --text-muted: #adb5bd;
+  --bg-gradient: linear-gradient(-45deg, #2d0015, #15002b, #001724, #12121e);
+}
+
+.theme-dark body {
+  color: var(--text-main);
+}
+
+.theme-dark .input-control {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.theme-dark .input-control:focus {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--primary-color);
+}
+
+.theme-dark .post-it-content {
+  color: #1a1a24; /* Manter post-its legíveis */
+}
+
+/* ==========================================================================
+   LAYOUT GERAL: SIDEBAR & STACKED
+   ========================================================================== */
+.layout-root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Modo Sidebar Layout */
+.layout-sidebar {
+  display: flex;
+}
+
+.layout-sidebar .layout-content-wrapper {
+  flex: 1;
+  min-height: 100vh;
+  padding-left: 280px;
+  width: 100%;
+  transition: padding-left 0.3s ease;
+}
+
+/* Modo Stacked Layout */
+.layout-stacked .layout-content-wrapper {
+  padding-top: 80px;
+  width: 100%;
+}
+
+.content-outlet {
+  width: 100%;
+  min-height: 100vh;
 }
 

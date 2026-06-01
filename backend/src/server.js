@@ -25,6 +25,7 @@ const memoryRoutes = require('./routes/memories');
 const albumRoutes = require('./routes/albums');
 const quizRoutes = require('./routes/quizzes');
 const eventRoutes = require('./routes/events');
+const tabRoutes = require('./routes/tabs');
 
 app.use('/api/messages', messageRoutes);
 app.use('/api/photos', photoRoutes);
@@ -32,6 +33,7 @@ app.use('/api/memories', memoryRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/tabs', tabRoutes);
 
 // Ligação ao MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)

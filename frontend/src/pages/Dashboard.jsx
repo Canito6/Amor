@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
+import { usePreferences, themePresets } from '../context/PreferencesContext';
+import { translations } from '../services/translations';
+import './Dashboard.css';
 
 export default function Dashboard() {
   const [nome, setNome] = useState('');
   const [nextEvent, setNextEvent] = useState(null);
   const [daysRemaining, setDaysRemaining] = useState(null);
   const navigate = useNavigate();
-
-  // Vai buscar a "role" (cargo) que guardámos no login para saber se é admin
   const roleGuardado = localStorage.getItem('role');
+
+  const { language, layoutStyle, customTabs } = usePreferences();
+  const t = translations[language];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -18,7 +22,7 @@ export default function Dashboard() {
     if (!token) {
       navigate('/');
     } else {
-      setNome(nomeGuardado);
+      setNome(nomeGuardado || 'Amor');
       carregarProximoEvento();
     }
   }, [navigate]);
@@ -30,15 +34,12 @@ export default function Dashboard() {
         const hoje = new Date();
         hoje.setHours(0,0,0,0);
 
-        // Encontra o próximo evento futuro (ou hoje)
         const futuros = events.filter(e => new Date(e.date).setHours(0,0,0,0) >= hoje.getTime());
         if (futuros.length > 0) {
-          // Já vêm ordenados do backend, mas garantimos ordenação
           const ordenados = futuros.sort((a, b) => new Date(a.date) - new Date(b.date));
           const proximo = ordenados[0];
           setNextEvent(proximo);
 
-          // Calcula dias restantes
           const dataEvt = new Date(proximo.date);
           dataEvt.setHours(0,0,0,0);
           const diferencaMs = dataEvt.getTime() - hoje.getTime();
@@ -52,32 +53,47 @@ export default function Dashboard() {
   };
 
   const terminarSessao = () => {
-    localStorage.clear(); // Limpa o localStorage
-    navigate('/'); // Volta para o login
+    localStorage.clear();
+    navigate('/');
   };
 
   const formatarDataExtenso = (dataStr) => {
     const dataObj = new Date(dataStr);
-    return dataObj.toLocaleDateString('pt-PT', {
+    return dataObj.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
     });
   };
 
+  const formatarDiasRestantes = (dias) => {
+    if (dias === 0) return t.days_remaining_today;
+    if (dias === 1) return t.days_remaining_one;
+    return t.days_remaining_many.replace('{count}', dias);
+  };
+
+  // Cartões de navegação padrão
+  const defaultCards = [
+    { path: '/mensagens', label: t.messages, icon: '💌', desc: language === 'pt' ? 'Deixa mensagens de carinho e cartas românticas' : 'Leave sweet messages and love letters', preset: 'romance' },
+    { path: '/fotos', label: t.photos, icon: '📸', desc: language === 'pt' ? 'Guarda e recorda os nossos momentos felizes' : 'Save and recall our happy moments', preset: 'sunset' },
+    { path: '/memorias', label: t.memories, icon: '⏳', desc: language === 'pt' ? 'A nossa linha do tempo e contadores especiais' : 'Our timeline and special counters', preset: 'lavender' },
+    { path: '/quizzes', label: t.quizzes, icon: '🎮', desc: language === 'pt' ? 'O quanto me conheces? Jogo de perguntas' : 'How well do you know me? Trivia game', preset: 'mint' },
+    { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
+  ];
+
   return (
-    <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '40px' }}>
+    <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '20px' }}>
       {/* Mensagem de Boas-Vindas */}
       <div className="glass-panel" style={{ padding: '30px 20px', marginBottom: '30px' }}>
         <h1 style={{ color: 'var(--primary-color)', fontSize: '34px', marginBottom: '8px' }}>
-          Bem-vindo(a), {nome}! ❤️
+          {t.welcome}, {nome}! ❤️
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
-          O que queres partilhar ou ver hoje no nosso Cantinho?
+          {t.what_to_do}
         </p>
       </div>
 
-      {/* Widget de Contagem Decrescente (Próxima Data Importante) */}
+      {/* Widget de Contagem Decrescente */}
       {nextEvent && (
         <div 
           className="glass-panel" 
@@ -92,9 +108,9 @@ export default function Dashboard() {
             gap: '8px'
           }}
         >
-          <span style={{ fontSize: '24px' }}>⏳ Contagem Decrescente</span>
+          <span style={{ fontSize: '24px' }}>{t.countdown}</span>
           <h2 style={{ fontSize: '18px', color: 'var(--text-main)', margin: 0 }}>
-            Próximo Evento: <strong style={{ color: 'var(--primary-color)' }}>{nextEvent.title}</strong>
+            {t.next_event}: <strong style={{ color: 'var(--primary-color)' }}>{nextEvent.title}</strong>
           </h2>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>
             {formatarDataExtenso(nextEvent.date)}
@@ -111,73 +127,53 @@ export default function Dashboard() {
               border: '1px solid rgba(114, 9, 183, 0.15)'
             }}
           >
-            {daysRemaining === 0 ? '🎯 É HOJE!' : (daysRemaining === 1 ? 'Falta 1 dia!' : `Faltam ${daysRemaining} dias!`)}
+            {formatarDiasRestantes(daysRemaining)}
           </span>
         </div>
       )}
 
-      {/* Grid de Navegação dos Cartões */}
-      <div className="nav-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
-        {/* Cartão de Mensagens */}
-        <div 
-          className="glass-panel nav-card"
-          onClick={() => navigate('/mensagens')}
-          style={{ height: '190px' }}
-        >
-          <span className="nav-card-icon">💌</span>
-          <h3 className="nav-card-title" style={{ fontSize: '18px' }}>Mural de Notas</h3>
-          <p className="nav-card-desc" style={{ fontSize: '12.5px' }}>Deixa mensagens de carinho e cartas românticas</p>
-        </div>
+      {/* LAYOUT DE CARTÕES (Apenas quando layoutStyle === 'stacked') */}
+      {layoutStyle === 'stacked' && (
+        <div className="stacked-cards-list" style={{ display: 'flex', flexDirection: 'column', gap: '18px', margin: '30px 0' }}>
+          {defaultCards.map(card => (
+            <div 
+              key={card.path}
+              className="glass-panel nav-card-stacked preset-theme-card"
+              onClick={() => navigate(card.path)}
+              style={{ '--card-accent': themePresets[card.preset].accent }}
+            >
+              <div className="card-stacked-icon">{card.icon}</div>
+              <div className="card-stacked-info">
+                <h3>{card.label}</h3>
+                <p>{card.desc}</p>
+              </div>
+              <div className="card-stacked-arrow">➔</div>
+            </div>
+          ))}
 
-        {/* Cartão de Fotos */}
-        <div 
-          className="glass-panel nav-card"
-          onClick={() => navigate('/fotos')}
-          style={{ height: '190px' }}
-        >
-          <span className="nav-card-icon">📸</span>
-          <h3 className="nav-card-title" style={{ fontSize: '18px' }}>Galeria de Fotos</h3>
-          <p className="nav-card-desc" style={{ fontSize: '12.5px' }}>Guarda e recorda os nossos momentos felizes</p>
+          {/* Abas personalizadas incluídas nos cartões stacked */}
+          {customTabs.map(tab => (
+            <div 
+              key={tab._id}
+              className="glass-panel nav-card-stacked custom-theme-card"
+              onClick={() => navigate(`/tab/${tab._id}`)}
+              style={{ '--card-accent': tab.accentColor }}
+            >
+              <div className="card-stacked-icon">{tab.icon}</div>
+              <div className="card-stacked-info">
+                <h3>{tab.title}</h3>
+                <p>{tab.contentType === 'notes' ? t.content_notes : (tab.contentType === 'media' ? t.content_media : t.content_link)}</p>
+              </div>
+              <div className="card-stacked-arrow">➔</div>
+            </div>
+          ))}
         </div>
+      )}
 
-        {/* Cartão de Memórias */}
-        <div 
-          className="glass-panel nav-card"
-          onClick={() => navigate('/memorias')}
-          style={{ height: '190px' }}
-        >
-          <span className="nav-card-icon">⏳</span>
-          <h3 className="nav-card-title" style={{ fontSize: '18px' }}>As Nossas Memórias</h3>
-          <p className="nav-card-desc" style={{ fontSize: '12.5px' }}>A nossa linha do tempo e contadores especiais</p>
-        </div>
-
-        {/* Cartão de Quizzes */}
-        <div 
-          className="glass-panel nav-card"
-          onClick={() => navigate('/quizzes')}
-          style={{ height: '190px' }}
-        >
-          <span className="nav-card-icon">🎮</span>
-          <h3 className="nav-card-title" style={{ fontSize: '18px' }}>Quizzes do Amor</h3>
-          <p className="nav-card-desc" style={{ fontSize: '12.5px' }}>O quanto me conheces? Jogo de perguntas</p>
-        </div>
-
-        {/* Cartão de Calendário */}
-        <div 
-          className="glass-panel nav-card"
-          onClick={() => navigate('/calendario')}
-          style={{ height: '190px' }}
-        >
-          <span className="nav-card-icon">📅</span>
-          <h3 className="nav-card-title" style={{ fontSize: '18px' }}>Calendário</h3>
-          <p className="nav-card-desc" style={{ fontSize: '12.5px' }}>Marca datas importantes e jantares de casal</p>
-        </div>
-      </div>
-
-      {/* Widget do Spotify com Playlist Romântica/Chill */}
+      {/* Widget do Spotify */}
       <div className="glass-panel" style={{ padding: '20px', marginTop: '30px', border: '1px solid rgba(255, 77, 109, 0.2)' }}>
         <h3 style={{ marginBottom: '12px', color: 'var(--primary-color)', fontSize: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          🎵 A Nossa Playlist Especial
+          {t.playlist}
         </h3>
         <iframe 
           style={{ borderRadius: '12px', border: 'none' }} 
@@ -192,23 +188,15 @@ export default function Dashboard() {
 
       {/* Área dos botões de rodapé */}
       <div style={{ marginTop: '35px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
-        {roleGuardado === 'admin' && (
+        {layoutStyle === 'stacked' && (
           <button 
-            onClick={() => navigate('/admin')}
-            className="btn btn-secondary"
+            onClick={terminarSessao}
+            className="btn btn-dark"
             style={{ padding: '10px 20px', fontSize: '14px' }}
           >
-            👑 Painel de Admin
+            {t.logout}
           </button>
         )}
-
-        <button 
-          onClick={terminarSessao}
-          className="btn btn-dark"
-          style={{ padding: '10px 20px', fontSize: '14px' }}
-        >
-          Sair / Terminar Sessão 🚪
-        </button>
       </div>
     </div>
   );

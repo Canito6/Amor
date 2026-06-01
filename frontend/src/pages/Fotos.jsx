@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
+import { usePreferences } from '../context/PreferencesContext';
+import { translations } from '../services/translations';
 
 export default function Fotos() {
   const [photos, setPhotos] = useState([]);
@@ -27,6 +29,9 @@ export default function Fotos() {
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
   const minhaRole = localStorage.getItem('role');
+
+  const { language } = usePreferences();
+  const t = translations[language];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -58,7 +63,7 @@ export default function Fotos() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('A imagem é muito grande! Escolhe uma até 5MB.');
+        alert(t.photos_img_too_large);
         fileInputRef.current.value = null;
         setSelectedFile(null);
         return;
@@ -93,7 +98,7 @@ export default function Fotos() {
       setCaption('');
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
-      alert('Foto carregada com sucesso! ☁️📸');
+      alert(t.photos_upload_success);
     } catch (err) {
       setErro(err.message || 'Erro ao carregar foto.');
     } finally {
@@ -115,7 +120,7 @@ export default function Fotos() {
       setAlbums([novo, ...albums]);
       setNewAlbumName('');
       setNewAlbumDesc('');
-      alert('Álbum criado com sucesso! 📁✨');
+      alert(t.photos_create_album_success);
     } catch (err) {
       setErro(err.message || 'Erro ao criar álbum.');
     } finally {
@@ -125,7 +130,7 @@ export default function Fotos() {
 
   const apagarAlbum = async (e, id) => {
     e.stopPropagation();
-    if (!window.confirm('Queres apagar este álbum? As fotos serão mantidas no feed geral.')) return;
+    if (!window.confirm(t.photos_delete_album_confirm)) return;
 
     try {
       setErro('');
@@ -133,8 +138,6 @@ export default function Fotos() {
         method: 'DELETE'
       });
       setAlbums(albums.filter((a) => a._id !== id));
-      
-      // Desassociar as fotos deste álbum localmente
       setPhotos(photos.map(p => p.albumId === id ? { ...p, albumId: undefined } : p));
       
       if (currentAlbum && currentAlbum._id === id) {
@@ -147,7 +150,7 @@ export default function Fotos() {
 
   const apagarFoto = async (e, id) => {
     e.stopPropagation();
-    if (!window.confirm('Queres apagar esta fotografia para sempre?')) return;
+    if (!window.confirm(t.photos_delete_photo_confirm)) return;
 
     try {
       setErro('');
@@ -163,7 +166,6 @@ export default function Fotos() {
     }
   };
 
-  // Filtragem local de fotos
   const photosExibidas = currentAlbum 
     ? (currentAlbum === 'sem-album' 
         ? photos.filter(p => !p.albumId) 
@@ -175,9 +177,9 @@ export default function Fotos() {
       {/* Cabeçalho */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
-          ⬅ Voltar ao Dashboard
+          ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>Galeria de Fotos 📸</h1>
+        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{t.photos_title}</h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
@@ -187,28 +189,28 @@ export default function Fotos() {
           className={`btn ${activeTab === 'albums' && !currentAlbum ? 'btn-primary' : 'btn-dark'}`}
           onClick={() => { setActiveTab('albums'); setCurrentAlbum(null); }}
         >
-          📁 Pastas / Álbuns
+          {t.photos_tab_folders}
         </button>
         <button 
           className={`btn ${activeTab === 'todas' ? 'btn-primary' : 'btn-dark'}`}
           onClick={() => { setActiveTab('todas'); setCurrentAlbum(null); }}
         >
-          🖼️ Todas as Fotos
+          {t.photos_tab_all}
         </button>
       </div>
 
-      {/* Formulário de upload de fotos (Só visível no feed geral ou dentro de um álbum) */}
+      {/* Formulário de upload de fotos */}
       {(activeTab === 'todas' || currentAlbum) && (
         <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
           <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>
             {currentAlbum 
-              ? `Adicionar Foto a "${currentAlbum === 'sem-album' ? 'Sem Álbum' : currentAlbum.name}" 📸`
-              : 'Adicionar Momento à Galeria 🖼️'}
+              ? `${t.photos_add_album_prefix} "${currentAlbum === 'sem-album' ? t.photos_album_general_title : currentAlbum.name}" 📸`
+              : t.photos_add_general}
           </h2>
           <form onSubmit={enviarFoto} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
               <div className="form-group">
-                <label className="input-label">Selecionar Imagem (Até 5MB)</label>
+                <label className="input-label">{t.photos_input_select}</label>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -220,27 +222,26 @@ export default function Fotos() {
                 />
               </div>
               <div className="form-group">
-                <label className="input-label">Legenda da Foto (Opcional)</label>
+                <label className="input-label">{t.photos_input_caption}</label>
                 <input
                   type="text"
-                  placeholder="Ex: O nosso piquenique..."
+                  placeholder={t.photos_caption_placeholder}
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                   className="input-control"
                 />
               </div>
 
-              {/* Se estiver no feed geral, mostra dropdown para selecionar o álbum */}
               {!currentAlbum && activeTab === 'todas' && (
                 <div className="form-group">
-                  <label className="input-label">Associar ao Álbum</label>
+                  <label className="input-label">{t.photos_input_album}</label>
                   <select 
                     value={selectedAlbumId}
                     onChange={(e) => setSelectedAlbumId(e.target.value)}
                     className="input-control"
                     style={{ appearance: 'auto' }}
                   >
-                    <option value="sem-album">Nenhum Álbum / Geral</option>
+                    <option value="sem-album">{t.photos_album_none}</option>
                     {albums.map((alb) => (
                       <option key={alb._id} value={alb._id}>{alb.name}</option>
                     ))}
@@ -256,7 +257,7 @@ export default function Fotos() {
                 disabled={uploading || !selectedFile}
                 style={{ opacity: uploading || !selectedFile ? 0.7 : 1 }}
               >
-                {uploading ? 'A enviar... ☁️' : 'Enviar Fotografia ✨'}
+                {uploading ? t.photos_sending : t.photos_send_submit}
               </button>
             </div>
           </form>
@@ -269,14 +270,14 @@ export default function Fotos() {
         <div>
           {/* Formulário para Criar Novo Álbum */}
           <div className="glass-panel" style={{ padding: '30px', marginBottom: '45px' }}>
-            <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>Criar Nova Pasta / Álbum 📁</h2>
+            <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>{t.photos_create_album_title}</h2>
             <form onSubmit={criarAlbum} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
                 <div className="form-group">
-                  <label className="input-label">Nome do Álbum</label>
+                  <label className="input-label">{t.photos_input_album_name}</label>
                   <input
                     type="text"
-                    placeholder="Ex: Viagem a Barcelona 2025"
+                    placeholder={t.photos_album_name_placeholder}
                     value={newAlbumName}
                     onChange={(e) => setNewAlbumName(e.target.value)}
                     required
@@ -284,10 +285,10 @@ export default function Fotos() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="input-label">Descrição Breve (Opcional)</label>
+                  <label className="input-label">{t.photos_input_album_desc}</label>
                   <input
                     type="text"
-                    placeholder="Ex: Fotos das nossas férias de Verão..."
+                    placeholder={t.photos_album_desc_placeholder}
                     value={newAlbumDesc}
                     onChange={(e) => setNewAlbumDesc(e.target.value)}
                     className="input-control"
@@ -296,17 +297,17 @@ export default function Fotos() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button type="submit" className="btn btn-secondary" disabled={creatingAlbum}>
-                  {creatingAlbum ? 'A criar...' : 'Criar Álbum 📁'}
+                  {creatingAlbum ? '...' : t.photos_create_album_submit}
                 </button>
               </div>
             </form>
           </div>
 
-          <h2 style={{ marginBottom: '20px', fontSize: '22px' }}>Pastas de Momentos</h2>
+          <h2 style={{ marginBottom: '20px', fontSize: '22px' }}>{t.photos_album_title}</h2>
           
           {loading ? (
             <div style={{ textAlign: 'center', margin: '30px 0' }}>
-              <p style={{ color: 'var(--text-muted)' }}>A carregar álbuns... ⏳</p>
+              <p style={{ color: 'var(--text-muted)' }}>{t.photos_loading_albums}</p>
             </div>
           ) : (
             <div className="album-grid">
@@ -316,8 +317,8 @@ export default function Fotos() {
                   {photos.filter(p => !p.albumId).length}
                 </span>
                 <span className="album-icon">📂</span>
-                <h3 className="album-name">Geral / Sem Álbum</h3>
-                <p className="album-desc">Fotografias soltas no feed geral.</p>
+                <h3 className="album-name">{t.photos_album_general_title}</h3>
+                <p className="album-desc">{t.photos_album_general_desc}</p>
               </div>
 
               {/* Álbuns Dinâmicos */}
@@ -333,7 +334,7 @@ export default function Fotos() {
                     <span className="album-badge">{count}</span>
                     <span className="album-icon">📁</span>
                     <h3 className="album-name">{alb.name}</h3>
-                    <p className="album-desc">{alb.description || 'Sem descrição.'}</p>
+                    <p className="album-desc">{alb.description || t.photos_no_desc}</p>
                     {podeApagar && (
                       <button
                         onClick={(e) => apagarAlbum(e, alb._id)}
@@ -347,7 +348,7 @@ export default function Fotos() {
                           cursor: 'pointer',
                           fontSize: '14px'
                         }}
-                        title="Apagar Álbum"
+                        title={t.delete}
                       >
                         🗑️
                       </button>
@@ -360,7 +361,7 @@ export default function Fotos() {
         </div>
       )}
 
-      {/* LISTAGEM DE FOTOS (Dentro de um álbum ou tab Todas as Fotos) */}
+      {/* LISTAGEM DE FOTOS */}
       {(activeTab === 'todas' || currentAlbum) && (
         <div>
           {currentAlbum && (
@@ -370,22 +371,22 @@ export default function Fotos() {
                 onClick={() => setCurrentAlbum(null)}
                 style={{ padding: '8px 16px', fontSize: '13px' }}
               >
-                ⬅ Voltar aos Álbuns
+                {t.photos_back_albums}
               </button>
               <h2 style={{ margin: 0, fontSize: '22px' }}>
-                Pasta: <span style={{ color: 'var(--primary-color)' }}>{currentAlbum === 'sem-album' ? 'Geral / Sem Álbum' : currentAlbum.name}</span>
+                {t.photos_tab_folders.replace('📁 ', '')}: <span style={{ color: 'var(--primary-color)' }}>{currentAlbum === 'sem-album' ? t.photos_album_general_title : currentAlbum.name}</span>
               </h2>
             </div>
           )}
 
           {loading ? (
             <div style={{ textAlign: 'center', margin: '40px 0' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>A carregar fotografias... ⏳</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.photos_loading_photos}</p>
             </div>
           ) : photosExibidas.length === 0 ? (
             <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
               <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>
-                Ainda não há fotos nesta pasta. Comecem a carregar momentos! 📸💖
+                {t.photos_empty_album}
               </p>
             </div>
           ) : (
@@ -400,15 +401,15 @@ export default function Fotos() {
                   >
                     <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
                     <div className="photo-overlay">
-                      <p className="photo-caption">{photo.caption || 'Sem legenda'}</p>
+                      <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="photo-meta">De: {photo.uploadedBy}</span>
+                        <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
                         {podeApagar && (
                           <button
                             className="btn btn-danger"
                             onClick={(e) => apagarFoto(e, photo._id)}
                             style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                            title="Apagar foto"
+                            title={t.delete}
                           >
                             🗑️
                           </button>
@@ -423,7 +424,7 @@ export default function Fotos() {
         </div>
       )}
 
-      {/* MODAL LIGHTBOX / VISUALIZADOR DE FOTO */}
+      {/* MODAL LIGHTBOX */}
       {selectedPhoto && (
         <div 
           style={{
@@ -484,10 +485,10 @@ export default function Fotos() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ color: 'var(--primary-color)', fontSize: '20px', marginBottom: '8px' }}>
-              {selectedPhoto.caption || 'Sem legenda'}
+              {selectedPhoto.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}
             </h3>
             <p style={{ fontSize: '14px', color: '#ccc' }}>
-              Enviada por <strong>{selectedPhoto.uploadedBy}</strong> em {new Date(selectedPhoto.createdAt).toLocaleDateString('pt-PT')}
+              {t.photos_lightbox_by} <strong>{selectedPhoto.uploadedBy}</strong> {t.photos_lightbox_on} {new Date(selectedPhoto.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US')}
             </p>
             {(selectedPhoto.uploadedBy === meuNome || minhaRole === 'admin') && (
               <button
@@ -495,7 +496,7 @@ export default function Fotos() {
                 onClick={(e) => apagarFoto(e, selectedPhoto._id)}
                 style={{ marginTop: '15px', padding: '8px 16px', fontSize: '13px' }}
               >
-                🗑️ Apagar esta fotografia
+                {t.photos_lightbox_delete}
               </button>
             )}
           </div>
