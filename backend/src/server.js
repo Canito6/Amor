@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (e.g., ngrok)
 const PORT = process.env.PORT || 5000;
 
 // Servir ficheiros estáticos do frontend (React)
