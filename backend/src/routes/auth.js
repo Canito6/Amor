@@ -1,6 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const authController = require('../controllers/authController');
+const authController = require('../controllers/auth');
 const { validateSchema } = require('../middlewares/validationMiddleware');
 const { verificarToken } = require('../middlewares/authMiddleware');
 const router = express.Router();
@@ -18,7 +18,7 @@ const authLimiter = rateLimit({
 const registerSchema = {
   username: { required: true, type: 'string', minLength: 3 },
   email: { required: true, type: 'string', isEmail: true },
-  password: { required: true, type: 'string', minLength: 6 }
+  password: { required: true, type: 'string', minLength: 8, strongPassword: true }
 };
 
 const loginSchema = {
@@ -33,12 +33,12 @@ const forgotPasswordSchema = {
 const resetPasswordSchema = {
   email: { required: true, type: 'string', isEmail: true },
   codigo: { required: true, type: 'string', minLength: 6 },
-  novaPassword: { required: true, type: 'string', minLength: 6 }
+  novaPassword: { required: true, type: 'string', minLength: 8, strongPassword: true }
 };
 
 const forcarMudancaPasswordSchema = {
   userId: { required: true, type: 'string' },
-  novaPassword: { required: true, type: 'string', minLength: 6 }
+  novaPassword: { required: true, type: 'string', minLength: 8, strongPassword: true }
 };
 
 // 1. ROTA DE REGISTO
@@ -48,15 +48,18 @@ router.post('/register', authLimiter, validateSchema(registerSchema), authContro
 router.post('/login', authLimiter, validateSchema(loginSchema), authController.login);
 
 // 3. ROTA: Pedir código de recuperação de password por email
-router.post('/forgot-password', validateSchema(forgotPasswordSchema), authController.forgotPassword);
+router.post('/forgot-password', authLimiter, validateSchema(forgotPasswordSchema), authController.forgotPassword);
 
 // 4. ROTA: Redefinir a password antiga trocando pela nova usando o código enviado
-router.post('/reset-password', validateSchema(resetPasswordSchema), authController.resetPassword);
+router.post('/reset-password', authLimiter, validateSchema(resetPasswordSchema), authController.resetPassword);
 
 // 5. ROTA: Mudar a password obrigatória após reset do Admin
-router.post('/forcar-mudanca-password', validateSchema(forcarMudancaPasswordSchema), authController.forcarMudancaPassword);
+router.post('/forcar-mudanca-password', authLimiter, validateSchema(forcarMudancaPasswordSchema), authController.forcarMudancaPassword);
 
 // 6. ROTA: Verificar código de login 2FA
-router.post('/verify-login', authController.verifyLogin);
+router.post('/verify-login', authLimiter, authController.verifyLogin);
+
+// 7. ROTA: Logout (Limpar Cookie)
+router.post('/logout', authController.logout);
 
 module.exports = router;

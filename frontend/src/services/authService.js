@@ -68,5 +68,11 @@ export const authService = {
       method: 'POST',
       body: { moodEmoji }
     });
+  },
+
+  logout: () => {
+    return apiFetch('/api/auth/logout', {
+      method: 'POST'
+    });
   }
 };

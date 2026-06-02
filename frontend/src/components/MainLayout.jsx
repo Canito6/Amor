@@ -115,6 +115,7 @@ export default function MainLayout() {
   }, [location.pathname, customTabs]);
 
   const handleLogout = () => {
+    authService.logout().catch(err => console.error('Erro ao terminar sessão no backend:', err));
     localStorage.clear();
     navigate('/');
   };

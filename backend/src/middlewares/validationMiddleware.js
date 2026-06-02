@@ -34,6 +34,14 @@ const validateSchema = (schema) => {
             errors.push(`O campo '${field}' deve ser um email válido.`);
           }
         }
+
+        // Verifica complexidade de password
+        if (rules.strongPassword) {
+          const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+          if (!passwordRegex.test(value)) {
+            errors.push(`O campo '${field}' deve ter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula e um número.`);
+          }
+        }
       }
     }
 

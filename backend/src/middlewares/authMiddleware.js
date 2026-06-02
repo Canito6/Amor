@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const verificarAdmin = async (req, res, next) => {
-  // O token vem no cabeçalho da requisição no formato "Bearer <token>"
-  const token = req.headers.authorization?.split(' ')[1];
+  // O token pode vir no cookie 'token' ou no cabeçalho 'Authorization: Bearer <token>'
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
     return res.status(401).json({ error: 'Acesso negado. Não tens o bilhete de entrada.' });
@@ -31,7 +31,8 @@ const verificarAdmin = async (req, res, next) => {
 };
 
 const verificarToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  // O token pode vir no cookie 'token' ou no cabeçalho 'Authorization: Bearer <token>'
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
     return res.status(401).json({ error: 'Acesso negado. Não tens o bilhete de entrada.' });

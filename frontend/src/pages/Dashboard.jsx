@@ -110,6 +110,7 @@ export default function Dashboard() {
   }, [navigate]);
 
   const terminarSessao = () => {
+    authService.logout().catch(err => console.error('Erro ao terminar sessão no backend:', err));
     localStorage.clear();
     navigate('/');
   };

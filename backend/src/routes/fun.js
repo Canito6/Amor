@@ -10,7 +10,15 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ 
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // limite de 5MB por foto
+  limits: { fileSize: 5 * 1024 * 1024 }, // limite de 5MB por foto
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas são permitidas imagens (JPEG, PNG, WEBP, GIF).'), false);
+    }
+  }
 });
 
 // Rotas de Raspadinhas do Amor

@@ -2,11 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const cookieParser = require('cookie-parser');
+const xssSanitizer = require('./middlewares/xssSanitizer');
+const hpp = require('hpp');
 require('dotenv').config();
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (e.g., ngrok)
 const PORT = process.env.PORT || 5000;
+
+// Middlewares Globais de Segurança
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.spotifycdn.com"],
+      frameSrc: ["'self'", "https://open.spotify.com"],
+      connectSrc: ["'self'", "https://api.cloudinary.com"]
+    }
+  }
+}));
+app.use(mongoSanitize());
+app.use(cookieParser());
 
 // Servir ficheiros estáticos do frontend (React)
 const distPath = path.join(__dirname, '../../frontend/dist');
@@ -19,6 +41,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(xssSanitizer);
+app.use(hpp());
 
 // Rotas de Autenticação (Login e Registo)
 const authRoutes = require('./routes/auth');

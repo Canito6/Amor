@@ -34,7 +34,8 @@ export async function apiFetch(endpoint, options = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
-    body
+    body,
+    credentials: 'include' // Envia e recebe cookies HTTP-Only de sessão automaticamente
   });
 
   // Tenta extrair a resposta como JSON
