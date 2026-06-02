@@ -8,6 +8,9 @@ import WelcomeBanner from '../components/dashboard/WelcomeBanner';
 import EventCountdown from '../components/dashboard/EventCountdown';
 import NavigationCards from '../components/dashboard/NavigationCards';
 import SpotifyWidget from '../components/dashboard/SpotifyWidget';
+import MoodTracker from '../components/dashboard/MoodTracker';
+import LoveCounter from '../components/dashboard/LoveCounter';
+import CoupleEditModal from '../components/dashboard/CoupleEditModal';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -26,14 +29,6 @@ export default function Dashboard() {
     partnerNames: [],
     relationshipDate: null,
     spotifyPlaylist: ''
-  });
-
-  // Time Together Counter State
-  const [timeTogether, setTimeTogether] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
   });
 
   // Edit Modal States
@@ -114,33 +109,6 @@ export default function Dashboard() {
     };
   }, [navigate]);
 
-  // Live Timer together counter
-  useEffect(() => {
-    if (!coupleInfo.relationshipDate) return;
-
-    const calculateTime = () => {
-      const start = new Date(coupleInfo.relationshipDate);
-      const now = new Date();
-      const diffMs = now.getTime() - start.getTime();
-
-      if (diffMs < 0) {
-        setTimeTogether({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      const seconds = Math.floor((diffMs / 1000) % 60);
-      const minutes = Math.floor((diffMs / 1000 / 60) % 60);
-      const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      setTimeTogether({ days, hours, minutes, seconds });
-    };
-
-    calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
-  }, [coupleInfo.relationshipDate]);
-
   const terminarSessao = () => {
     localStorage.clear();
     navigate('/');
@@ -179,14 +147,6 @@ export default function Dashboard() {
     }
   };
 
-  const formattedRelationshipDate = coupleInfo.relationshipDate 
-    ? new Date(coupleInfo.relationshipDate).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-PT', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    : '';
-
   return (
     <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '20px' }}>
       
@@ -203,37 +163,20 @@ export default function Dashboard() {
       {/* Mensagem de Boas-Vindas */}
       <WelcomeBanner nome={nome} t={t} />
 
+      {/* Diário de Humor (Mood Tracker) */}
+      <MoodTracker 
+        coupleInfo={coupleInfo} 
+        loadCoupleInfo={loadCoupleInfo} 
+        t={t} 
+        language={language} 
+      />
+
       {/* Contador do Amor */}
-      {coupleInfo.relationshipDate && (
-        <div className="counter-widget fade-in">
-          <h2 className="counter-title">
-            <span>💖</span> {t.memories_counter_title || 'Contador do Amor'} <span>💖</span>
-          </h2>
-          <div className="counter-grid">
-            <div className="counter-item">
-              <span className="counter-value">{timeTogether.days}</span>
-              <span className="counter-label">{language === 'en' ? 'Days' : 'Dias'}</span>
-            </div>
-            <div className="counter-item">
-              <span className="counter-value">{String(timeTogether.hours).padStart(2, '0')}</span>
-              <span className="counter-label">{language === 'en' ? 'Hours' : 'Horas'}</span>
-            </div>
-            <div className="counter-item">
-              <span className="counter-value">{String(timeTogether.minutes).padStart(2, '0')}</span>
-              <span className="counter-label">{language === 'en' ? 'Mins' : 'Minutos'}</span>
-            </div>
-            <div className="counter-item">
-              <span className="counter-value">{String(timeTogether.seconds).padStart(2, '0')}</span>
-              <span className="counter-label">{language === 'en' ? 'Secs' : 'Segundos'}</span>
-            </div>
-          </div>
-          <p className="counter-footer">
-            {language === 'en' 
-              ? `Together since ${formattedRelationshipDate} ✨` 
-              : `Juntos desde ${formattedRelationshipDate} ✨`}
-          </p>
-        </div>
-      )}
+      <LoveCounter 
+        relationshipDate={coupleInfo.relationshipDate} 
+        language={language} 
+        t={t} 
+      />
 
       {/* Widget de Contagem Decrescente */}
       <EventCountdown 
@@ -268,104 +211,20 @@ export default function Dashboard() {
       </div>
 
       {/* Modal de Edição de Informações de Casal */}
-      {isEditModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
-          <div 
-            className="glass-panel fade-in" 
-            style={{ 
-              padding: '30px', 
-              width: '100%', 
-              maxWidth: '480px', 
-              textAlign: 'left',
-              position: 'relative'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button 
-              style={{
-                position: 'absolute', top: '15px', right: '15px', 
-                background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px'
-              }}
-              onClick={() => setIsEditModalOpen(false)}
-            >
-              ✕
-            </button>
-
-            <h2 style={{ color: 'var(--primary-color)', marginBottom: '20px', textAlign: 'center' }}>
-              {t.edit_couple_info || 'Editar Casal'} ❤️
-            </h2>
-
-            <form onSubmit={handleUpdateCoupleInfo} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div className="form-group">
-                <label className="input-label" htmlFor="coupleNames">
-                  {t.names_label || 'Nome do Casal (ex: Miguel & Maria)'}
-                </label>
-                <input 
-                  id="coupleNames"
-                  type="text"
-                  placeholder="Ex: Miguel & Maria"
-                  value={editNames}
-                  onChange={(e) => setEditNames(e.target.value)}
-                  className="input-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="input-label" htmlFor="relDate">
-                  {t.relationship_date_label || 'Data de Início do Namoro'}
-                </label>
-                <input 
-                  id="relDate"
-                  type="date"
-                  value={editDate}
-                  onChange={(e) => setEditDate(e.target.value)}
-                  className="input-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="input-label" htmlFor="spotifyUrl">
-                  {t.spotify_playlist_label || 'Link da Playlist Especial do Spotify'}
-                </label>
-                <input 
-                  id="spotifyUrl"
-                  type="text"
-                  placeholder="Ex: https://open.spotify.com/playlist/..."
-                  value={editSpotify}
-                  onChange={(e) => setEditSpotify(e.target.value)}
-                  className="input-control"
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', marginTop: '15px' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  {t.save || 'Guardar'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-dark" 
-                  style={{ flex: 1 }}
-                  onClick={() => setIsEditModalOpen(false)}
-                >
-                  {t.cancel || 'Cancelar'}
-                </button>
-              </div>
-            </form>
-
-            {editError && (
-              <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', backgroundColor: '#ffe3e3', border: '1px solid #ffb3b3' }}>
-                <p style={{ color: 'var(--danger-color)', fontSize: '13px', fontWeight: '600', margin: 0, textAlign: 'center' }}>{editError}</p>
-              </div>
-            )}
-
-            {editSuccess && (
-              <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', backgroundColor: '#e6fffa', border: '1px solid #b2f5ea' }}>
-                <p style={{ color: 'var(--success-color)', fontSize: '13px', fontWeight: '600', margin: 0, textAlign: 'center' }}>{editSuccess}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <CoupleEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleUpdateCoupleInfo}
+        editNames={editNames}
+        setEditNames={setEditNames}
+        editDate={editDate}
+        setEditDate={setEditDate}
+        editSpotify={editSpotify}
+        setEditSpotify={setEditSpotify}
+        editError={editError}
+        editSuccess={editSuccess}
+        t={t}
+      />
     </div>
   );
 }

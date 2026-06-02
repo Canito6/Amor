@@ -51,6 +51,14 @@ const userSchema = new mongoose.Schema({
   },
   loginVerificationExpires: {
     type: Date
+  },
+  moodEmoji: {
+    type: String,
+    default: ''
+  },
+  moodUpdatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import AuthInput from '../components/auth/AuthInput';
+import SecurityMethodSelector from '../components/auth/SecurityMethodSelector';
 
 export default function Registar() {
   const [username, setUsername] = useState('');
@@ -57,97 +59,51 @@ export default function Registar() {
         <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Junta-te ao nosso cantinho de amor</p>
         
         <form onSubmit={criarConta} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div className="form-group">
-            <label className="input-label" htmlFor="username">Utilizador</label>
-            <input 
-              id="username"
-              type="text" 
-              placeholder="O teu Nome" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="input-control"
-            />
-          </div>
+          <AuthInput
+            id="username"
+            label="Utilizador"
+            type="text"
+            placeholder="O teu Nome"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
           
-          <div className="form-group">
-            <label className="input-label" htmlFor="email">Email</label>
-            <input 
-              id="email"
-              type="email" 
-              placeholder="O teu Email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="input-control"
-            />
-          </div>
+          <AuthInput
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="O teu Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
           
-          <div className="form-group">
-            <label className="input-label" htmlFor="password">Password</label>
-            <input 
-              id="password"
-              type="password" 
-              placeholder="A tua Password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="input-control"
-            />
-          </div>
+          <AuthInput
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="A tua Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-          <div className="form-group">
-            <label className="input-label">Segurança de Entrada (2FA)</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', textAlign: 'left', marginTop: '4px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
-                <input 
-                  type="radio" 
-                  name="securityMethod" 
-                  value="direct" 
-                  checked={loginSecurityMethod === 'direct'} 
-                  onChange={() => setLoginSecurityMethod('direct')} 
-                  style={{ accentColor: 'var(--primary-color)' }}
-                />
-                Entrada Direta (Sem verificação extra)
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
-                <input 
-                  type="radio" 
-                  name="securityMethod" 
-                  value="email" 
-                  checked={loginSecurityMethod === 'email'} 
-                  onChange={() => setLoginSecurityMethod('email')} 
-                  style={{ accentColor: 'var(--primary-color)' }}
-                />
-                Código por Email (Segurança recomendada)
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer' }}>
-                <input 
-                  type="radio" 
-                  name="securityMethod" 
-                  value="mobile" 
-                  checked={loginSecurityMethod === 'mobile'} 
-                  onChange={() => setLoginSecurityMethod('mobile')} 
-                  style={{ accentColor: 'var(--primary-color)' }}
-                />
-                Código por Telemóvel
-              </label>
-            </div>
-          </div>
+          <SecurityMethodSelector
+            value={loginSecurityMethod}
+            onChange={setLoginSecurityMethod}
+          />
 
           {loginSecurityMethod === 'mobile' && (
-            <div className="form-group fade-in">
-              <label className="input-label" htmlFor="phone">Número de Telemóvel</label>
-              <input 
-                id="phone"
-                type="tel" 
-                placeholder="Ex: +351 912 345 678" 
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-                className="input-control"
-              />
-            </div>
+            <AuthInput
+              id="phone"
+              label="Número de Telemóvel"
+              type="tel"
+              placeholder="Ex: +351 912 345 678"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+            />
           )}
 
           <div className="form-group">
@@ -166,18 +122,15 @@ export default function Registar() {
             </span>
           </div>
           
-          <div className="form-group">
-            <label className="input-label" htmlFor="codigoAdmin">Código Admin (Opcional)</label>
-            <input 
-              id="codigoAdmin"
-              type="password" 
-              placeholder="Código Admin" 
-              value={codigoAdmin}
-              onChange={(e) => setCodigoAdmin(e.target.value)}
-              className="input-control"
-              style={{ borderStyle: 'dashed', borderColor: 'rgba(0,0,0,0.1)' }}
-            />
-          </div>
+          <AuthInput
+            id="codigoAdmin"
+            label="Código Admin (Opcional)"
+            type="password"
+            placeholder="Código Admin"
+            value={codigoAdmin}
+            onChange={(e) => setCodigoAdmin(e.target.value)}
+            style={{ borderStyle: 'dashed', borderColor: 'rgba(0,0,0,0.1)' }}
+          />
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
             Registar Conta ✨

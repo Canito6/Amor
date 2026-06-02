@@ -5,6 +5,7 @@ import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import EventForm from '../components/calendar/EventForm';
 import EventList from '../components/calendar/EventList';
+import { formatDateLong } from '../utils/dateFormatter';
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);
@@ -79,12 +80,7 @@ export default function Calendario() {
 
   // Helper para formatar a data por extenso
   const formatarDataExtenso = (dataStr) => {
-    const dataObj = new Date(dataStr);
-    return dataObj.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return formatDateLong(dataStr, language === 'pt' ? 'pt' : 'en');
   };
 
   // Helper para calcular dias restantes até à data

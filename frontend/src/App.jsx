@@ -18,6 +18,9 @@ const Quizzes = lazy(() => import('./pages/Quizzes'));
 const Calendario = lazy(() => import('./pages/Calendario'));
 const CustomTabViewer = lazy(() => import('./pages/CustomTabViewer'));
 const Raspadinhas = lazy(() => import('./pages/Raspadinhas'));
+const Roleta = lazy(() => import('./pages/Roleta'));
+const BucketList = lazy(() => import('./pages/BucketList'));
+
 
 // Fallback loader component
 function LoadingFallback() {
@@ -49,6 +52,8 @@ function App() {
               <Route path="/quizzes" element={<Quizzes />} />
               <Route path="/calendario" element={<Calendario />} />
               <Route path="/raspadinhas" element={<Raspadinhas />} />
+              <Route path="/roleta" element={<Roleta />} />
+              <Route path="/bucket-list" element={<BucketList />} />
               <Route path="/tab/:tabId" element={<CustomTabViewer />} />
               <Route path="/admin" element={<AdminDashboard />} />
             </Route>

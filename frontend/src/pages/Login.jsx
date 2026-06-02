@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import AuthInput from '../components/auth/AuthInput';
+import TwoFactorPanel from '../components/auth/TwoFactorPanel';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
-  const [mostrarPassword, setMostrarPassword] = useState(false);
   
   // 2FA Verification States
   const [requiresVerification, setRequiresVerification] = useState(false);
@@ -97,45 +98,25 @@ export default function Login() {
             <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Entra para aceder ao nosso diário privado</p>
             
             <form onSubmit={fazerLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="form-group">
-                <label className="input-label" htmlFor="username">Utilizador</label>
-                <input 
-                  id="username"
-                  type="text" 
-                  placeholder="O teu Nome" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  className="input-control"
-                />
-              </div>
-              
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label className="input-label" htmlFor="password">Password</label>
-                <div style={{ position: 'relative', width: '100%' }}>
-                  <input 
-                    id="password"
-                    type={mostrarPassword ? "text" : "password"} 
-                    placeholder="A tua Password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="input-control"
-                    style={{ paddingRight: '45px' }}
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setMostrarPassword(!mostrarPassword)}
-                    style={{ 
-                      position: 'absolute', right: '12px', top: '50%', 
-                      transform: 'translateY(-50%)',
-                      background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' 
-                    }}
-                  >
-                    {mostrarPassword ? "🙈" : "👁️"}
-                  </button>
-                </div>
-              </div>
+              <AuthInput
+                id="username"
+                label="Utilizador"
+                type="text"
+                placeholder="O teu Nome"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+
+              <AuthInput
+                id="password"
+                label="Password"
+                type="password"
+                placeholder="A tua Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
               
               <button 
                 type="submit"
@@ -147,70 +128,16 @@ export default function Login() {
             </form>
           </>
         ) : (
-          <>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '20px', fontSize: '15px' }}>
-              {securityMethod === 'email' 
-                ? 'Enviámos um código de verificação para o teu email.' 
-                : 'Enviámos um código de verificação para o teu telemóvel.'}
-            </p>
-
-            {mockSMSCode && (
-              <div style={{ margin: '15px 0', padding: '12px', borderRadius: '12px', background: 'rgba(255, 77, 109, 0.15)', border: '1px solid var(--primary-color)' }}>
-                <p style={{ color: 'var(--primary-color)', fontSize: '13px', fontWeight: 'bold', margin: 0 }}>
-                  [TESTE] Código enviado por SMS: <span style={{ fontSize: '18px', letterSpacing: '2px' }}>{mockSMSCode}</span>
-                </p>
-              </div>
-            )}
-
-            <form onSubmit={confirmarCodigo} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="form-group">
-                <label className="input-label" htmlFor="verificationCode">Código de Acesso (6 Dígitos)</label>
-                <input 
-                  id="verificationCode"
-                  type="text" 
-                  maxLength="6"
-                  placeholder="000000" 
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                  required
-                  className="input-control"
-                  style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '4px', padding: '10px' }}
-                />
-              </div>
-
-              <div className="form-group" style={{ alignItems: 'flex-start' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer', userSelect: 'none' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={trustDevice} 
-                    onChange={(e) => setTrustDevice(e.target.checked)}
-                    style={{ 
-                      width: '18px', height: '18px', accentColor: 'var(--primary-color)',
-                      cursor: 'pointer' 
-                    }}
-                  />
-                  Confiar neste dispositivo (Guardar sessão)
-                </label>
-              </div>
-
-              <button 
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%' }}
-              >
-                Verificar Código 🔑
-              </button>
-
-              <button 
-                type="button" 
-                className="btn btn-dark" 
-                onClick={voltarParaPassword}
-                style={{ width: '100%', padding: '10px' }}
-              >
-                Voltar
-              </button>
-            </form>
-          </>
+          <TwoFactorPanel
+            securityMethod={securityMethod}
+            mockSMSCode={mockSMSCode}
+            verificationCode={verificationCode}
+            setVerificationCode={setVerificationCode}
+            trustDevice={trustDevice}
+            setTrustDevice={setTrustDevice}
+            onSubmit={confirmarCodigo}
+            onBack={voltarParaPassword}
+          />
         )}
 
         {erro && (

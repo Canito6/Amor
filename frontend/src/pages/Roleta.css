@@ -1,0 +1,415 @@
+/* ==========================================================================
+   ROLETA DE DECISÕES - ESTILOS MORDENOS E PREMIUM
+   ========================================================================== */
+
+.wheel-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.wheel-page-title {
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.wheel-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wheel-error-alert {
+  background: rgba(239, 71, 111, 0.15);
+  border: 1px solid rgba(239, 71, 111, 0.3);
+  color: #ef476f;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Painel de Configuração */
+.wheel-config-container {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wheel-selection-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  width: 100%;
+}
+
+.wheel-selection-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select-control {
+  flex: 1;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  padding: 10px 15px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.theme-dark .select-control {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.select-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.15);
+}
+
+.wheel-delete-btn {
+  background: rgba(239, 71, 111, 0.1);
+  border: 1px solid rgba(239, 71, 111, 0.2);
+  color: #ef476f;
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-delete-btn:hover:not(:disabled) {
+  background: #ef476f;
+  color: white;
+  transform: scale(1.05);
+}
+
+.wheel-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wheel-author-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  align-self: flex-start;
+}
+
+/* Criador de Roletas */
+.wheel-creator-form {
+  padding: 24px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.creator-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.creator-form-header h3 {
+  font-family: var(--font-title);
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-main);
+}
+
+.close-creator-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.close-creator-btn:hover {
+  color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.input-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-control {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  padding: 10px 15px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  box-sizing: border-box;
+  transition: var(--transition-smooth);
+}
+
+.theme-dark .input-control {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.input-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.15);
+}
+
+.options-fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.option-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.remove-option-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  transition: var(--transition-smooth);
+}
+
+.remove-option-btn:hover {
+  color: #ef476f;
+  transform: scale(1.1);
+}
+
+.btn-add-option {
+  padding: 8px 16px;
+  font-size: 13px;
+  align-self: flex-start;
+}
+
+.form-buttons-row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+  width: 100%;
+}
+
+/* Área de Jogo (Roleta) */
+.wheel-workspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.wheel-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(255, 77, 109, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-sizing: border-box;
+}
+
+.theme-dark .wheel-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Indicador no Topo */
+.wheel-pointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+  color: #ef476f;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  z-index: 20;
+  animation: pointerNudge 1s ease-in-out infinite alternate;
+}
+
+.wheel-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+}
+
+.wheel-actions-container {
+  margin-top: 10px;
+}
+
+.btn-spin-trigger {
+  padding: 14px 35px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.btn-spin-trigger:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(255, 77, 109, 0.4);
+}
+
+/* Banner de Resultado */
+.wheel-result-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 30px;
+  width: 90%;
+  max-width: 450px;
+  border: 2px solid var(--primary-color);
+  animation: resultPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.celebration-emojis {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.wheel-result-banner h3 {
+  font-family: var(--font-title);
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.wheel-result-text {
+  font-family: var(--font-title);
+  font-size: 24px;
+  font-weight: 850;
+  color: var(--primary-color);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Empty State */
+.empty-wheel-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 15px;
+  max-width: 500px;
+  margin: 40px auto;
+  border-style: dashed;
+  border-width: 2px;
+}
+
+.header-spacer {
+  display: block;
+}
+
+/* Animações e Responsividade */
+@keyframes pointerNudge {
+  from {
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    transform: translateX(-50%) translateY(-3px);
+  }
+}
+
+@keyframes resultPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .wheel-header-row {
+    flex-direction: row;
+    gap: 10px;
+  }
+  .header-spacer {
+    display: none;
+  }
+  .wheel-page-title {
+    font-size: 22px;
+  }
+  .wheel-container {
+    width: 280px;
+    height: 280px;
+  }
+  .wheel-result-text {
+    font-size: 20px;
+  }
+}

@@ -26,7 +26,12 @@ exports.getCoupleInfo = async (req, res, next) => {
       names: couple?.names || '',
       relationshipDate: couple?.relationshipDate || null,
       spotifyPlaylist: couple?.spotifyPlaylist || 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5YxZ2718Eld?utm_source=generator&theme=0',
-      partnerNames
+      partnerNames,
+      partners: users.map(u => ({
+        username: u.username,
+        moodEmoji: u.moodEmoji || '',
+        moodUpdatedAt: u.moodUpdatedAt || null
+      }))
     });
   } catch (error) {
     next(error);
@@ -141,3 +146,27 @@ exports.linkCouple = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateMood = async (req, res, next) => {
+  try {
+    const { moodEmoji } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+
+    user.moodEmoji = moodEmoji !== undefined ? moodEmoji.trim() : '';
+    user.moodUpdatedAt = new Date();
+    await user.save();
+
+    res.json({
+      message: 'Humor atualizado com sucesso!',
+      moodEmoji: user.moodEmoji,
+      moodUpdatedAt: user.moodUpdatedAt
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

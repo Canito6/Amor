@@ -61,5 +61,12 @@ export const authService = {
       method: 'POST',
       body: { inviteToken }
     });
+  },
+
+  updateMood: (moodEmoji) => {
+    return apiFetch('/api/auth/mood', {
+      method: 'POST',
+      body: { moodEmoji }
+    });
   }
 };

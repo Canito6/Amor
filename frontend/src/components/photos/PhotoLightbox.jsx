@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateShort } from '../../utils/dateFormatter';
 
 export default function PhotoLightbox({
   t,
@@ -74,7 +75,7 @@ export default function PhotoLightbox({
           {selectedPhoto.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}
         </h3>
         <p style={{ fontSize: '14px', color: '#ccc' }}>
-          {t.photos_lightbox_by} <strong>{selectedPhoto.uploadedBy}</strong> {t.photos_lightbox_on} {new Date(selectedPhoto.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US')}
+          {t.photos_lightbox_by} <strong>{selectedPhoto.uploadedBy}</strong> {t.photos_lightbox_on} {formatDateShort(selectedPhoto.createdAt, language === 'pt' ? 'pt' : 'en')}
         </p>
         {(selectedPhoto.uploadedBy === meuNome || minhaRole === 'admin') && (
           <button

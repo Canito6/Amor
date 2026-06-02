@@ -40,6 +40,7 @@ export default function MainLayout() {
     relationshipDate: null,
     spotifyPlaylist: ''
   });
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const roleGuardado = localStorage.getItem('role');
 
   const loadCoupleInfo = async () => {
@@ -61,6 +62,14 @@ export default function MainLayout() {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     loadCoupleInfo();
     // Listen for storage changes or profile updates
     const handleRefresh = () => {
@@ -80,6 +89,7 @@ export default function MainLayout() {
     '/memorias': { preset: 'lavender' },
     '/quizzes': { preset: 'mint' },
     '/calendario': { preset: 'ocean' },
+    '/raspadinhas': { preset: 'romance' }
   };
 
   // Sync tab specific theme on route or custom tab selection change
@@ -123,15 +133,17 @@ export default function MainLayout() {
                 🔗 {t.connect_partner_btn || 'Conectar Parceira'}
               </button>
             )}
-            <button className="topbar-settings-btn" onClick={() => setIsSettingsOpen(true)}>
-              ⚙️ {t.settings}
-            </button>
+            {(layoutStyle === 'stacked' || isMobile) && (
+              <button className="topbar-settings-btn" onClick={() => setIsSettingsOpen(true)}>
+                ⚙️ {t.settings}
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       {/* Sidebar Navigation - PC Sidebar Style */}
-      {layoutStyle === 'sidebar' && (
+      {layoutStyle === 'sidebar' && !isMobile && (
         <Sidebar
           nome={nome}
           roleGuardado={roleGuardado}
@@ -145,7 +157,7 @@ export default function MainLayout() {
 
       {/* Main Content Area */}
       <main className="layout-content-wrapper">
-        {layoutStyle === 'stacked' && location.pathname !== '/dashboard' && (
+        {(layoutStyle === 'stacked' || isMobile) && location.pathname !== '/dashboard' && (
           <div className="app-container" style={{ paddingBottom: '0', paddingTop: '10px' }}>
             <button className="btn btn-dark" onClick={() => navigate('/dashboard')} style={{ marginBottom: '15px' }}>
               ⬅ {t.dashboard}

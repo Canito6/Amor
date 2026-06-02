@@ -6,6 +6,7 @@ import { translations } from '../services/translations';
 import DaysCounter from '../components/memories/DaysCounter';
 import MemoryForm from '../components/memories/MemoryForm';
 import MemoryTimeline from '../components/memories/MemoryTimeline';
+import { formatDateLong } from '../utils/dateFormatter';
 import './Memorias.css';
 
 export default function Memorias() {
@@ -167,12 +168,7 @@ export default function Memorias() {
 
   // Helper para formatar datas em texto por extenso
   const formatarDataExtenso = (dataStr) => {
-    const dataObj = new Date(dataStr);
-    return dataObj.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return formatDateLong(dataStr, language === 'pt' ? 'pt' : 'en');
   };
 
   return (

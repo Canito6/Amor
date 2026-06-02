@@ -1,13 +1,10 @@
+import { formatDateLong } from '../../utils/dateFormatter';
+
 export default function EventCountdown({ nextEvent, daysRemaining, language, t }) {
   if (!nextEvent) return null;
 
   const formatarDataExtenso = (dataStr) => {
-    const dataObj = new Date(dataStr);
-    return dataObj.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return formatDateLong(dataStr, language === 'pt' ? 'pt' : 'en');
   };
 
   const formatarDiasRestantes = (dias) => {

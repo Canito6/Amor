@@ -8,6 +8,7 @@ import AlbumCreator from '../components/photos/AlbumCreator';
 import AlbumGrid from '../components/photos/AlbumGrid';
 import PhotoGrid from '../components/photos/PhotoGrid';
 import PhotoLightbox from '../components/photos/PhotoLightbox';
+import { validateImageSize } from '../utils/fileValidator';
 import './Fotos.css';
 
 export default function Fotos() {
@@ -109,7 +110,7 @@ export default function Fotos() {
   const lidarComFicheiro = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (!validateImageSize(file, 5)) {
         alert(t.photos_img_too_large);
         fileInputRef.current.value = null;
         setSelectedFile(null);

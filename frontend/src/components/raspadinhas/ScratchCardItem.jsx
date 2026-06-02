@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateShort } from '../../utils/dateFormatter';
 
 export default function ScratchCardItem({ card, activeTab, t, language, onScratch, onDelete }) {
   if (activeTab === 'pending') {
@@ -28,7 +29,7 @@ export default function ScratchCardItem({ card, activeTab, t, language, onScratc
           {t.scratch_card_from} <strong>{card.createdBy}</strong>
           <br />
           <span className="scratch-date">
-            {t.scratch_card_scratched_on.replace('{date}', new Date(card.scratchedAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US'))}
+            {t.scratch_card_scratched_on.replace('{date}', formatDateShort(card.scratchedAt, language === 'pt' ? 'pt' : 'en'))}
           </span>
         </p>
       </div>
@@ -49,7 +50,7 @@ export default function ScratchCardItem({ card, activeTab, t, language, onScratc
             Status: <strong>{card.isScratched ? (language === 'pt' ? 'Já Raspada!' : 'Scratched!') : (language === 'pt' ? 'Por Raspar' : 'Unscratched')}</strong>
             <br />
             <span className="scratch-date">
-              {t.scratch_card_created_on.replace('{date}', new Date(card.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US'))}
+              {t.scratch_card_created_on.replace('{date}', formatDateShort(card.createdAt, language === 'pt' ? 'pt' : 'en'))}
             </span>
           </p>
           <button className="scratch-delete-btn" onClick={() => onDelete(card._id)} title={language === 'pt' ? 'Apagar Raspadinha' : 'Delete Scratch Card'}>

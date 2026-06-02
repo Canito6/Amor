@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDateTime } from '../../utils/dateFormatter';
 
 const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
 
@@ -102,13 +103,7 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
           {t.messages_by} <span className="post-it-author">{msg.sender}</span>
           <br />
           <span style={{ fontSize: '10px', opacity: 0.8 }}>
-            {new Date(msg.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
+            {formatDateTime(msg.createdAt, language === 'pt' ? 'pt' : 'en')}
           </span>
         </div>
 

@@ -1,8 +1,18 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { themePresets } from '../../context/PreferencesContext';
 
 export default function NavigationCards({ layoutStyle, customTabs, t, language }) {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Cartões de navegação padrão
   const defaultCards = [
@@ -12,9 +22,11 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
     { path: '/quizzes', label: t.quizzes, icon: '🎮', desc: language === 'pt' ? 'O quanto me conheces? Jogo de perguntas' : 'How well do you know me? Trivia game', preset: 'mint' },
     { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
     { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫', desc: language === 'pt' ? 'Oferece ou raspa mimos e surpresas especiais' : 'Give or scratch special treats and surprises', preset: 'romance' },
+    { path: '/roleta', label: t.wheel_title ? t.wheel_title.replace(' 🎡', '') : 'Roleta', icon: '🎡', desc: language === 'pt' ? 'Roda a roleta para decidir qualquer coisa em casal' : 'Spin the wheel to decide anything together', preset: 'sunset' },
+    { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝', desc: language === 'pt' ? 'A vossa lista de desejos e metas românticas com fotos' : 'Your bucket list and romantic goals with photos', preset: 'lavender' },
   ];
 
-  if (layoutStyle !== 'stacked') return null;
+  if (layoutStyle !== 'stacked' && !isMobile) return null;
 
   return (
     <div className="stacked-cards-list" style={{ display: 'flex', flexDirection: 'column', gap: '18px', margin: '30px 0' }}>

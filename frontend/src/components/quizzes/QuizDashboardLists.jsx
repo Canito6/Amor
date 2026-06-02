@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateShort } from '../../utils/dateFormatter';
 
 export default function QuizDashboardLists({
   loading,
@@ -88,7 +89,7 @@ export default function QuizDashboardLists({
                 <div>
                   <h3 style={{ fontSize: '16px', margin: '0 0 4px 0' }}>{q.title}</h3>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    {language === 'pt' ? 'Perguntas' : 'Questions'}: {q.questions.length} | {language === 'pt' ? 'Criado em' : 'Created on'}: {new Date(q.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US')}
+                    {language === 'pt' ? 'Perguntas' : 'Questions'}: {q.questions.length} | {language === 'pt' ? 'Criado em' : 'Created on'}: {formatDateShort(q.createdAt, language === 'pt' ? 'pt' : 'en')}
                   </span>
                 </div>
                 
