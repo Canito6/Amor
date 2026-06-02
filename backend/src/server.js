@@ -3,8 +3,26 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
+
+// Sanitizador manual compatível com Express 5 (req.query é getter-only no Express 5)
+const sanitizeValue = (obj) => {
+  if (obj && typeof obj === 'object') {
+    for (const key of Object.keys(obj)) {
+      if (key.startsWith('$') || key.includes('.')) {
+        delete obj[key];
+      } else {
+        sanitizeValue(obj[key]);
+      }
+    }
+  }
+  return obj;
+};
+const mongoSanitizeMiddleware = (req, res, next) => {
+  if (req.body) sanitizeValue(req.body);
+  if (req.params) sanitizeValue(req.params);
+  next();
+};
 const xssSanitizer = require('./middlewares/xssSanitizer');
 const hpp = require('hpp');
 require('dotenv').config();
@@ -27,7 +45,7 @@ app.use(helmet({
     }
   }
 }));
-app.use(mongoSanitize());
+app.use(mongoSanitizeMiddleware);
 app.use(cookieParser());
 
 // Servir ficheiros estáticos do frontend (React)
