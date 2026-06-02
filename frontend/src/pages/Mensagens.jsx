@@ -1,24 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { messageService } from '../services/messageService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
+import MessageForm from '../components/messages/MessageForm';
+import PostItCard from '../components/messages/PostItCard';
 import './Mensagens.css';
-
-const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
 
 export default function Mensagens() {
   const [messages, setMessages] = useState([]);
-  const [content, setContent] = useState('');
-  const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(true);
-
-  // Estado para edição inline de mensagens
-  const [editingId, setEditingId] = useState(null);
-  const [editContent, setEditContent] = useState('');
-
-  // Estado para o painel de emoji aberto
-  const [emojiPanelId, setEmojiPanelId] = useState(null);
+  const [error, setError] = useState('');
 
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
@@ -26,15 +18,6 @@ export default function Mensagens() {
 
   const { language } = usePreferences();
   const t = translations[language];
-
-  // Cores pastel para rodar nas notas
-  const coresPostIt = [
-    { bg: '#fff9db', border: '#ffe066' }, // Amarelo
-    { bg: '#e3faf2', border: '#96f2d7' }, // Verde
-    { bg: '#e8f0fe', border: '#adc6ff' }, // Azul
-    { bg: '#fff0f6', border: '#ffdeeb' }, // Rosa
-    { bg: '#f3f0ff', border: '#d0bfff' }  // Roxo
-  ];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -46,86 +29,59 @@ export default function Mensagens() {
     carregarMensagens();
   }, [navigate]);
 
-  // Fechar painel de emojis ao clicar fora
-  useEffect(() => {
-    const handleClickOutside = () => setEmojiPanelId(null);
-    if (emojiPanelId) {
-      document.addEventListener('click', handleClickOutside);
-    }
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [emojiPanelId]);
-
   const carregarMensagens = async () => {
     try {
       setLoading(true);
+      setError('');
       const dados = await messageService.getMessages();
       setMessages(dados);
     } catch (err) {
-      setErro(t.messages_error_load);
+      setError(t.messages_error_load || 'Erro ao carregar mensagens.');
     } finally {
       setLoading(false);
     }
   };
 
-  const enviarMensagem = async (e) => {
-    e.preventDefault();
-    if (!content.trim()) return;
-
+  const handleCreateMessageSubmit = async (content) => {
     try {
-      setErro('');
+      setError('');
       const novaMsg = await messageService.createMessage(content);
       setMessages([...messages, novaMsg]);
-      setContent('');
     } catch (err) {
-      setErro(t.messages_error_send);
+      setError(t.messages_error_send || 'Erro ao enviar nota.');
+      throw err;
     }
   };
 
-  const iniciarEdicao = (msg) => {
-    setEditingId(msg._id);
-    setEditContent(msg.content);
-    setEmojiPanelId(null);
-  };
-
-  const cancelarEdicao = () => {
-    setEditingId(null);
-    setEditContent('');
-  };
-
-  const guardarEdicao = async (id) => {
-    if (!editContent.trim()) return;
+  const handleUpdateMessage = async (id, content) => {
     try {
-      setErro('');
-      const atualizada = await messageService.updateMessage(id, editContent);
+      setError('');
+      const atualizada = await messageService.updateMessage(id, content);
       setMessages(messages.map(m => m._id === id ? atualizada : m));
-      setEditingId(null);
-      setEditContent('');
     } catch (err) {
-      setErro(err.message || 'Erro ao editar mensagem.');
+      setError(err.message || 'Erro ao editar mensagem.');
+      throw err;
     }
   };
 
-  const reagirMensagem = async (e, msgId, emoji) => {
-    e.stopPropagation();
+  const handleReactToMessage = async (msgId, emoji) => {
     try {
       const atualizada = await messageService.reactToMessage(msgId, emoji);
       setMessages(messages.map(m => m._id === msgId ? atualizada : m));
     } catch (err) {
       console.error('Erro ao reagir:', err);
-    } finally {
-      setEmojiPanelId(null);
     }
   };
 
-  const apagarMensagem = async (id) => {
+  const handleDeleteMessage = async (id) => {
     if (!window.confirm(t.messages_delete_confirm)) return;
 
     try {
-      setErro('');
+      setError('');
       await messageService.deleteMessage(id);
       setMessages(messages.filter((msg) => msg._id !== id));
     } catch (err) {
-      setErro(t.messages_error_delete);
+      setError(t.messages_error_delete || 'Erro ao apagar nota.');
     }
   };
 
@@ -139,26 +95,9 @@ export default function Mensagens() {
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
-        <h2 style={{ marginBottom: '15px', fontSize: '20px' }}>{t.messages_subtitle}</h2>
-        <form onSubmit={enviarMensagem} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <textarea
-            className="input-control"
-            placeholder={t.messages_placeholder}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows="4"
-            required
-            style={{ resize: 'vertical' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="btn btn-primary">
-              {t.messages_submit}
-            </button>
-          </div>
-        </form>
-        {erro && <p style={{ color: 'var(--danger-color)', marginTop: '15px', fontWeight: 'bold' }}>{erro}</p>}
-      </div>
+      <MessageForm onSubmit={handleCreateMessageSubmit} t={t} />
+
+      {error && <p style={{ color: 'var(--danger-color)', textAlign: 'center', marginBottom: '20px', fontWeight: 'bold' }}>{error}</p>}
 
       {loading ? (
         <div style={{ textAlign: 'center', margin: '40px 0' }}>
@@ -170,133 +109,20 @@ export default function Mensagens() {
         </div>
       ) : (
         <div className="notes-grid">
-          {messages.map((msg, index) => {
-            const cores = coresPostIt[index % coresPostIt.length];
-            const podeEditar = msg.sender === meuNome || minhaRole === 'admin';
-            const podeApagar = msg.sender === meuNome || minhaRole === 'admin';
-            const isEditing = editingId === msg._id;
-            const minhaReacao = msg.reactions?.find(r => r.username === meuNome);
-            
-            return (
-              <div 
-                key={msg._id} 
-                className="post-it"
-                style={{ 
-                  backgroundColor: cores.bg, 
-                  borderColor: cores.border 
-                }}
-              >
-                {/* Conteúdo ou Campo de Edição */}
-                {isEditing ? (
-                  <div className="post-it-edit-area">
-                    <textarea
-                      className="post-it-edit-input"
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      rows={4}
-                      autoFocus
-                      style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderColor: cores.border }}
-                    />
-                    <div className="post-it-edit-actions">
-                      <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={() => guardarEdicao(msg._id)}>
-                        💾 {t.save}
-                      </button>
-                      <button className="btn btn-dark" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={cancelarEdicao}>
-                        ✕ {t.cancel}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="post-it-content">
-                    {msg.content}
-                    {msg.isEdited && (
-                      <span className="post-it-edited">(editado)</span>
-                    )}
-                  </div>
-                )}
-
-                {/* Reações existentes */}
-                {!isEditing && msg.reactions && msg.reactions.length > 0 && (
-                  <div className="post-it-reactions">
-                    {msg.reactions.map((r, i) => (
-                      <span key={i} className="reaction-badge" title={r.username}>
-                        {r.emoji}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="post-it-footer">
-                  <div>
-                    {t.messages_by} <span className="post-it-author">{msg.sender}</span>
-                    <br />
-                    <span style={{ fontSize: '10px', opacity: 0.8 }}>
-                      {new Date(msg.createdAt).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
-
-                  {!isEditing && (
-                    <div className="post-it-actions">
-                      {/* Botão de reação */}
-                      <div style={{ position: 'relative' }}>
-                        <button
-                          className={`reaction-btn ${minhaReacao ? 'reacted' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEmojiPanelId(emojiPanelId === msg._id ? null : msg._id);
-                          }}
-                          title="Reagir"
-                        >
-                          {minhaReacao ? minhaReacao.emoji : '😊'}
-                        </button>
-                        {emojiPanelId === msg._id && (
-                          <div className="emoji-picker-panel" onClick={(e) => e.stopPropagation()}>
-                            {QUICK_EMOJIS.map(emoji => (
-                              <button
-                                key={emoji}
-                                className="emoji-option"
-                                onClick={(e) => reagirMensagem(e, msg._id, emoji)}
-                              >
-                                {emoji}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Botão de editar */}
-                      {podeEditar && (
-                        <button 
-                          onClick={() => iniciarEdicao(msg)}
-                          className="post-it-action-btn"
-                          title={t.edit}
-                        >
-                          ✏️
-                        </button>
-                      )}
-
-                      {/* Botão de apagar */}
-                      {podeApagar && (
-                        <button 
-                          onClick={() => apagarMensagem(msg._id)}
-                          className="post-it-action-btn danger"
-                          title={t.delete}
-                        >
-                          🗑️
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {messages.map((msg, index) => (
+            <PostItCard
+              key={msg._id}
+              msg={msg}
+              index={index}
+              meuNome={meuNome}
+              minhaRole={minhaRole}
+              language={language}
+              t={t}
+              onUpdate={handleUpdateMessage}
+              onDelete={handleDeleteMessage}
+              onReact={handleReactToMessage}
+            />
+          ))}
         </div>
       )}
     </div>

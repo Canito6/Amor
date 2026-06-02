@@ -12,6 +12,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/memorias', label: t.memories, icon: '⏳' },
     { path: '/quizzes', label: t.quizzes, icon: '🎮' },
     { path: '/calendario', label: t.calendar, icon: '📅' },
+    { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫' },
   ];
 
   return (

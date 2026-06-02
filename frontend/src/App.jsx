@@ -17,6 +17,7 @@ const Memorias = lazy(() => import('./pages/Memorias'));
 const Quizzes = lazy(() => import('./pages/Quizzes'));
 const Calendario = lazy(() => import('./pages/Calendario'));
 const CustomTabViewer = lazy(() => import('./pages/CustomTabViewer'));
+const Raspadinhas = lazy(() => import('./pages/Raspadinhas'));
 
 // Fallback loader component
 function LoadingFallback() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/memorias" element={<Memorias />} />
               <Route path="/quizzes" element={<Quizzes />} />
               <Route path="/calendario" element={<Calendario />} />
+              <Route path="/raspadinhas" element={<Raspadinhas />} />
               <Route path="/tab/:tabId" element={<CustomTabViewer />} />
               <Route path="/admin" element={<AdminDashboard />} />
             </Route>

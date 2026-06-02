@@ -11,6 +11,7 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
     { path: '/memorias', label: t.memories, icon: '⏳', desc: language === 'pt' ? 'A nossa linha do tempo e contadores especiais' : 'Our timeline and special counters', preset: 'lavender' },
     { path: '/quizzes', label: t.quizzes, icon: '🎮', desc: language === 'pt' ? 'O quanto me conheces? Jogo de perguntas' : 'How well do you know me? Trivia game', preset: 'mint' },
     { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
+    { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫', desc: language === 'pt' ? 'Oferece ou raspa mimos e surpresas especiais' : 'Give or scratch special treats and surprises', preset: 'romance' },
   ];
 
   if (layoutStyle !== 'stacked') return null;

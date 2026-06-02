@@ -59,9 +59,4 @@ router.post('/forcar-mudanca-password', validateSchema(forcarMudancaPasswordSche
 // 6. ROTA: Verificar código de login 2FA
 router.post('/verify-login', authController.verifyLogin);
 
-// 7. ROTAS DE CONFIGURAÇÃO DE CASAL
-router.get('/couple-info', verificarToken, authController.getCoupleInfo);
-router.post('/couple-info', verificarToken, authController.updateCoupleInfo);
-router.post('/link-couple', verificarToken, authController.linkCouple);
-
 module.exports = router;

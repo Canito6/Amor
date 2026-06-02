@@ -22,7 +22,9 @@ app.use(express.json());
 
 // Rotas de Autenticação (Login e Registo)
 const authRoutes = require('./routes/auth');
+const coupleRoutes = require('./routes/couple');
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', coupleRoutes);
 
 // NOVO: Rotas de Administrador
 const adminRoutes = require('./routes/admin');
@@ -36,6 +38,7 @@ const albumRoutes = require('./routes/albums');
 const quizRoutes = require('./routes/quizzes');
 const eventRoutes = require('./routes/events');
 const tabRoutes = require('./routes/tabs');
+const funRoutes = require('./routes/fun');
 
 app.use('/api/messages', messageRoutes);
 app.use('/api/photos', photoRoutes);
@@ -44,6 +47,7 @@ app.use('/api/albums', albumRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/tabs', tabRoutes);
+app.use('/api/fun', funRoutes);
 
 // Ligação ao MongoDB Atlas
 const { startTimeCapsuleWorker } = require('./utils/timeCapsuleWorker');
