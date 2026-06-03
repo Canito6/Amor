@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { funService } from '../services/funService';
+import { scratchCardService } from '../services/scratchCardService';
 import { usePreferences } from '../context/PreferencesContext';
 import { translations } from '../services/translations';
 import ScratchLightbox from '../components/raspadinhas/ScratchLightbox';
@@ -38,7 +38,7 @@ export default function Raspadinhas() {
     try {
       setLoading(true);
       setError('');
-      const data = await funService.getScratchCards();
+      const data = await scratchCardService.getScratchCards();
       setCards(data);
     } catch (err) {
       setError(t.scratch_error_load || 'Erro ao carregar raspadinhas.');
@@ -50,7 +50,7 @@ export default function Raspadinhas() {
   const handleCreateCardSubmit = async (title, reward) => {
     try {
       setError('');
-      const newCard = await funService.createScratchCard({ title, reward });
+      const newCard = await scratchCardService.createScratchCard({ title, reward });
       setCards([newCard, ...cards]);
       alert(t.scratch_success_created || 'Raspadinha criada!');
     } catch (err) {
@@ -63,7 +63,7 @@ export default function Raspadinhas() {
     if (!window.confirm(t.scratch_confirm_delete || 'Tens a certeza?')) return;
     try {
       setError('');
-      await funService.deleteScratchCard(id);
+      await scratchCardService.deleteScratchCard(id);
       setCards(cards.filter(c => c._id !== id));
       if (scratchingCard && scratchingCard._id === id) {
         setScratchingCard(null);
@@ -75,7 +75,7 @@ export default function Raspadinhas() {
 
   const handleMarkAsScratched = async (id) => {
     try {
-      const updated = await funService.scratchCard(id);
+      const updated = await scratchCardService.scratchCard(id);
       setCards(cards.map(c => c._id === id ? updated : c));
       // Se a raspadinha estiver aberta em modal, atualiza
       if (scratchingCard && scratchingCard._id === id) {

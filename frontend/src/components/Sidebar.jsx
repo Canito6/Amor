@@ -15,6 +15,10 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫' },
     { path: '/roleta', label: t.wheel_title ? t.wheel_title.replace(' 🎡', '') : 'Roleta', icon: '🎡' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
+    { path: '/vales', label: t.coupon_title ? t.coupon_title.replace(' 🎟️', '') : 'Vales', icon: '🎟️' },
+    { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
+    { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
+    { path: '/likely', label: t.likely_title ? t.likely_title.replace(' 🃏', '').replace('...', '') : 'Provável', icon: '🃏' },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { funService } from '../services/funService';
+import { bucketListService } from '../services/bucketListService';
 import { validateImageSize } from '../utils/fileValidator';
 import { formatDateLong } from '../utils/dateFormatter';
 
@@ -28,7 +28,7 @@ export default function useBucketList(t, language, fileInputRef) {
     try {
       setLoading(true);
       setError('');
-      const data = await funService.getBucketItems();
+      const data = await bucketListService.getBucketItems();
       setItems(data);
     } catch (err) {
       setError(t.bucket_error_load || 'Erro ao carregar a lista de desejos.');
@@ -47,7 +47,7 @@ export default function useBucketList(t, language, fileInputRef) {
     try {
       setCreating(true);
       setError('');
-      const newItem = await funService.createBucketItem({
+      const newItem = await bucketListService.createBucketItem({
         title: newTitle.trim(),
         description: newDescription.trim()
       });
@@ -70,7 +70,7 @@ export default function useBucketList(t, language, fileInputRef) {
 
       try {
         setError('');
-        const updated = await funService.completeBucketItem(item._id, { completed: false });
+        const updated = await bucketListService.completeBucketItem(item._id, { completed: false });
         setItems(items.map(i => i._id === item._id ? updated : i));
       } catch (err) {
         setError(t.bucket_error_complete || 'Erro ao atualizar desejo.');
@@ -95,7 +95,7 @@ export default function useBucketList(t, language, fileInputRef) {
         formData.append('image', completionFile);
       }
 
-      const updated = await funService.completeBucketItem(completingItem._id, formData);
+      const updated = await bucketListService.completeBucketItem(completingItem._id, formData);
       setItems(items.map(i => i._id === completingItem._id ? updated : i));
       setCompletingItem(null);
       setCompletionFile(null);
@@ -114,7 +114,7 @@ export default function useBucketList(t, language, fileInputRef) {
 
     try {
       setError('');
-      await funService.deleteBucketItem(id);
+      await bucketListService.deleteBucketItem(id);
       setItems(items.filter(i => i._id !== id));
     } catch (err) {
       setError(t.bucket_error_delete || 'Erro ao eliminar desejo.');

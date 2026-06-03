@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { funService } from '../services/funService';
+import { decisionWheelService } from '../services/decisionWheelService';
 import { playClickSound } from '../utils/audioHelper';
 
 export default function useRoleta(t) {
@@ -27,7 +27,7 @@ export default function useRoleta(t) {
     try {
       setLoading(true);
       setError('');
-      const data = await funService.getDecisionWheels();
+      const data = await decisionWheelService.getDecisionWheels();
       setWheels(data);
       if (data.length > 0) {
         setSelectedWheel(data[0]);
@@ -50,7 +50,7 @@ export default function useRoleta(t) {
     try {
       setCreating(true);
       setError('');
-      const newWheel = await funService.createDecisionWheel({
+      const newWheel = await decisionWheelService.createDecisionWheel({
         title: newTitle.trim(),
         options: validOptions
       });
@@ -71,7 +71,7 @@ export default function useRoleta(t) {
     if (!window.confirm(t.wheel_confirm_delete || 'Tem a certeza?')) return;
     try {
       setError('');
-      await funService.deleteDecisionWheel(id);
+      await decisionWheelService.deleteDecisionWheel(id);
       const remaining = wheels.filter(w => w._id !== id);
       setWheels(remaining);
       setSelectedWheel(remaining.length > 0 ? remaining[0] : null);

@@ -20,6 +20,11 @@ const CustomTabViewer = lazy(() => import('./pages/CustomTabViewer'));
 const Raspadinhas = lazy(() => import('./pages/Raspadinhas'));
 const Roleta = lazy(() => import('./pages/Roleta'));
 const BucketList = lazy(() => import('./pages/BucketList'));
+const Vales = lazy(() => import('./pages/Vales'));
+const Cartas = lazy(() => import('./pages/Cartas'));
+const Frasco = lazy(() => import('./pages/Frasco'));
+const Likely = lazy(() => import('./pages/Likely'));
+
 
 
 // Fallback loader component
@@ -54,6 +59,10 @@ function App() {
               <Route path="/raspadinhas" element={<Raspadinhas />} />
               <Route path="/roleta" element={<Roleta />} />
               <Route path="/bucket-list" element={<BucketList />} />
+              <Route path="/vales" element={<Vales />} />
+              <Route path="/cartas" element={<Cartas />} />
+              <Route path="/frasco" element={<Frasco />} />
+              <Route path="/likely" element={<Likely />} />
               <Route path="/tab/:tabId" element={<CustomTabViewer />} />
               <Route path="/admin" element={<AdminDashboard />} />
             </Route>

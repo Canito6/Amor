@@ -24,6 +24,10 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
     { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫', desc: language === 'pt' ? 'Oferece ou raspa mimos e surpresas especiais' : 'Give or scratch special treats and surprises', preset: 'romance' },
     { path: '/roleta', label: t.wheel_title ? t.wheel_title.replace(' 🎡', '') : 'Roleta', icon: '🎡', desc: language === 'pt' ? 'Roda a roleta para decidir qualquer coisa em casal' : 'Spin the wheel to decide anything together', preset: 'sunset' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝', desc: language === 'pt' ? 'A vossa lista de desejos e metas românticas com fotos' : 'Your bucket list and romantic goals with photos', preset: 'lavender' },
+    { path: '/vales', label: t.coupon_title ? t.coupon_title.replace(' 🎟️', '') : 'Vales', icon: '🎟️', desc: language === 'pt' ? 'Mimos e presentes virtuais para oferecer e resgatar' : 'Virtual treats and gifts to give and redeem', preset: 'mint' },
+    { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️', desc: language === 'pt' ? 'Mensagens surpresa para ler em momentos específicos' : 'Surprise messages to read in specific moments', preset: 'romance' },
+    { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺', desc: language === 'pt' ? 'Tira um papelinho aleatório para alegrar o teu dia' : 'Draw a random note to brighten your day', preset: 'sunset' },
+    { path: '/likely', label: t.likely_title ? t.likely_title.replace(' 🃏', '').replace('...', '') : 'Jogo', icon: '🃏', desc: language === 'pt' ? 'Responde secretamente e descobre a vossa afinidade' : 'Vote secretly and discover your affinity', preset: 'ocean' },
   ];
 
   if (layoutStyle !== 'stacked' && !isMobile) return null;
