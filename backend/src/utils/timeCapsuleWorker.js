@@ -76,6 +76,7 @@ const checkUnlockedTimeCapsules = async () => {
 };
 
 const startTimeCapsuleWorker = () => {
+  if (process.env.NODE_ENV === 'test') return;
   // Executar uma vez no arranque
   checkUnlockedTimeCapsules();
   

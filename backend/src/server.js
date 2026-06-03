@@ -1,108 +1,52 @@
 const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
 const path = require('path');
-const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-
-// Sanitizador manual compatível com Express 5 (req.query é getter-only no Express 5)
-const sanitizeValue = (obj) => {
-  if (obj && typeof obj === 'object') {
-    for (const key of Object.keys(obj)) {
-      if (key.startsWith('$') || key.includes('.')) {
-        delete obj[key];
-      } else {
-        sanitizeValue(obj[key]);
-      }
-    }
-  }
-  return obj;
-};
-const mongoSanitizeMiddleware = (req, res, next) => {
-  if (req.body) sanitizeValue(req.body);
-  if (req.params) sanitizeValue(req.params);
-  next();
-};
-const xssSanitizer = require('./middlewares/xssSanitizer');
-const hpp = require('hpp');
+const morgan = require('morgan');
+const logger = require('./utils/logger');
+const connectDB = require('./config/db');
+const configureSecurity = require('./config/security');
+const apiRouter = require('./routes');
 require('dotenv').config();
 
 const app = express();
-app.set('trust proxy', 1); // Trust first proxy (e.g., ngrok)
+app.set('trust proxy', 1); // Confiar no primeiro proxy (ex: ngrok)
 const PORT = process.env.PORT || 5000;
 
-// Middlewares Globais de Segurança
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.spotifycdn.com"],
-      frameSrc: ["'self'", "https://open.spotify.com"],
-      connectSrc: ["'self'", "https://api.cloudinary.com"]
+// 1. Ligação ao MongoDB Atlas
+connectDB();
+
+// 2. Middlewares base
+app.use(cookieParser());
+app.use(express.json());
+
+// 3. Registo de acessos HTTP (Morgan integrado com Winston)
+app.use(morgan('combined', {
+  stream: {
+    write: (message) => logger.info(message.trim())
+  }
+}));
+
+// 4. Configurações de Segurança e Sanitização de Inputs
+configureSecurity(app);
+
+// 5. Servir ficheiros estáticos do frontend com cache de longa duração
+const distPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(distPath, {
+  maxAge: '1y',
+  setHeaders: (res, filePath) => {
+    // Cache permanente para assets compilados do Vite
+    if (filePath.includes(path.sep + 'assets' + path.sep)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     }
   }
 }));
-app.use(mongoSanitizeMiddleware);
-app.use(cookieParser());
 
-// Servir ficheiros estáticos do frontend (React)
-const distPath = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(distPath));
+// 6. Registar as Rotas da API sob /api
+app.use('/api', apiRouter);
 
-// Middlewares (Regras de segurança e formato de dados)
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-};
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(xssSanitizer);
-app.use(hpp());
-
-// Rotas de Autenticação (Login e Registo)
-const authRoutes = require('./routes/auth');
-const coupleRoutes = require('./routes/couple');
-app.use('/api/auth', authRoutes);
-app.use('/api/auth', coupleRoutes);
-
-// NOVO: Rotas de Administrador
-const adminRoutes = require('./routes/admin');
-app.use('/api/admin', adminRoutes);
-
-// Novas Rotas Funcionais (Mensagens, Fotos, Memórias)
-const messageRoutes = require('./routes/messages');
-const photoRoutes = require('./routes/photos');
-const memoryRoutes = require('./routes/memories');
-const albumRoutes = require('./routes/albums');
-const quizRoutes = require('./routes/quizzes');
-const eventRoutes = require('./routes/events');
-const tabRoutes = require('./routes/tabs');
-const funRoutes = require('./routes/fun');
-
-app.use('/api/messages', messageRoutes);
-app.use('/api/photos', photoRoutes);
-app.use('/api/memories', memoryRoutes);
-app.use('/api/albums', albumRoutes);
-app.use('/api/quizzes', quizRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/tabs', tabRoutes);
-app.use('/api/fun', funRoutes);
-
-// Ligação ao MongoDB Atlas
-const { startTimeCapsuleWorker } = require('./utils/timeCapsuleWorker');
-
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ Ligado com sucesso ao MongoDB Atlas!');
-    // Iniciar verificação de cápsulas desbloqueadas no arranque
-    startTimeCapsuleWorker();
-  })
-  .catch((err) => console.error('❌ Erro ao ligar ao MongoDB:', err));
-
-// Fallback para o React Router (para qualquer rota que não seja da API)
+// 7. Fallback para o React Router
 app.get('*any', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
@@ -114,11 +58,15 @@ app.get('*any', (req, res, next) => {
   });
 });
 
-// Centralized error handler middleware (must be registered last)
+// 8. Middleware Centralizado de Controlo de Erros
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 
-// Arrancar o servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor a correr na porta ${PORT}`);
-});
+// 9. Inicialização da Escuta de Porta (ignorada em ambiente de testes)
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`🚀 Servidor a correr na porta ${PORT}`);
+  });
+}
+
+module.exports = app;

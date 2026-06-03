@@ -1,9 +1,10 @@
+const logger = require('../utils/logger');
+
 const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   
-  // Log the complete error stack on the server side
-  console.error(`[ERR] ${req.method} ${req.originalUrl || req.url} - Status: ${statusCode}`);
-  console.error(err.stack || err);
+  // Log the complete error stack using Winston logger
+  logger.error(`${req.method} ${req.originalUrl || req.url} - Status: ${statusCode}`, err);
 
   // Return clean, safe error messages to clients without leaking internals
   const cleanMessage = err.isOperational ? err.message : 'Ocorreu um erro interno no servidor.';

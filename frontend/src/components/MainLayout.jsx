@@ -6,6 +6,7 @@ import { authService } from '../services/authService';
 import Sidebar from './Sidebar';
 import SettingsModal from './SettingsModal';
 import LinkCoupleModal from './LinkCoupleModal';
+import Header from './Header';
 import './MainLayout.css';
 import '../pages/Dashboard.css';
 
@@ -50,7 +51,6 @@ export default function MainLayout() {
       if (info.names) {
         setNome(info.names);
       } else if (info.partnerNames && info.partnerNames.length > 0) {
-        // Sort names or show them in order
         setNome(info.partnerNames.join(' & '));
       } else {
         setNome(localStorage.getItem('nome') || 'Amor');
@@ -71,7 +71,6 @@ export default function MainLayout() {
 
   useEffect(() => {
     loadCoupleInfo();
-    // Listen for storage changes or profile updates
     const handleRefresh = () => {
       loadCoupleInfo();
     };
@@ -119,29 +118,21 @@ export default function MainLayout() {
     localStorage.clear();
     navigate('/');
   };
+
   return (
     <div className={`layout-root layout-${layoutStyle}`}>
       
-      {/* Global Topbar containing Couple Names */}
-      <header className="global-topbar glass-panel">
-        <div className="topbar-container">
-          <div className="topbar-names" onClick={() => navigate('/dashboard')}>
-            <span>💑</span> {nome} ❤️
-          </div>
-          <div className="topbar-actions">
-            {(!coupleInfo.partnerNames || coupleInfo.partnerNames.length <= 1) && (
-              <button className="btn-connect" onClick={() => setIsLinkModalOpen(true)}>
-                🔗 {t.connect_partner_btn || 'Conectar Parceira'}
-              </button>
-            )}
-            {(layoutStyle === 'stacked' || isMobile) && (
-              <button className="topbar-settings-btn" onClick={() => setIsSettingsOpen(true)}>
-                ⚙️ {t.settings}
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Global Topbar Header */}
+      <Header
+        nome={nome}
+        coupleInfo={coupleInfo}
+        layoutStyle={layoutStyle}
+        isMobile={isMobile}
+        onOpenLinkModal={() => setIsLinkModalOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onLogoClick={() => navigate('/dashboard')}
+        t={t}
+      />
 
       {/* Sidebar Navigation - PC Sidebar Style */}
       {layoutStyle === 'sidebar' && !isMobile && (

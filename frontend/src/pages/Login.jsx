@@ -1,22 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
 import AuthInput from '../components/auth/AuthInput';
 import TwoFactorPanel from '../components/auth/TwoFactorPanel';
+import useLoginForm from '../hooks/useLoginForm';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [erro, setErro] = useState('');
-  
-  // 2FA Verification States
-  const [requiresVerification, setRequiresVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
-  const [trustDevice, setTrustDevice] = useState(false);
-  const [tempUserId, setTempUserId] = useState('');
-  const [securityMethod, setSecurityMethod] = useState('');
-  const [mockSMSCode, setMockSMSCode] = useState('');
-  
   const navigate = useNavigate();
 
   // Se já tiver token, vai direto para o Dashboard
@@ -27,66 +15,23 @@ export default function Login() {
     }
   }, [navigate]);
 
-  const fazerLogin = async (e) => {
-    e.preventDefault(); 
-    setErro(''); 
-
-    try {
-      const deviceToken = localStorage.getItem('trustedDeviceToken');
-      const dados = await authService.login(username, password, deviceToken);
-
-      // Se necessitar de verificação por email ou telemóvel (2FA)
-      if (dados.requiresVerification) {
-        setRequiresVerification(true);
-        setTempUserId(dados.userId);
-        setSecurityMethod(dados.method);
-        setMockSMSCode(dados.mockCode || '');
-        return;
-      }
-
-      // Verifica se temos de mandar a pessoa para o ecrã de mudar password
-      if (dados.precisaMudarPassword) {
-        navigate('/forcar-password', { state: { userId: dados.userId } });
-        return; 
-      }
-
-      // Se estiver tudo normal:
-      localStorage.setItem('token', dados.token);
-      localStorage.setItem('nome', dados.username);
-      localStorage.setItem('role', dados.role); 
-      navigate('/dashboard');
-    } catch (error) {
-      setErro(error.message || 'Erro ao fazer login.');
-    }
-  };
-
-  const confirmarCodigo = async (e) => {
-    e.preventDefault();
-    setErro('');
-
-    try {
-      const dados = await authService.verifyLogin(tempUserId, verificationCode, trustDevice);
-
-      localStorage.setItem('token', dados.token);
-      localStorage.setItem('nome', dados.username);
-      localStorage.setItem('role', dados.role);
-
-      if (dados.trustedDeviceToken) {
-        localStorage.setItem('trustedDeviceToken', dados.trustedDeviceToken);
-      }
-
-      navigate('/dashboard');
-    } catch (error) {
-      setErro(error.message || 'Erro ao verificar código.');
-    }
-  };
-
-  const voltarParaPassword = () => {
-    setRequiresVerification(false);
-    setVerificationCode('');
-    setMockSMSCode('');
-    setErro('');
-  };
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    erro,
+    requiresVerification,
+    verificationCode,
+    setVerificationCode,
+    trustDevice,
+    setTrustDevice,
+    securityMethod,
+    mockSMSCode,
+    fazerLogin,
+    confirmarCodigo,
+    voltarParaPassword
+  } = useLoginForm(navigate);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '85vh', padding: '20px' }}>
