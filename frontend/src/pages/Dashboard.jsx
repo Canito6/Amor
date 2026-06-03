@@ -10,6 +10,7 @@ import EventCountdown from '../components/dashboard/EventCountdown';
 import NavigationCards from '../components/dashboard/NavigationCards';
 import SpotifyWidget from '../components/dashboard/SpotifyWidget';
 import MoodTracker from '../components/dashboard/MoodTracker';
+import DailyCheckIn from '../components/dashboard/DailyCheckIn';
 import LoveCounter from '../components/dashboard/LoveCounter';
 import CoupleEditModal from '../components/dashboard/CoupleEditModal';
 import './Dashboard.css';
@@ -173,6 +174,9 @@ export default function Dashboard() {
         t={t} 
         language={language} 
       />
+
+      {/* Check-in Diário */}
+      <DailyCheckIn t={t} language={language} />
 
       {/* Contador do Amor */}
       <LoveCounter 

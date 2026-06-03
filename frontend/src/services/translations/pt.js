@@ -263,6 +263,19 @@ export const pt = {
   mood_select_instruction: "Escolhe um emoji para partilhar o teu humor:",
   mood_success_update: "Humor atualizado! 💖",
 
+  // --- CHECK-IN DIÁRIO ---
+  daily_checkin_title: "Check-in Diário do Casal 💬",
+  daily_checkin_subtitle: "Respondam à pergunta de hoje para verem a resposta um do outro!",
+  daily_checkin_question_label: "Pergunta de hoje:",
+  daily_checkin_placeholder: "Escreve a tua resposta com carinho...",
+  daily_checkin_submit: "Enviar Resposta 💖",
+  daily_checkin_submitting: "A enviar...",
+  daily_checkin_waiting_partner: "Tu já respondeste! A aguardar que o teu amor responda para revelar... 🗝️",
+  daily_checkin_revealed_title: "As vossas respostas de hoje! 🎉",
+  daily_checkin_me: "A tua resposta:",
+  daily_checkin_partner: "Resposta do teu amor:",
+  daily_checkin_success: "Resposta registada com sucesso! 💑",
+
   // --- ROLETA DE DECISÕES (DECISION WHEEL) ---
   wheel_title: "Roleta de Decisões 🎡",
   wheel_subtitle: "Indecisos? Deixem que o destino decida! 🔮",

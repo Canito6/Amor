@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -8,7 +9,6 @@ const logger = require('./utils/logger');
 const connectDB = require('./config/db');
 const configureSecurity = require('./config/security');
 const apiRouter = require('./routes');
-require('dotenv').config();
 
 const app = express();
 app.set('trust proxy', 1); // Confiar no primeiro proxy (ex: ngrok)

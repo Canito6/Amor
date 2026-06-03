@@ -263,6 +263,19 @@ export const en = {
   mood_select_instruction: "Choose an emoji to share your mood:",
   mood_success_update: "Mood updated! 💖",
 
+  // --- CHECK-IN DIÁRIO ---
+  daily_checkin_title: "Daily Couple Check-in 💬",
+  daily_checkin_subtitle: "Answer today's question to reveal each other's response!",
+  daily_checkin_question_label: "Today's question:",
+  daily_checkin_placeholder: "Write your sweet response here...",
+  daily_checkin_submit: "Submit Response 💖",
+  daily_checkin_submitting: "Submitting...",
+  daily_checkin_waiting_partner: "You've answered! Waiting for your love to answer to reveal... 🗝️",
+  daily_checkin_revealed_title: "Your responses today! 🎉",
+  daily_checkin_me: "Your response:",
+  daily_checkin_partner: "Your love's response:",
+  daily_checkin_success: "Response saved successfully! 💑",
+
   // --- DECISION WHEEL ---
   wheel_title: "Decision Wheel 🎡",
   wheel_subtitle: "Can't decide? Let fate choose! 🔮",
