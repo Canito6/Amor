@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { eventService } from '../services/eventService';
 import { authService } from '../services/authService';
 import { usePreferences } from '../context/PreferencesContext';
+import { useTabs } from '../context/TabContext';
 import { translations } from '../services/translations';
 import WelcomeBanner from '../components/dashboard/WelcomeBanner';
 import EventCountdown from '../components/dashboard/EventCountdown';
@@ -19,7 +20,8 @@ export default function Dashboard() {
   const [daysRemaining, setDaysRemaining] = useState(null);
   const navigate = useNavigate();
 
-  const { language, layoutStyle, customTabs } = usePreferences();
+  const { language, layoutStyle } = usePreferences();
+  const { customTabs } = useTabs();
   const t = translations[language];
 
   // Couple States
@@ -194,6 +196,32 @@ export default function Dashboard() {
         t={t} 
         language={language} 
       />
+
+      {/* ATALHOS RÁPIDOS (Apenas quando layoutStyle === 'sidebar' no Desktop) */}
+      {layoutStyle === 'sidebar' && (
+        <div className="dashboard-quick-links glass-panel fade-in">
+          <button className="quick-link-btn" onClick={() => navigate('/mensagens')} style={{ '--btn-accent': '#ff4d6d' }}>
+            <span className="quick-link-icon">💌</span>
+            <span className="quick-link-label">{t.messages}</span>
+          </button>
+          <button className="quick-link-btn" onClick={() => navigate('/fotos')} style={{ '--btn-accent': '#ff9f1c' }}>
+            <span className="quick-link-icon">📸</span>
+            <span className="quick-link-label">{t.photos}</span>
+          </button>
+          <button className="quick-link-btn" onClick={() => navigate('/memorias')} style={{ '--btn-accent': '#7209b7' }}>
+            <span className="quick-link-icon">⏳</span>
+            <span className="quick-link-label">{t.memories}</span>
+          </button>
+          <button className="quick-link-btn" onClick={() => navigate('/jogos')} style={{ '--btn-accent': '#2a9d8f' }}>
+            <span className="quick-link-icon">🎮</span>
+            <span className="quick-link-label">{t.games_title ? t.games_title.replace(' 🎮', '') : (language === 'pt' ? 'Jogos' : 'Games')}</span>
+          </button>
+          <button className="quick-link-btn" onClick={() => navigate('/calendario')} style={{ '--btn-accent': '#00bbf9' }}>
+            <span className="quick-link-icon">📅</span>
+            <span className="quick-link-label">{t.calendar}</span>
+          </button>
+        </div>
+      )}
 
       {/* Widget do Spotify com playlist dinâmica */}
       <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />

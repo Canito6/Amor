@@ -2,27 +2,41 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onOpenSettings, onLogout, t }) {
+export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onOpenSettings, onLogout, t, isOpen, onClose }) {
   const navigate = useNavigate();
 
   const defaultNavItems = [
     { path: '/dashboard', label: t.dashboard, icon: '🏠' },
+    { path: '/perfil-casal', label: t.profile_title ? t.profile_title.replace(' 💖', '') : 'Perfil Casal', icon: '💖' },
     { path: '/mensagens', label: t.messages, icon: '💌' },
     { path: '/fotos', label: t.photos, icon: '📸' },
     { path: '/memorias', label: t.memories, icon: '⏳' },
-    { path: '/quizzes', label: t.quizzes, icon: '🎮' },
+    { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : 'Jogos', icon: '🎮' },
     { path: '/calendario', label: t.calendar, icon: '📅' },
-    { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫' },
-    { path: '/roleta', label: t.wheel_title ? t.wheel_title.replace(' 🎡', '') : 'Roleta', icon: '🎡' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
-    { path: '/vales', label: t.coupon_title ? t.coupon_title.replace(' 🎟️', '') : 'Vales', icon: '🎟️' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
-    { path: '/likely', label: t.likely_title ? t.likely_title.replace(' 🃏', '').replace('...', '') : 'Provável', icon: '🃏' },
   ];
 
+  const handleNavClick = (path) => {
+    navigate(path);
+    if (onClose) onClose();
+  };
+
+  const handleSettingsClick = () => {
+    onOpenSettings();
+    if (onClose) onClose();
+  };
+
+  const handleLogoutClick = () => {
+    onLogout();
+    if (onClose) onClose();
+  };
+
   return (
-    <aside className="app-sidebar glass-panel">
+    <aside className={`app-sidebar glass-panel ${isOpen ? 'open' : ''}`}>
+      <button className="sidebar-close-btn" onClick={onClose} aria-label="Fechar Menu">✕</button>
+      
       <div className="sidebar-header">
         <span className="sidebar-logo">💑</span>
         <h2 className="sidebar-title">Cantinho</h2>
@@ -36,7 +50,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavClick(item.path)}
                 className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
               >
                 <span className="sidebar-nav-icon">{item.icon}</span>
@@ -52,7 +66,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
             return (
               <button
                 key={tab._id}
-                onClick={() => navigate(tabPath)}
+                onClick={() => handleNavClick(tabPath)}
                 className={`sidebar-nav-item custom-tab-item ${isActive ? 'active' : ''}`}
                 style={{ '--tab-accent': tab.accentColor }}
               >
@@ -64,7 +78,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
 
           {roleGuardado === 'admin' && (
             <button
-              onClick={() => navigate('/admin')}
+              onClick={() => handleNavClick('/admin')}
               className={`sidebar-nav-item ${currentPath === '/admin' ? 'active' : ''}`}
               style={{ marginTop: '20px', borderTop: '1px dashed rgba(255, 255, 255, 0.2)', paddingTop: '15px' }}
             >
@@ -76,10 +90,10 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       </nav>
 
       <div className="sidebar-footer">
-        <button className="sidebar-footer-btn" onClick={onOpenSettings}>
+        <button className="sidebar-footer-btn" onClick={handleSettingsClick}>
           ⚙️ {t.settings}
         </button>
-        <button className="sidebar-footer-btn btn-logout" onClick={onLogout}>
+        <button className="sidebar-footer-btn btn-logout" onClick={handleLogoutClick}>
           🚪 {t.logout ? t.logout.replace(' 🚪', '') : 'Sair'}
         </button>
       </div>

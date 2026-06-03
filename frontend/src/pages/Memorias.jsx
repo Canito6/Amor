@@ -52,12 +52,14 @@ export default function Memorias() {
 
   return (
     <div className="app-container fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }} className="memories-header-row">
+        <button className="btn btn-dark btn-back-memories" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{t.memories_title}</h1>
-        <div style={{ width: '150px' }}></div>
+        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }} className="memories-page-title">{t.memories_title}</h1>
+        <button className="btn btn-primary btn-export-pdf" onClick={() => window.print()}>
+          📖 {language === 'pt' ? 'Exportar Livro' : 'Export Book'}
+        </button>
       </div>
 
       {/* Caixa do Contador de Dias Juntos */}

@@ -1,6 +1,35 @@
 const User = require('../models/User');
 const Couple = require('../models/Couple');
 const ApiError = require('../utils/apiError');
+const cloudinary = require('cloudinary').v2;
+const { Readable } = require('stream');
+
+const Quiz = require('../models/Quiz');
+const ScratchCard = require('../models/ScratchCard');
+const BucketItem = require('../models/BucketItem');
+const Memory = require('../models/Memory');
+const Photo = require('../models/Photo');
+const Coupon = require('../models/Coupon');
+const LikelyQuestion = require('../models/LikelyQuestion');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const uploadParaCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'o-nosso-cantinho-perfis' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    Readable.from(buffer).pipe(stream);
+  });
+};
 
 exports.getCoupleInfo = async (req, res, next) => {
   try {
@@ -30,7 +59,8 @@ exports.getCoupleInfo = async (req, res, next) => {
       partners: users.map(u => ({
         username: u.username,
         moodEmoji: u.moodEmoji || '',
-        moodUpdatedAt: u.moodUpdatedAt || null
+        moodUpdatedAt: u.moodUpdatedAt || null,
+        avatarUrl: u.avatarUrl || ''
       }))
     });
   } catch (error) {
@@ -160,10 +190,110 @@ exports.updateMood = async (req, res, next) => {
     user.moodUpdatedAt = new Date();
     await user.save();
 
+    const io = req.app.get('io');
+    if (io) {
+      io.to(req.coupleId).emit('update', { type: 'mood', user: req.user.username, value: user.moodEmoji });
+    }
+
     res.json({
       message: 'Humor atualizado com sucesso!',
       moodEmoji: user.moodEmoji,
       moodUpdatedAt: user.moodUpdatedAt
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new ApiError(400, 'Por favor, seleciona um ficheiro de imagem.');
+    }
+
+    const resultado = await uploadParaCloudinary(req.file.buffer);
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+
+    // Se o user já tinha avatar, tentar apagar do Cloudinary para poupar espaço
+    if (user.avatarUrl) {
+      try {
+        const urlParts = user.avatarUrl.split('/');
+        const folderAndFile = urlParts.slice(-2).join('/');
+        const publicId = folderAndFile.split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+      } catch (errCloudinary) {
+        console.error('Erro ao apagar avatar no Cloudinary:', errCloudinary);
+      }
+    }
+
+    user.avatarUrl = resultado.secure_url;
+    await user.save();
+
+    res.json({
+      message: 'Avatar atualizado com sucesso!',
+      avatarUrl: user.avatarUrl
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCoupleStats = async (req, res, next) => {
+  try {
+    const coupleId = req.coupleId;
+
+    const [
+      quizzesTotal,
+      quizzesCompleted,
+      scratchTotal,
+      scratchScratched,
+      bucketTotal,
+      bucketCompleted,
+      memoriesTotal,
+      photosTotal,
+      couponsRedeemed,
+      likelyQuestions
+    ] = await Promise.all([
+      Quiz.countDocuments({ coupleId }),
+      Quiz.countDocuments({ coupleId, completed: true }),
+      ScratchCard.countDocuments({ coupleId }),
+      ScratchCard.countDocuments({ coupleId, isScratched: true }),
+      BucketItem.countDocuments({ coupleId }),
+      BucketItem.countDocuments({ coupleId, completed: true }),
+      Memory.countDocuments({ coupleId }),
+      Photo.countDocuments({ coupleId }),
+      Coupon.countDocuments({ coupleId, status: 'redeemed' }),
+      LikelyQuestion.find({ coupleId })
+    ]);
+
+    // Calcular sintonia do Likely
+    const completedLikely = likelyQuestions.filter(q => q.votes.length === 2);
+    const matchedLikely = completedLikely.filter(q => q.isMatched).length;
+
+    res.json({
+      quizzes: {
+        total: quizzesTotal,
+        completed: quizzesCompleted
+      },
+      scratchCards: {
+        total: scratchTotal,
+        scratched: scratchScratched
+      },
+      bucketList: {
+        total: bucketTotal,
+        completed: bucketCompleted
+      },
+      memoriesCount: memoriesTotal,
+      photosCount: photosTotal,
+      couponsCount: couponsRedeemed,
+      likely: {
+        total: completedLikely.length,
+        matched: matchedLikely
+      }
     });
   } catch (error) {
     next(error);

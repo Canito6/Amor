@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const TokenBlacklist = require('../models/TokenBlacklist');
 
 const verificarAdmin = async (req, res, next) => {
   // O token pode vir no cookie 'token' ou no cabeçalho 'Authorization: Bearer <token>'
@@ -10,6 +11,12 @@ const verificarAdmin = async (req, res, next) => {
   }
 
   try {
+    // Verificar se o token foi revogado no logout
+    const isBlacklisted = await TokenBlacklist.findOne({ token });
+    if (isBlacklisted) {
+      return res.status(401).json({ error: 'Sessão revogada. Por favor, faça login novamente.' });
+    }
+
     const decodificado = jwt.verify(token, process.env.JWT_SECRET);
     
     // Verifica se o utilizador tem a role de 'admin'
@@ -39,6 +46,12 @@ const verificarToken = async (req, res, next) => {
   }
 
   try {
+    // Verificar se o token foi revogado no logout
+    const isBlacklisted = await TokenBlacklist.findOne({ token });
+    if (isBlacklisted) {
+      return res.status(401).json({ error: 'Sessão revogada. Por favor, faça login novamente.' });
+    }
+
     const decodificado = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decodificado.id);
     if (!user) {

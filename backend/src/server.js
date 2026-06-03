@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
@@ -62,9 +64,28 @@ app.get('*any', (req, res, next) => {
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-couple', (coupleId) => {
+    if (coupleId) {
+      socket.join(coupleId);
+      logger.info(`User socket joined couple room: ${coupleId}`);
+    }
+  });
+});
+
+app.set('io', io);
+
 // 9. Inicialização da Escuta de Porta (ignorada em ambiente de testes)
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     logger.info(`🚀 Servidor a correr na porta ${PORT}`);
   });
 }

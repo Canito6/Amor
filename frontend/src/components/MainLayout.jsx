@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { usePreferences } from '../context/PreferencesContext';
+import { useTabs } from '../context/TabContext';
 import { translations } from '../services/translations';
 import { authService } from '../services/authService';
 import Sidebar from './Sidebar';
@@ -18,13 +19,16 @@ export default function MainLayout() {
     changeLayoutStyle,
     globalTheme,
     changeGlobalTheme,
-    customTabs,
-    addCustomTab,
-    updateCustomTab,
-    deleteCustomTab,
     setActiveTabTheme,
     applyTabSpecificTheme
   } = usePreferences();
+
+  const {
+    customTabs,
+    addCustomTab,
+    updateCustomTab,
+    deleteCustomTab
+  } = useTabs();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,6 +37,7 @@ export default function MainLayout() {
   // UI States
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [nome, setNome] = useState('');
   const [coupleInfo, setCoupleInfo] = useState({
     coupleId: '',
@@ -120,7 +125,7 @@ export default function MainLayout() {
   };
 
   return (
-    <div className={`layout-root layout-${layoutStyle}`}>
+    <div className={`layout-root layout-${layoutStyle} ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       
       {/* Global Topbar Header */}
       <Header
@@ -131,28 +136,43 @@ export default function MainLayout() {
         onOpenLinkModal={() => setIsLinkModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onLogoClick={() => navigate('/dashboard')}
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         t={t}
       />
 
       {/* Sidebar Navigation - PC Sidebar Style */}
-      {layoutStyle === 'sidebar' && !isMobile && (
-        <Sidebar
-          nome={nome}
-          roleGuardado={roleGuardado}
-          customTabs={customTabs}
-          currentPath={location.pathname}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onLogout={handleLogout}
-          t={t}
-        />
+      {layoutStyle === 'sidebar' && (
+        <>
+          {isSidebarOpen && (
+            <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+          )}
+          <Sidebar
+            nome={nome}
+            roleGuardado={roleGuardado}
+            customTabs={customTabs}
+            currentPath={location.pathname}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onLogout={handleLogout}
+            t={t}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+        </>
       )}
 
       {/* Main Content Area */}
       <main className="layout-content-wrapper">
         {(layoutStyle === 'stacked' || isMobile) && location.pathname !== '/dashboard' && (
           <div className="app-container" style={{ paddingBottom: '0', paddingTop: '10px' }}>
-            <button className="btn btn-dark" onClick={() => navigate('/dashboard')} style={{ marginBottom: '15px' }}>
-              ⬅ {t.dashboard}
+            <button 
+              className="btn btn-dark" 
+              onClick={() => {
+                const isGamePath = ['/quizzes', '/raspadinhas', '/roleta', '/likely'].includes(location.pathname);
+                navigate(isGamePath ? '/jogos' : '/dashboard');
+              }} 
+              style={{ marginBottom: '15px' }}
+            >
+              ⬅ {['/quizzes', '/raspadinhas', '/roleta', '/likely'].includes(location.pathname) ? (language === 'pt' ? 'Jogos' : 'Games') : t.dashboard}
             </button>
           </div>
         )}

@@ -50,6 +50,12 @@ exports.createBucketItem = async (req, res) => {
     });
 
     await newItem.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(req.coupleId).emit('update', { type: 'bucket-created', user: req.user.username, value: newItem.title });
+    }
+
     res.status(201).json(newItem);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao criar o desejo.' });
@@ -102,6 +108,16 @@ exports.completeBucketItem = async (req, res) => {
     }
 
     await item.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(req.coupleId).emit('update', { 
+        type: item.completed ? 'bucket-completed' : 'bucket-uncompleted', 
+        user: req.user.username, 
+        value: item.title 
+      });
+    }
+
     res.json(item);
   } catch (error) {
     console.error('Erro ao concluir item da bucket list:', error);

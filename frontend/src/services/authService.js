@@ -70,6 +70,19 @@ export const authService = {
     });
   },
 
+  getCoupleStats: () => {
+    return apiFetch('/api/auth/couple-stats', {
+      method: 'GET'
+    });
+  },
+
+  uploadAvatar: (formData) => {
+    return apiFetch('/api/auth/profile-avatar', {
+      method: 'POST',
+      body: formData
+    });
+  },
+
   logout: () => {
     return apiFetch('/api/auth/logout', {
       method: 'POST'

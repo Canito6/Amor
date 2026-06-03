@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { transporter } = require('../../utils/mailer');
+const { transporter } = require('../../services/mailer');
 const User = require('../../models/User');
 const ApiError = require('../../utils/apiError');
 const { setTokenCookie } = require('./authHelper');

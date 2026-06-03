@@ -16,18 +16,15 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
 
   // Cartões de navegação padrão
   const defaultCards = [
+    { path: '/perfil-casal', label: t.profile_title ? t.profile_title.replace(' 💖', '') : 'Perfil Casal', icon: '💖', desc: language === 'pt' ? 'Vê as estatísticas, dias juntos e edita as vossas fotos de perfil' : 'View statistics, days together, and edit your profile pictures', preset: 'romance' },
     { path: '/mensagens', label: t.messages, icon: '💌', desc: language === 'pt' ? 'Deixa mensagens de carinho e cartas românticas' : 'Leave sweet messages and love letters', preset: 'romance' },
     { path: '/fotos', label: t.photos, icon: '📸', desc: language === 'pt' ? 'Guarda e recorda os nossos momentos felizes' : 'Save and recall our happy moments', preset: 'sunset' },
     { path: '/memorias', label: t.memories, icon: '⏳', desc: language === 'pt' ? 'A nossa linha do tempo e contadores especiais' : 'Our timeline and special counters', preset: 'lavender' },
-    { path: '/quizzes', label: t.quizzes, icon: '🎮', desc: language === 'pt' ? 'O quanto me conheces? Jogo de perguntas' : 'How well do you know me? Trivia game', preset: 'mint' },
+    { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : (language === 'pt' ? 'Jogos' : 'Games'), icon: '🎮', desc: language === 'pt' ? 'Diverte-te com quizzes, raspadinhas, roleta e muito mais!' : 'Have fun with quizzes, scratch cards, roulette, and more!', preset: 'mint' },
     { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
-    { path: '/raspadinhas', label: t.scratch_title ? t.scratch_title.split(' ')[0] : 'Raspadinhas', icon: '🎫', desc: language === 'pt' ? 'Oferece ou raspa mimos e surpresas especiais' : 'Give or scratch special treats and surprises', preset: 'romance' },
-    { path: '/roleta', label: t.wheel_title ? t.wheel_title.replace(' 🎡', '') : 'Roleta', icon: '🎡', desc: language === 'pt' ? 'Roda a roleta para decidir qualquer coisa em casal' : 'Spin the wheel to decide anything together', preset: 'sunset' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝', desc: language === 'pt' ? 'A vossa lista de desejos e metas românticas com fotos' : 'Your bucket list and romantic goals with photos', preset: 'lavender' },
-    { path: '/vales', label: t.coupon_title ? t.coupon_title.replace(' 🎟️', '') : 'Vales', icon: '🎟️', desc: language === 'pt' ? 'Mimos e presentes virtuais para oferecer e resgatar' : 'Virtual treats and gifts to give and redeem', preset: 'mint' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️', desc: language === 'pt' ? 'Mensagens surpresa para ler em momentos específicos' : 'Surprise messages to read in specific moments', preset: 'romance' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺', desc: language === 'pt' ? 'Tira um papelinho aleatório para alegrar o teu dia' : 'Draw a random note to brighten your day', preset: 'sunset' },
-    { path: '/likely', label: t.likely_title ? t.likely_title.replace(' 🃏', '').replace('...', '') : 'Jogo', icon: '🃏', desc: language === 'pt' ? 'Responde secretamente e descobre a vossa afinidade' : 'Vote secretly and discover your affinity', preset: 'ocean' },
   ];
 
   if (layoutStyle !== 'stacked' && !isMobile) return null;

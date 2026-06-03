@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { transporter } = require('../../utils/mailer');
+const { transporter } = require('../../services/mailer');
 const User = require('../../models/User');
 const ApiError = require('../../utils/apiError');
 const { setTokenCookie } = require('./authHelper');
+const TokenBlacklist = require('../../models/TokenBlacklist');
 
 exports.login = async (req, res, next) => {
   try {
@@ -15,11 +16,30 @@ exports.login = async (req, res, next) => {
       throw new ApiError(404, 'Utilizador não encontrado!');
     }
 
+    // Verificar se a conta está temporariamente bloqueada
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const remainingMinutes = Math.ceil((user.lockUntil - Date.now()) / (60 * 1000));
+      throw new ApiError(423, `Conta temporariamente bloqueada devido a sucessivas tentativas falhadas. Tente novamente em ${remainingMinutes} minutos.`);
+    }
+
     // Compara a password escrita com a encriptada na base de dados
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      user.loginAttempts += 1;
+      if (user.loginAttempts >= 5) {
+        user.lockUntil = Date.now() + 15 * 60 * 1000; // Bloqueia por 15 minutos
+      }
+      await user.save();
       throw new ApiError(400, 'Password incorreta!');
     }
+
+    // Repor tentativas em caso de sucesso
+    if (user.loginAttempts > 0 || user.lockUntil) {
+      user.loginAttempts = 0;
+      user.lockUntil = undefined;
+      await user.save();
+    }
+
     // NOVO: Verifica se o admin forçou a mudança de password
     if (user.precisaMudarPassword) {
       return res.json({ 
@@ -145,6 +165,21 @@ exports.verifyLogin = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   try {
+    const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if (token) {
+      try {
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.exp) {
+          const expiresAt = new Date(decoded.exp * 1000);
+          if (expiresAt > new Date()) {
+            await TokenBlacklist.create({ token, expiresAt });
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao colocar token na blacklist:', err);
+      }
+    }
+
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

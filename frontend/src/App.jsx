@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { PreferencesProvider } from './context/PreferencesContext';
+import { TabProvider } from './context/TabContext';
+import { SocketProvider } from './context/SocketContext';
 import MainLayout from './components/MainLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -24,8 +26,8 @@ const Vales = lazy(() => import('./pages/Vales'));
 const Cartas = lazy(() => import('./pages/Cartas'));
 const Frasco = lazy(() => import('./pages/Frasco'));
 const Likely = lazy(() => import('./pages/Likely'));
-
-
+const Jogos = lazy(() => import('./pages/Jogos'));
+const PerfilCasal = lazy(() => import('./pages/PerfilCasal'));
 
 // Fallback loader component
 function LoadingFallback() {
@@ -40,35 +42,41 @@ function App() {
   return (
     <ErrorBoundary>
       <PreferencesProvider>
-      <BrowserRouter>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/recuperar" element={<RecuperarPassword />} />
-            <Route path="/registar" element={<Registar />} />
-            <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
-            
-            {/* Rotas Autenticadas protegidas pelo MainLayout */}
-            <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/mensagens" element={<Mensagens />} />
-              <Route path="/fotos" element={<Fotos />} />
-              <Route path="/memorias" element={<Memorias />} />
-              <Route path="/quizzes" element={<Quizzes />} />
-              <Route path="/calendario" element={<Calendario />} />
-              <Route path="/raspadinhas" element={<Raspadinhas />} />
-              <Route path="/roleta" element={<Roleta />} />
-              <Route path="/bucket-list" element={<BucketList />} />
-              <Route path="/vales" element={<Vales />} />
-              <Route path="/cartas" element={<Cartas />} />
-              <Route path="/frasco" element={<Frasco />} />
-              <Route path="/likely" element={<Likely />} />
-              <Route path="/tab/:tabId" element={<CustomTabViewer />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+        <TabProvider>
+          <SocketProvider>
+            <BrowserRouter>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<Login />} />
+                  <Route path="/recuperar" element={<RecuperarPassword />} />
+                  <Route path="/registar" element={<Registar />} />
+                  <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
+                  
+                  {/* Rotas Autenticadas protegidas pelo MainLayout */}
+                  <Route element={<MainLayout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/mensagens" element={<Mensagens />} />
+                    <Route path="/fotos" element={<Fotos />} />
+                    <Route path="/memorias" element={<Memorias />} />
+                    <Route path="/quizzes" element={<Quizzes />} />
+                    <Route path="/calendario" element={<Calendario />} />
+                    <Route path="/raspadinhas" element={<Raspadinhas />} />
+                    <Route path="/roleta" element={<Roleta />} />
+                    <Route path="/bucket-list" element={<BucketList />} />
+                    <Route path="/vales" element={<Vales />} />
+                    <Route path="/cartas" element={<Cartas />} />
+                    <Route path="/frasco" element={<Frasco />} />
+                    <Route path="/likely" element={<Likely />} />
+                    <Route path="/jogos" element={<Jogos />} />
+                    <Route path="/perfil-casal" element={<PerfilCasal />} />
+                    <Route path="/tab/:tabId" element={<CustomTabViewer />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </SocketProvider>
+        </TabProvider>
       </PreferencesProvider>
     </ErrorBoundary>
   );

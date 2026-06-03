@@ -8,3 +8,7 @@ backend/.env
 
 # Ignorar ficheiros de sistema
 .DS_Store
+
+# Ignorar ficheiros de log
+backend/logs/
+*.log

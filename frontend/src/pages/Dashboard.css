@@ -228,3 +228,80 @@
 .theme-dark .btn-edit-dashboard:hover {
   background: var(--primary-color);
 }
+
+/* ==========================================================================
+   COMPONENTE: ATALHOS RÁPIDOS DO DASHBOARD (SIDEBAR DE COMPUTADOR)
+   ========================================================================== */
+.dashboard-quick-links {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 25px 20px;
+  margin-bottom: 35px;
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 15px;
+}
+
+.quick-link-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 100px;
+}
+
+.quick-link-btn .quick-link-icon {
+  font-size: 26px;
+  width: 55px;
+  height: 55px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.theme-dark .quick-link-btn .quick-link-icon {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.quick-link-btn .quick-link-label {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-main);
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+
+/* Hover effects */
+.quick-link-btn:hover {
+  transform: translateY(-5px);
+}
+
+.quick-link-btn:hover .quick-link-icon {
+  background: var(--btn-accent);
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: transparent;
+}
+
+.quick-link-btn:hover .quick-link-label {
+  color: var(--btn-accent);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-quick-links {
+    display: none;
+  }
+}

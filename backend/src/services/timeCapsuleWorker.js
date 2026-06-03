@@ -48,8 +48,8 @@ const checkUnlockedTimeCapsules = async () => {
                   <h2 style="color: #ff4d6d;">🔒 Cápsula do Tempo Aberta! ❤️</h2>
                   <p style="font-size: 16px; color: #555;">Uma Cápsula do Tempo especial, guardada com muito amor, acabou de se abrir!</p>
                   <div style="background-color: #fff0f3; padding: 15px; margin: 20px 0; text-align: center; border-radius: 8px;">
-                    <h3 style="margin: 0; color: #ff4d6d;">"${capsule.title}"</h3>
-                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #777;">Criada por <strong>${capsule.createdBy}</strong> em ${new Date(capsule.createdAt).toLocaleDateString('pt-PT')}</p>
+                     <h3 style="margin: 0; color: #ff4d6d;">"${capsule.title}"</h3>
+                     <p style="margin: 5px 0 0 0; font-size: 14px; color: #777;">Criada por <strong>${capsule.createdBy}</strong> em ${new Date(capsule.createdAt).toLocaleDateString('pt-PT')}</p>
                   </div>
                   <p style="font-size: 14px; color: #999;">Acede ao vosso cantinho agora para ler o que estava guardado nesta cápsula do tempo.</p>
                   <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" style="display: inline-block; background-color: #ff4d6d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(255, 77, 109, 0.2);">Abrir Cápsula no Site</a>

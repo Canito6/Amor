@@ -1,55 +1,42 @@
 const Event = require('../models/Event');
+const BaseController = require('./baseController');
+const ApiError = require('../utils/apiError');
 
-exports.getEvents = async (req, res) => {
-  try {
-    const events = await Event.find({ coupleId: req.coupleId }).sort({ date: 1 });
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao carregar eventos.' });
+class EventController extends BaseController {
+  constructor() {
+    super(Event, 'Evento');
   }
-};
 
-exports.createEvent = async (req, res) => {
-  try {
-    const { title, description, date, category } = req.body;
+  getEvents = async (req, res, next) => {
+    // Sort by date: 1 (chronological ascending)
+    await this.getAllItems(req, res, next, {}, { date: 1 });
+  };
 
-    if (!title || !title.trim()) {
-      return res.status(400).json({ error: 'O título do evento é obrigatório.' });
+  createEvent = async (req, res, next) => {
+    try {
+      const { title, description, date, category } = req.body;
+
+      if (!title || !title.trim()) {
+        throw new ApiError(400, 'O título do evento é obrigatório.');
+      }
+      if (!date) {
+        throw new ApiError(400, 'A data do evento é obrigatória.');
+      }
+
+      await this.createItem(req, res, next, {
+        title,
+        description,
+        date: new Date(date),
+        category: category || 'outro'
+      });
+    } catch (error) {
+      next(this.handleError(error));
     }
-    if (!date) {
-      return res.status(400).json({ error: 'A data do evento é obrigatória.' });
-    }
+  };
 
-    const novoEvento = new Event({
-      title: title.trim(),
-      description: description ? description.trim() : '',
-      date: new Date(date),
-      category: category || 'outro',
-      createdBy: req.user.username,
-      coupleId: req.coupleId
-    });
+  deleteEvent = async (req, res, next) => {
+    await this.deleteItem(req, res, next);
+  };
+}
 
-    await novoEvento.save();
-    res.status(201).json(novoEvento);
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao criar evento.' });
-  }
-};
-
-exports.deleteEvent = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ error: 'Evento não encontrado.' });
-    }
-
-    if (event.coupleId !== req.coupleId && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Não tens permissão para apagar este evento.' });
-    }
-
-    await Event.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Evento apagado com sucesso!' });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao apagar evento.' });
-  }
-};
+module.exports = new EventController();

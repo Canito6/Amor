@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
     type: String, 
     default: 'user' 
   },
+  loginAttempts: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  lockUntil: {
+    type: Date
+  },
   precisaMudarPassword: { 
     type: Boolean,
     default: false
@@ -59,6 +67,10 @@ const userSchema = new mongoose.Schema({
   moodUpdatedAt: {
     type: Date,
     default: Date.now
+  },
+  avatarUrl: {
+    type: String,
+    default: ''
   }
 });
 

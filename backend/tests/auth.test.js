@@ -103,11 +103,14 @@ describe('Testes de Autenticação - API Endpoints', () => {
 
     it('deve falhar com password incorreta', async () => {
       const mockComparePassword = jest.fn().mockResolvedValue(false);
+      const mockSave = jest.fn().mockResolvedValue({});
       const mockUser = {
         _id: 'mock_user_id',
         username: 'testuser',
         comparePassword: mockComparePassword,
-        precisaMudarPassword: false
+        precisaMudarPassword: false,
+        loginAttempts: 0,
+        save: mockSave
       };
 
       User.findOne.mockResolvedValue(mockUser);
