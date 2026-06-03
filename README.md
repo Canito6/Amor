@@ -92,18 +92,7 @@ git clone <url-do-repositorio>
 cd teste
 ```
 
-### 2. Configurar Variáveis de Ambiente
-Tanto no **backend** como no **frontend**, precisará de duplicar o ficheiro `.env.example` para `.env` e preencher as chaves necessárias.
-
-#### No Backend (`/backend/.env`):
-Consulte o ficheiro [backend/.env.example](file:///c:/Users/migue/Desktop/teste/backend/.env.example) para ver todos os campos (como `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_API_KEY`, etc.).
-
-#### No Frontend (`/frontend/.env`):
-Consulte o ficheiro [frontend/.env.example](file:///c:/Users/migue/Desktop/teste/frontend/.env.example) e configure a variável `VITE_API_URL`.
-
----
-
-### 3. Iniciar o Servidor (Backend)
+### 2. Iniciar o Servidor (Backend)
 ```bash
 cd backend
 npm install
@@ -113,7 +102,7 @@ O servidor do backend estará a correr por omissão em: `http://localhost:5000`
 
 ---
 
-### 4. Iniciar a Aplicação (Frontend)
+### 3. Iniciar a Aplicação (Frontend)
 Num outro terminal:
 ```bash
 cd frontend
