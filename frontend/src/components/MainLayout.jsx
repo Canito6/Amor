@@ -138,6 +138,7 @@ export default function MainLayout() {
         onLogoClick={() => navigate('/dashboard')}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         t={t}
+        isDashboardPage={location.pathname === '/dashboard'}
       />
 
       {/* Sidebar Navigation - PC Sidebar Style */}

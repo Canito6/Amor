@@ -450,5 +450,15 @@ export const en = {
   profile_photos_stat: "Corner Photos",
   profile_change_avatar: "Change Profile Picture",
   profile_avatar_success: "Avatar updated successfully!",
-  profile_avatar_error: "Error updating avatar."
+  profile_avatar_error: "Error updating avatar.",
+
+  // --- CUSTOMIZE WIDGETS ---
+  edit_widgets_tooltip: "Customize panel layout",
+  edit_widgets_done: "Done",
+  edit_widgets_reset: "Reset to Defaults",
+  widget_size_stretched: "Stretched",
+  widget_size_half: "Side by Side",
+  widget_size_tall: "Tall",
+  widgets_hidden_title: "Hidden Widgets:"
 };
+

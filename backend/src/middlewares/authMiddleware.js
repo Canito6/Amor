@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const TokenBlacklist = require('../models/TokenBlacklist');
+const User = require('../features/auth/user.model');
+const TokenBlacklist = require('../features/auth/tokenBlacklist.model');
 
 const verificarAdmin = async (req, res, next) => {
   // O token pode vir no cookie 'token' ou no cabeçalho 'Authorization: Bearer <token>'

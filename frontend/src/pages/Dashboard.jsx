@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { eventService } from '../services/eventService';
 import { authService } from '../services/authService';
@@ -15,6 +15,19 @@ import LoveCounter from '../components/dashboard/LoveCounter';
 import CoupleEditModal from '../components/dashboard/CoupleEditModal';
 import './Dashboard.css';
 
+// Default widget configuration
+const DEFAULT_WIDGETS = [
+  { id: 'welcome',    visible: true, size: 'stretched' },
+  { id: 'mood',       visible: true, size: 'stretched' },
+  { id: 'checkin',    visible: true, size: 'stretched' },
+  { id: 'love',       visible: true, size: 'stretched' },
+  { id: 'countdown',  visible: true, size: 'stretched' },
+  { id: 'navigation', visible: true, size: 'stretched' },
+  { id: 'spotify',    visible: true, size: 'stretched' },
+];
+
+
+
 export default function Dashboard() {
   const [nome, setNome] = useState('');
   const [nextEvent, setNextEvent] = useState(null);
@@ -24,6 +37,8 @@ export default function Dashboard() {
   const { language, layoutStyle } = usePreferences();
   const { customTabs } = useTabs();
   const t = translations[language];
+
+  const widgets = DEFAULT_WIDGETS;
 
   // Couple States
   const [coupleInfo, setCoupleInfo] = useState({
@@ -151,11 +166,66 @@ export default function Dashboard() {
     }
   };
 
+
+
+  // Render a widget by its id
+  const renderWidget = (widgetId) => {
+    switch (widgetId) {
+      case 'welcome':
+        return <WelcomeBanner nome={nome} t={t} />;
+      case 'mood':
+        return (
+          <MoodTracker 
+            coupleInfo={coupleInfo} 
+            loadCoupleInfo={loadCoupleInfo} 
+            t={t} 
+            language={language} 
+          />
+        );
+      case 'checkin':
+        return <DailyCheckIn t={t} language={language} />;
+      case 'love':
+        return (
+          <LoveCounter 
+            relationshipDate={coupleInfo.relationshipDate} 
+            language={language} 
+            t={t} 
+          />
+        );
+      case 'countdown':
+        return (
+          <EventCountdown 
+            nextEvent={nextEvent} 
+            daysRemaining={daysRemaining} 
+            language={language} 
+            t={t} 
+          />
+        );
+      case 'navigation':
+        return (
+          <NavigationCards 
+            layoutStyle={layoutStyle} 
+            customTabs={customTabs} 
+            t={t} 
+            language={language} 
+          />
+        );
+      case 'spotify':
+        return <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />;
+      default:
+        return null;
+    }
+  };
+
+
+
+  const visibleWidgets = widgets.filter(w => w.visible);
+
   return (
     <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '20px' }}>
       
       {/* Botão de Edição do Dashboard */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px', gap: '10px' }}>
         <button 
           className="btn-edit-dashboard"
           onClick={() => setIsEditModalOpen(true)}
@@ -164,42 +234,18 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Mensagem de Boas-Vindas */}
-      <WelcomeBanner nome={nome} t={t} />
+      {/* Widget Grid */}
+      <div className="widget-grid">
+        {visibleWidgets.map((widget) => (
+          <div key={widget.id} className={`widget-slot widget-size-${widget.size}`}>
+            <div className="widget-content">
+              {renderWidget(widget.id)}
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* Diário de Humor (Mood Tracker) */}
-      <MoodTracker 
-        coupleInfo={coupleInfo} 
-        loadCoupleInfo={loadCoupleInfo} 
-        t={t} 
-        language={language} 
-      />
 
-      {/* Check-in Diário */}
-      <DailyCheckIn t={t} language={language} />
-
-      {/* Contador do Amor */}
-      <LoveCounter 
-        relationshipDate={coupleInfo.relationshipDate} 
-        language={language} 
-        t={t} 
-      />
-
-      {/* Widget de Contagem Decrescente */}
-      <EventCountdown 
-        nextEvent={nextEvent} 
-        daysRemaining={daysRemaining} 
-        language={language} 
-        t={t} 
-      />
-
-      {/* LAYOUT DE CARTÕES (Apenas quando layoutStyle === 'stacked') */}
-      <NavigationCards 
-        layoutStyle={layoutStyle} 
-        customTabs={customTabs} 
-        t={t} 
-        language={language} 
-      />
 
       {/* ATALHOS RÁPIDOS (Apenas quando layoutStyle === 'sidebar' no Desktop) */}
       {layoutStyle === 'sidebar' && (
@@ -226,9 +272,6 @@ export default function Dashboard() {
           </button>
         </div>
       )}
-
-      {/* Widget do Spotify com playlist dinâmica */}
-      <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />
 
       {/* Área dos botões de rodapé */}
       <div style={{ marginTop: '35px', display: 'flex', justifyContent: 'center', gap: '15px' }}>

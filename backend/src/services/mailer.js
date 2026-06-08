@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const User = require('../models/User');
+const User = require('../features/auth/user.model');
 
 // Configurar o nosso carteiro virtual com os dados do .env
 const transporter = nodemailer.createTransport({

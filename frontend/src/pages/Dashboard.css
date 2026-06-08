@@ -305,3 +305,54 @@
     display: none;
   }
 }
+
+
+
+/* --- Widget Grid --- */
+.widget-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+
+
+/* --- Widget Slot (wrapper) --- */
+.widget-slot {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+
+
+/* --- Size Variants (display mode) --- */
+/* Stretched = full width (default) */
+.widget-size-stretched {
+  width: 100%;
+}
+
+/* Half = 50% width, floated or inline */
+.widget-size-half {
+  display: inline-block;
+  width: calc(50% - 6px);
+  vertical-align: top;
+}
+
+/* Tall = narrower, taller aspect */
+.widget-size-tall {
+  width: 65%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 600px) {
+  .widget-size-half {
+    width: 100%;
+    display: block;
+  }
+  .widget-size-tall {
+    width: 100%;
+  }
+}
+
+

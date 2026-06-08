@@ -1,22 +1,18 @@
-const BaseController = require('../src/controllers/baseController');
+const BaseController = require('../src/features/baseController');
 const ApiError = require('../src/utils/apiError');
 
-// Mock model class
-class MockModel {
+// Mock Repository class
+class MockRepository {
   static find = jest.fn();
   static findById = jest.fn();
   static findByIdAndDelete = jest.fn();
-  
-  constructor(data) {
-    Object.assign(this, data);
-  }
-  
-  save = jest.fn();
+  static findPaginated = jest.fn();
+  static create = jest.fn();
 }
 
 class ConcreteController extends BaseController {
   constructor() {
-    super(MockModel, 'MockItem');
+    super(MockRepository, 'MockItem');
   }
 }
 
@@ -77,13 +73,11 @@ describe('BaseController unit tests', () => {
   describe('getAllItems', () => {
     it('deve obter itens ordenados filtrados por coupleId', async () => {
       const mockItems = [{ title: 'Item 1' }, { title: 'Item 2' }];
-      const sortMock = jest.fn().mockResolvedValue(mockItems);
-      MockModel.find.mockReturnValue({ sort: sortMock });
+      MockRepository.find.mockResolvedValue(mockItems);
 
       await controller.getAllItems(req, res, next);
 
-      expect(MockModel.find).toHaveBeenCalledWith({ coupleId: 'couple123' });
-      expect(sortMock).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(MockRepository.find).toHaveBeenCalledWith({ coupleId: 'couple123' }, { createdAt: -1 });
       expect(res.json).toHaveBeenCalledWith(mockItems);
     });
 
@@ -92,19 +86,16 @@ describe('BaseController unit tests', () => {
       req.query.limit = '10';
 
       const mockItems = [{ title: 'Item 11' }];
-      const limitMock = jest.fn().mockResolvedValue(mockItems);
-      const skipMock = jest.fn().mockReturnValue({ limit: limitMock });
-      const sortMock = jest.fn().mockReturnValue({ skip: skipMock });
-      MockModel.find.mockReturnValue({ sort: sortMock });
-      MockModel.countDocuments = jest.fn().mockResolvedValue(25);
+      MockRepository.findPaginated.mockResolvedValue({
+        data: mockItems,
+        total: 25,
+        pages: 3,
+        currentPage: 2
+      });
 
       await controller.getAllItems(req, res, next);
 
-      expect(MockModel.find).toHaveBeenCalledWith({ coupleId: 'couple123' });
-      expect(sortMock).toHaveBeenCalledWith({ createdAt: -1 });
-      expect(skipMock).toHaveBeenCalledWith(10);
-      expect(limitMock).toHaveBeenCalledWith(10);
-      expect(MockModel.countDocuments).toHaveBeenCalledWith({ coupleId: 'couple123' });
+      expect(MockRepository.findPaginated).toHaveBeenCalledWith({ coupleId: 'couple123' }, { createdAt: -1 }, 2, 10);
       expect(res.json).toHaveBeenCalledWith({
         data: mockItems,
         total: 25,
@@ -116,7 +107,7 @@ describe('BaseController unit tests', () => {
 
   describe('deleteItem', () => {
     it('deve falhar se o item não for encontrado', async () => {
-      MockModel.findById.mockResolvedValue(null);
+      MockRepository.findById.mockResolvedValue(null);
       req.params.id = 'nonexistent';
 
       await controller.deleteItem(req, res, next);
@@ -128,7 +119,7 @@ describe('BaseController unit tests', () => {
     });
 
     it('deve falhar se o item pertencer a outro casal', async () => {
-      MockModel.findById.mockResolvedValue({
+      MockRepository.findById.mockResolvedValue({
         coupleId: 'outro_casal',
         createdBy: 'outro_user'
       });
@@ -143,7 +134,7 @@ describe('BaseController unit tests', () => {
     });
 
     it('deve apagar se pertencer ao mesmo casal', async () => {
-      MockModel.findById.mockResolvedValue({
+      MockRepository.findById.mockResolvedValue({
         coupleId: 'couple123',
         createdBy: 'testuser'
       });
@@ -151,7 +142,7 @@ describe('BaseController unit tests', () => {
 
       await controller.deleteItem(req, res, next);
 
-      expect(MockModel.findByIdAndDelete).toHaveBeenCalledWith('item123');
+      expect(MockRepository.findByIdAndDelete).toHaveBeenCalledWith('item123');
       expect(res.json).toHaveBeenCalledWith({ message: 'MockItem apagado(a) com sucesso!' });
     });
   });

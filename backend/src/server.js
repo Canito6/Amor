@@ -72,6 +72,10 @@ const io = new Server(server, {
   }
 });
 
+// Inicializar ouvintes do EventBus
+const { initNotificationListener } = require('./listeners/notificationListener');
+initNotificationListener(io);
+
 io.on('connection', (socket) => {
   socket.on('join-couple', (coupleId) => {
     if (coupleId) {

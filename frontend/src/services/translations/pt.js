@@ -450,5 +450,15 @@ export const pt = {
   profile_photos_stat: "Fotos no Cantinho",
   profile_change_avatar: "Alterar Foto de Perfil",
   profile_avatar_success: "Avatar atualizado com sucesso!",
-  profile_avatar_error: "Erro ao atualizar avatar."
+  profile_avatar_error: "Erro ao atualizar avatar.",
+
+  // --- PERSONALIZAR WIDGETS ---
+  edit_widgets_tooltip: "Personalizar disposição do painel",
+  edit_widgets_done: "Concluir",
+  edit_widgets_reset: "Restaurar Predefinições",
+  widget_size_stretched: "Esticado",
+  widget_size_half: "Lado a lado",
+  widget_size_tall: "Ao alto",
+  widgets_hidden_title: "Widgets Ocultos:"
 };
+

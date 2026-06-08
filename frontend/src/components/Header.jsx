@@ -9,7 +9,8 @@ export default function Header({
   onOpenSettings,
   onLogoClick,
   onToggleSidebar,
-  t
+  t,
+  isDashboardPage
 }) {
   return (
     <header className="global-topbar glass-panel">

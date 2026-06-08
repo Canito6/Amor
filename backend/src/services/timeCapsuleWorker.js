@@ -1,5 +1,5 @@
-const Memory = require('../models/Memory');
-const User = require('../models/User');
+const Memory = require('../features/memories/memory.model');
+const User = require('../features/auth/user.model');
 const { sendEmail } = require('./mailer');
 
 const checkUnlockedTimeCapsules = async () => {
