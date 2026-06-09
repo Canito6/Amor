@@ -5,6 +5,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import { translations } from '../../services/common/translations';
 import CouponCard from '../../components/vales/CouponCard';
 import CouponCreator from '../../components/vales/CouponCreator';
+import useSocketUpdate from '../../hooks/useSocketUpdate';
 import './Vales.css';
 
 export default function Vales() {
@@ -32,6 +33,10 @@ export default function Vales() {
     }
     carregarVales();
   }, [navigate]);
+
+  useSocketUpdate(() => {
+    carregarVales();
+  }, ['coupon-', 'vale-']);
 
   const carregarVales = async () => {
     try {

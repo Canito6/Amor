@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { memoryService } from '../services/fun/memoryService';
 import { formatDateLong } from '../utils/dateFormatter';
+import useSocketUpdate from './useSocketUpdate';
 
 export default function useMemories(t, language) {
   const [memories, setMemories] = useState([]);
@@ -21,6 +22,10 @@ export default function useMemories(t, language) {
   useEffect(() => {
     carregarMemoras();
   }, []);
+
+  useSocketUpdate(() => {
+    carregarMemoras();
+  }, ['momento-']);
 
   // Efeito para atualizar o contador dinâmico de dias juntos
   useEffect(() => {

@@ -49,6 +49,9 @@ export function SocketProvider({ children }) {
       // Ignorar eventos gerados por nós próprios
       if (data.user === meuNome) return;
 
+      // Despachar evento global para que os componentes reajam em tempo real
+      window.dispatchEvent(new CustomEvent('socket-update', { detail: data }));
+
       let message = '';
       if (data.type === 'mood') {
         message = `O teu amor atualizou o humor para ${data.value}!`;

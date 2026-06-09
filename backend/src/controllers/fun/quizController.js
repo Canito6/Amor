@@ -1,4 +1,5 @@
 const BaseController = require('../baseController');
+const eventBus = require('../../utils/eventBus');
 
 class QuizController extends BaseController {
   constructor(quizService, quizRepository) {
@@ -18,6 +19,18 @@ class QuizController extends BaseController {
     try {
       const { guesses } = req.body;
       const quiz = await this.quizService.guessQuiz(req.params.id, req.user.username, req.coupleId, guesses);
+      
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: 'quiz-answered',
+          user: req.user.username,
+          value: quiz.title
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.json(quiz);
     } catch (error) {
       next(this.handleError(error));

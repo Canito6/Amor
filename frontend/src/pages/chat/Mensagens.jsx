@@ -6,6 +6,7 @@ import { translations } from '../../services/common/translations';
 import { useSocket } from '../../context/SocketContext';
 import MessageForm from '../../components/messages/MessageForm';
 import PostItCard from '../../components/messages/PostItCard';
+import useSocketUpdate from '../../hooks/useSocketUpdate';
 import './Mensagens.css';
 
 export default function Mensagens() {
@@ -50,6 +51,10 @@ export default function Mensagens() {
       }
     };
   }, [navigate, socket]);
+
+  useSocketUpdate(() => {
+    carregarMensagens();
+  }, ['mensagem-']);
 
   const carregarMensagens = async () => {
     try {

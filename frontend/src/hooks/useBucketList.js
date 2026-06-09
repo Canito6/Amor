@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { bucketListService } from '../services/fun/bucketListService';
 import { validateImageSize } from '../utils/fileValidator';
 import { formatDateLong } from '../utils/dateFormatter';
+import useSocketUpdate from './useSocketUpdate';
 
 export default function useBucketList(t, language, fileInputRef) {
   const [items, setItems] = useState([]);
@@ -23,6 +24,10 @@ export default function useBucketList(t, language, fileInputRef) {
   useEffect(() => {
     carregarDesejos();
   }, []);
+
+  useSocketUpdate(() => {
+    carregarDesejos();
+  }, ['bucket-', 'desejo-']);
 
   const carregarDesejos = async () => {
     try {

@@ -1,4 +1,5 @@
 const ApiError = require('../utils/apiError');
+const eventBus = require('../utils/eventBus');
 
 /**
  * Base abstract-style controller class implementing standard CRUD operations
@@ -99,6 +100,18 @@ class BaseController {
       }
 
       const item = await this.repository.create(cleanData);
+
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: `${this.modelName.toLowerCase()}-created`,
+          user: req.user ? req.user.username : 'system',
+          value: item.title || item.question || item.content || ''
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.status(201).json(item);
     } catch (error) {
       next(this.handleError(error));
@@ -124,6 +137,18 @@ class BaseController {
       }
 
       await this.repository.findByIdAndDelete(req.params.id);
+
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: `${this.modelName.toLowerCase()}-deleted`,
+          user: req.user ? req.user.username : 'system',
+          value: req.params.id
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.json({ message: `${this.modelName} apagado(a) com sucesso!` });
     } catch (error) {
       next(this.handleError(error));

@@ -6,6 +6,7 @@ import { translations } from '../../services/common/translations';
 import EventForm from '../../components/calendar/EventForm';
 import EventList from '../../components/calendar/EventList';
 import { formatDateLong } from '../../utils/dateFormatter';
+import useSocketUpdate from '../../hooks/useSocketUpdate';
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);
@@ -31,6 +32,10 @@ export default function Calendario() {
     }
     carregarEventos();
   }, [navigate]);
+
+  useSocketUpdate(() => {
+    carregarEventos();
+  }, ['evento-']);
 
   const carregarEventos = async () => {
     try {

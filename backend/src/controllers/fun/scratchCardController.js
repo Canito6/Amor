@@ -1,4 +1,5 @@
 const BaseController = require('../baseController');
+const eventBus = require('../../utils/eventBus');
 
 class ScratchCardController extends BaseController {
   constructor(scratchCardService, scratchCardRepository) {
@@ -17,6 +18,18 @@ class ScratchCardController extends BaseController {
   scratchCard = async (req, res, next) => {
     try {
       const card = await this.scratchCardService.scratchCard(req.params.id, req.coupleId);
+      
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: 'raspadinha-scratched',
+          user: req.user.username,
+          value: card.title
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.json(card);
     } catch (error) {
       next(this.handleError(error));

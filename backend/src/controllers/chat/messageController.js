@@ -1,4 +1,5 @@
 const BaseController = require('../baseController');
+const eventBus = require('../../utils/eventBus');
 
 class MessageController extends BaseController {
   constructor(messageService, messageRepository) {
@@ -14,6 +15,18 @@ class MessageController extends BaseController {
     try {
       const { content } = req.body;
       const message = await this.messageService.createMessage(content, req.user.username, req.coupleId);
+      
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: 'mensagem-created',
+          user: req.user.username,
+          value: message.content
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.status(201).json(message);
     } catch (error) {
       next(this.handleError(error));
@@ -24,6 +37,18 @@ class MessageController extends BaseController {
     try {
       const { content } = req.body;
       const message = await this.messageService.editMessage(req.params.id, content, req.user.username, req.user.role, req.coupleId);
+      
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: 'mensagem-edited',
+          user: req.user.username,
+          value: message.content
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.json(message);
     } catch (error) {
       next(this.handleError(error));
@@ -34,6 +59,18 @@ class MessageController extends BaseController {
     try {
       const { emoji } = req.body;
       const message = await this.messageService.reactToMessage(req.params.id, emoji, req.user.username, req.coupleId);
+      
+      try {
+        eventBus.emit('socket:emit-update', {
+          room: req.coupleId,
+          type: 'mensagem-reacted',
+          user: req.user.username,
+          value: emoji
+        });
+      } catch (err) {
+        // Ignorar erros
+      }
+
       res.json(message);
     } catch (error) {
       next(this.handleError(error));
