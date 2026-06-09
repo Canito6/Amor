@@ -174,6 +174,12 @@ export const pt = {
   quizzes_placeholder_title: "Ex: O quanto conheces os meus gostos?",
   quizzes_placeholder_qtext: "Ex: Qual é o meu prato de comida favorito?",
   quizzes_confirm_delete: "Queres apagar este quiz?",
+  quizzes_ai_generate_btn: "Gerar Quiz com IA 🤖",
+  quizzes_ai_theme_label: "Tema do Quiz",
+  quizzes_ai_theme_placeholder: "Ex: Encontros, Futuro, Cúmplice, Engraçado...",
+  quizzes_ai_generating: "A gerar com IA... 🪄",
+  quizzes_ai_btn_generate: "Gerar Perguntas ✨",
+  quizzes_ai_warning_no_key: "Nota: A chave API não está configurada no servidor. Foi usado um modelo de quiz predefinido para demonstrar!",
 
   // --- CALENDÁRIO (CALENDAR) ---
   calendar_title: "Calendário Partilhado 📅",

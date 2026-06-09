@@ -12,6 +12,8 @@ export default function useQuizzes(t, language, meuNome) {
   const [questions, setQuestions] = useState([
     { questionText: '', options: ['', '', ''], creatorAnswer: '' }
   ]);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [aiNotice, setAiNotice] = useState(false);
 
   // Estados de Resposta a Quiz
   const [activeQuiz, setActiveQuiz] = useState(null); // Quiz a ser respondido
@@ -60,6 +62,34 @@ export default function useQuizzes(t, language, meuNome) {
     setQuestions(novasPerguntas);
   };
 
+  const gerarQuizComIA = async (theme) => {
+    try {
+      setGeneratingAI(true);
+      setErro('');
+      setAiNotice(false);
+      const data = await quizService.generateAIQuiz(theme, language);
+      if (data.title && Array.isArray(data.questions)) {
+        setQuizTitle(data.title);
+        // Garante que o array de opções e a resposta correta são inseridos corretamente no form
+        setQuestions(data.questions.map(q => ({
+          questionText: q.questionText || '',
+          options: Array.isArray(q.options) ? q.options : ['', '', ''],
+          creatorAnswer: q.creatorAnswer || ''
+        })));
+        setShowCreator(true);
+        if (data.aiUsed === false) {
+          setAiNotice(true);
+        }
+      } else {
+        throw new Error(language === 'pt' ? 'Estrutura de quiz gerada inválida.' : 'Invalid generated quiz structure.');
+      }
+    } catch (err) {
+      setErro(err.message || (language === 'pt' ? 'Erro ao gerar quiz com IA.' : 'Error generating quiz with AI.'));
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
   const submeterNovoQuiz = async (e) => {
     e.preventDefault();
     if (!quizTitle.trim()) return;
@@ -86,6 +116,7 @@ export default function useQuizzes(t, language, meuNome) {
       setQuizzes([novo, ...quizzes]);
       setQuizTitle('');
       setQuestions([{ questionText: '', options: ['', '', ''], creatorAnswer: '' }]);
+      setAiNotice(false);
       setShowCreator(false);
       alert(t.quizzes_alert_created_success);
     } catch (err) {
@@ -148,6 +179,11 @@ export default function useQuizzes(t, language, meuNome) {
     quizTitle,
     setQuizTitle,
     questions,
+    setQuestions,
+    generatingAI,
+    aiNotice,
+    setAiNotice,
+    gerarQuizComIA,
     adicionarPergunta,
     removerPergunta,
     atualizarPergunta,

@@ -15,6 +15,16 @@ class QuizController extends BaseController {
     await this.createItem(req, res, next);
   };
 
+  generateAIQuiz = async (req, res, next) => {
+    try {
+      const { theme, language } = req.body;
+      const result = await this.quizService.generateAIQuiz(theme, language || 'pt');
+      res.json(result);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  };
+
   guessQuiz = async (req, res, next) => {
     try {
       const { guesses } = req.body;

@@ -23,5 +23,12 @@ export const quizService = {
     return apiFetch(`/api/quizzes/${id}`, {
       method: 'DELETE'
     });
+  },
+
+  generateAIQuiz: (theme, language) => {
+    return apiFetch('/api/quizzes/generate-ai', {
+      method: 'POST',
+      body: { theme, language }
+    });
   }
 };

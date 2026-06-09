@@ -174,6 +174,12 @@ export const en = {
   quizzes_placeholder_title: "E.g., How well do you know my tastes?",
   quizzes_placeholder_qtext: "E.g., What is my favorite food?",
   quizzes_confirm_delete: "Do you want to delete this quiz?",
+  quizzes_ai_generate_btn: "Generate Quiz with AI 🤖",
+  quizzes_ai_theme_label: "Quiz Theme",
+  quizzes_ai_theme_placeholder: "E.g. Dates, Future, Funny, Tastes...",
+  quizzes_ai_generating: "Generating with AI... 🪄",
+  quizzes_ai_btn_generate: "Generate Questions ✨",
+  quizzes_ai_warning_no_key: "Note: API key is not configured on the server. A sample quiz template was used for demonstration!",
 
   // --- CALENDÁRIO (CALENDAR) ---
   calendar_title: "Shared Calendar 📅",
