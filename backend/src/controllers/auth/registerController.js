@@ -13,8 +13,9 @@ exports.register = async (req, res, next) => {
     }
 
     // A MAGIA DO ADMIN: Se o código secreto inserido for o do .env, o cargo passa a ser 'admin'
-    const adminSecret = process.env.ADMIN_SECRET_CODE || 'ChefeCanito';
-    const role = codigoAdmin === adminSecret ? 'admin' : 'user';
+    // SEGURANÇA: Sem fallback hardcoded - se ADMIN_SECRET_CODE não estiver definido, ninguém pode ser admin
+    const adminSecret = process.env.ADMIN_SECRET_CODE;
+    const role = (adminSecret && codigoAdmin === adminSecret) ? 'admin' : 'user';
 
     const user = new User({ 
       username, 
