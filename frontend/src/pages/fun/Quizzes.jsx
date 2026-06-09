@@ -46,7 +46,11 @@ export default function Quizzes() {
     apagarQuiz,
     quizzesPendentesParaMim,
     meusQuizzesCriados,
-    historicoQuizzesCompletados
+    historicoQuizzesCompletados,
+    generatingAI,
+    aiNotice,
+    setAiNotice,
+    gerarQuizComIA
   } = useQuizzes(t, language, meuNome);
 
   const [aiTheme, setAiTheme] = useState('');
