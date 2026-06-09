@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import QuizCreator from '../components/quizzes/QuizCreator';
-import QuizPlayer from '../components/quizzes/QuizPlayer';
-import QuizFeedback from '../components/quizzes/QuizFeedback';
-import QuizDashboardLists from '../components/quizzes/QuizDashboardLists';
-import useQuizzes from '../hooks/useQuizzes';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import QuizCreator from '../../components/quizzes/QuizCreator';
+import QuizPlayer from '../../components/quizzes/QuizPlayer';
+import QuizFeedback from '../../components/quizzes/QuizFeedback';
+import QuizDashboardLists from '../../components/quizzes/QuizDashboardLists';
+import useQuizzes from '../../hooks/useQuizzes';
 
 export default function Quizzes() {
   const navigate = useNavigate();

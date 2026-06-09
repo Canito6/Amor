@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../services/auth/authService';
 
 export default function useLoginForm(navigate) {
   const [username, setUsername] = useState('');
@@ -41,6 +41,8 @@ export default function useLoginForm(navigate) {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role); 
+      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      window.dispatchEvent(new Event('authChange'));
       navigate('/dashboard');
     } catch (error) {
       setErro(error.message || 'Erro ao fazer login.');
@@ -57,6 +59,8 @@ export default function useLoginForm(navigate) {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role);
+      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      window.dispatchEvent(new Event('authChange'));
 
       if (dados.trustedDeviceToken) {
         localStorage.setItem('trustedDeviceToken', dados.trustedDeviceToken);

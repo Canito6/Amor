@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { dailyCheckInService } from '../../services/dailyCheckInService';
+import { dailyCheckInService } from '../../services/couple/dailyCheckInService';
 import { useSocket } from '../../context/SocketContext';
 import './DailyCheckIn.css';
 

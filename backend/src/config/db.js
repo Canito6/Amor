@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
-const { startTimeCapsuleWorker } = require('../services/timeCapsuleWorker');
+const { startTimeCapsuleWorker } = require('../services/fun/timeCapsuleWorker');
 
 const connectDB = async () => {
   try {

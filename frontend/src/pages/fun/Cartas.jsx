@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { letterService } from '../services/letterService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import LetterCard from '../components/cartas/LetterCard';
-import LetterCreator from '../components/cartas/LetterCreator';
-import LetterReader from '../components/cartas/LetterReader';
+import { letterService } from '../../services/fun/letterService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import LetterCard from '../../components/cartas/LetterCard';
+import LetterCreator from '../../components/cartas/LetterCreator';
+import LetterReader from '../../components/cartas/LetterReader';
 import './Cartas.css';
 
 export default function Cartas() {

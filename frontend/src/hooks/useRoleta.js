@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { decisionWheelService } from '../services/decisionWheelService';
+import { decisionWheelService } from '../services/fun/decisionWheelService';
 import { playClickSound } from '../utils/audioHelper';
 
 export default function useRoleta(t) {

@@ -1,4 +1,4 @@
-const BaseController = require('../src/features/baseController');
+const BaseController = require('../src/controllers/baseController');
 const ApiError = require('../src/utils/apiError');
 
 // Mock Repository class

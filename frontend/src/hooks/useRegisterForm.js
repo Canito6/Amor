@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../services/auth/authService';
 
 export default function useRegisterForm(navigate) {
   const [username, setUsername] = useState('');

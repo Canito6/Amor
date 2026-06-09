@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { useTabs } from '../context/TabContext';
-import { translations } from '../services/translations';
+import { usePreferences } from '../../context/PreferencesContext';
+import { useTabs } from '../../context/TabContext';
+import { translations } from '../../services/common/translations';
 
 export default function CustomTabViewer() {
   const { tabId } = useParams();

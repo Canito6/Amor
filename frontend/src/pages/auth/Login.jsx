@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthInput from '../components/auth/AuthInput';
-import TwoFactorPanel from '../components/auth/TwoFactorPanel';
-import useLoginForm from '../hooks/useLoginForm';
+import AuthInput from '../../components/auth/AuthInput';
+import TwoFactorPanel from '../../components/auth/TwoFactorPanel';
+import useLoginForm from '../../hooks/useLoginForm';
 
 export default function Login() {
   const navigate = useNavigate();

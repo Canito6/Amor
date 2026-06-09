@@ -1,5 +1,5 @@
 const eventBus = require('../utils/eventBus');
-const { sendEmail, notifyCouplePartner } = require('../services/mailer');
+const { sendEmail, notifyCouplePartner } = require('../services/auth/mailer');
 
 // Ouvinte para envio de emails genéricos
 eventBus.on('mail:send', async ({ to, subject, text, html }) => {

@@ -9,13 +9,13 @@ jest.spyOn(mongoose, 'connect').mockResolvedValue(mongoose);
 const app = require('../src/server');
 
 // Mock dos modelos Mongoose
-const User = require('../src/features/auth/user.model');
-const DailyCheckIn = require('../src/features/dailyCheckIn/dailyCheckIn.model');
-const TokenBlacklist = require('../src/features/auth/tokenBlacklist.model');
+const User = require('../src/models/auth/userModel');
+const DailyCheckIn = require('../src/models/couple/dailyCheckInModel');
+const TokenBlacklist = require('../src/models/auth/tokenBlacklistModel');
 
-jest.mock('../src/features/auth/user.model');
-jest.mock('../src/features/dailyCheckIn/dailyCheckIn.model');
-jest.mock('../src/features/auth/tokenBlacklist.model');
+jest.mock('../src/models/auth/userModel');
+jest.mock('../src/models/couple/dailyCheckInModel');
+jest.mock('../src/models/auth/tokenBlacklistModel');
 
 describe('Daily Check-In API Endpoints Tests', () => {
   const mockToken = 'mock_token_jwt';

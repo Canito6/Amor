@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { scratchCardService } from '../services/scratchCardService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import ScratchLightbox from '../components/raspadinhas/ScratchLightbox';
-import ScratchCardCreator from '../components/raspadinhas/ScratchCardCreator';
-import ScratchCardItem from '../components/raspadinhas/ScratchCardItem';
+import { scratchCardService } from '../../services/fun/scratchCardService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import ScratchLightbox from '../../components/raspadinhas/ScratchLightbox';
+import ScratchCardCreator from '../../components/raspadinhas/ScratchCardCreator';
+import ScratchCardItem from '../../components/raspadinhas/ScratchCardItem';
 import './Raspadinhas.css';
 
 export default function Raspadinhas() {

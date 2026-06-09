@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminService } from '../services/adminService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
+import { adminService } from '../../services/auth/adminService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
 import './AdminDashboard.css';
 
 export default function AdminDashboard() {

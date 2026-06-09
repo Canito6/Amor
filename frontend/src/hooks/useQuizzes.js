@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { quizService } from '../services/quizService';
+import { quizService } from '../services/fun/quizService';
 
 export default function useQuizzes(t, language, meuNome) {
   const [quizzes, setQuizzes] = useState([]);

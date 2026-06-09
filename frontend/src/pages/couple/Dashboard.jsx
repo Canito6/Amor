@@ -1,18 +1,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { eventService } from '../services/eventService';
-import { authService } from '../services/authService';
-import { usePreferences } from '../context/PreferencesContext';
-import { useTabs } from '../context/TabContext';
-import { translations } from '../services/translations';
-import WelcomeBanner from '../components/dashboard/WelcomeBanner';
-import EventCountdown from '../components/dashboard/EventCountdown';
-import NavigationCards from '../components/dashboard/NavigationCards';
-import SpotifyWidget from '../components/dashboard/SpotifyWidget';
-import MoodTracker from '../components/dashboard/MoodTracker';
-import DailyCheckIn from '../components/dashboard/DailyCheckIn';
-import LoveCounter from '../components/dashboard/LoveCounter';
-import CoupleEditModal from '../components/dashboard/CoupleEditModal';
+import { eventService } from '../../services/couple/eventService';
+import { authService } from '../../services/auth/authService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { useTabs } from '../../context/TabContext';
+import { translations } from '../../services/common/translations';
+import WelcomeBanner from '../../components/dashboard/WelcomeBanner';
+import EventCountdown from '../../components/dashboard/EventCountdown';
+import NavigationCards from '../../components/dashboard/NavigationCards';
+import SpotifyWidget from '../../components/dashboard/SpotifyWidget';
+import MoodTracker from '../../components/dashboard/MoodTracker';
+import DailyCheckIn from '../../components/dashboard/DailyCheckIn';
+import LoveCounter from '../../components/dashboard/LoveCounter';
+import CoupleEditModal from '../../components/dashboard/CoupleEditModal';
 import './Dashboard.css';
 
 // Default widget configuration
@@ -67,6 +67,14 @@ export default function Dashboard() {
         setNome(info.partnerNames.join(' & '));
       } else {
         setNome(localStorage.getItem('nome') || 'Amor');
+      }
+
+      if (info.coupleId) {
+        const oldCoupleId = localStorage.getItem('coupleId');
+        if (oldCoupleId !== info.coupleId) {
+          localStorage.setItem('coupleId', info.coupleId);
+          window.dispatchEvent(new Event('authChange'));
+        }
       }
 
       // Prepopulate edit fields
@@ -130,6 +138,7 @@ export default function Dashboard() {
   const terminarSessao = () => {
     authService.logout().catch(err => console.error('Erro ao terminar sessão no backend:', err));
     localStorage.clear();
+    window.dispatchEvent(new Event('authChange'));
     navigate('/');
   };
 

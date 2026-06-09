@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { apiFetch } from '../common/api';
 
 export const photoService = {
   getAlbums: () => {

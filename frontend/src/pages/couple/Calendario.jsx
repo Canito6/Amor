@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { eventService } from '../services/eventService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import EventForm from '../components/calendar/EventForm';
-import EventList from '../components/calendar/EventList';
-import { formatDateLong } from '../utils/dateFormatter';
+import { eventService } from '../../services/couple/eventService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import EventForm from '../../components/calendar/EventForm';
+import EventList from '../../components/calendar/EventList';
+import { formatDateLong } from '../../utils/dateFormatter';
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);

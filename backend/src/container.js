@@ -3,6 +3,7 @@ const path = require('path');
 
 // Helper recursivo para encontrar ficheiros que terminam com um determinado sufixo
 function scanFiles(dir, suffix) {
+  if (!fs.existsSync(dir)) return [];
   let results = [];
   const list = fs.readdirSync(dir);
   for (const file of list) {
@@ -17,36 +18,47 @@ function scanFiles(dir, suffix) {
   return results;
 }
 
-const featuresDir = path.join(__dirname, 'features');
+const repoDir = path.join(__dirname, 'repositories');
+const serviceDir = path.join(__dirname, 'services');
+const controllerDir = path.join(__dirname, 'controllers');
 
 // 1. Instanciar todos os Repositórios
-const repoFiles = scanFiles(featuresDir, '.repository.js');
+const repoFiles = scanFiles(repoDir, 'Repository.js');
 const repositories = {};
 for (const file of repoFiles) {
   const RepoClass = require(file);
-  const baseName = path.basename(file, '.repository.js');
+  const baseName = path.basename(file, 'Repository.js');
   const repoInstanceName = baseName + 'Repository';
   repositories[repoInstanceName] = new RepoClass();
 }
 
 // 2. Instanciar todos os Serviços (com dependência do Repositório correspondente)
-const serviceFiles = scanFiles(featuresDir, '.service.js');
+const serviceFiles = scanFiles(serviceDir, 'Service.js');
 const services = {};
 for (const file of serviceFiles) {
   const ServiceClass = require(file);
-  const baseName = path.basename(file, '.service.js');
+  const baseName = path.basename(file, 'Service.js');
   const serviceInstanceName = baseName + 'Service';
   const repoInstanceName = baseName + 'Repository';
   
   const repoInstance = repositories[repoInstanceName];
-  if (!repoInstance) {
-    throw new Error(`Repositório não encontrado para o serviço: ${baseName}`);
+  if (repoInstance) {
+    if (typeof ServiceClass === 'function') {
+      services[serviceInstanceName] = new ServiceClass(repoInstance);
+    } else {
+      services[serviceInstanceName] = ServiceClass;
+    }
+  } else {
+    if (typeof ServiceClass === 'function') {
+      services[serviceInstanceName] = new ServiceClass();
+    } else {
+      services[serviceInstanceName] = ServiceClass;
+    }
   }
-  services[serviceInstanceName] = new ServiceClass(repoInstance);
 }
 
 // 3. Instanciar os Controladores (com dependências dinâmicas)
-const controllerFiles = scanFiles(featuresDir, '.controller.js');
+const controllerFiles = scanFiles(controllerDir, 'Controller.js');
 const controllers = {};
 for (const file of controllerFiles) {
   const ControllerClass = require(file);
@@ -56,7 +68,10 @@ for (const file of controllerFiles) {
     continue;
   }
   
-  const baseName = path.basename(file, '.controller.js');
+  const baseName = path.basename(file, 'Controller.js');
+  if (baseName === 'base' || baseName === 'authHelper') {
+    continue;
+  }
   const controllerInstanceName = baseName + 'Controller';
   const serviceInstanceName = baseName + 'Service';
   const repoInstanceName = baseName + 'Repository';

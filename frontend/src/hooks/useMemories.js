@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { memoryService } from '../services/memoryService';
+import { memoryService } from '../services/fun/memoryService';
 import { formatDateLong } from '../utils/dateFormatter';
 
 export default function useMemories(t, language) {

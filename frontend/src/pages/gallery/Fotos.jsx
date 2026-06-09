@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import PhotoUploader from '../components/photos/PhotoUploader';
-import AlbumCreator from '../components/photos/AlbumCreator';
-import AlbumGrid from '../components/photos/AlbumGrid';
-import PhotoGrid from '../components/photos/PhotoGrid';
-import PhotoLightbox from '../components/photos/PhotoLightbox';
-import useGallery from '../hooks/useGallery';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import PhotoUploader from '../../components/photos/PhotoUploader';
+import AlbumCreator from '../../components/photos/AlbumCreator';
+import AlbumGrid from '../../components/photos/AlbumGrid';
+import PhotoGrid from '../../components/photos/PhotoGrid';
+import PhotoLightbox from '../../components/photos/PhotoLightbox';
+import useGallery from '../../hooks/useGallery';
 import './Fotos.css';
 
 export default function Fotos() {

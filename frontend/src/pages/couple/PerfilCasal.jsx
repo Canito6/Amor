@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import { authService } from '../services/authService';
-import LoveCounter from '../components/dashboard/LoveCounter';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import { authService } from '../../services/auth/authService';
+import LoveCounter from '../../components/dashboard/LoveCounter';
 import './PerfilCasal.css';
 
 export default function PerfilCasal() {

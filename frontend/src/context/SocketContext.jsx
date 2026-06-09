@@ -11,12 +11,27 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [toast, setToast] = useState(null);
 
+  const [sessionKey, setSessionKey] = useState(0);
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setSessionKey(prev => prev + 1);
+    };
+    window.addEventListener('authChange', handleAuthChange);
+    return () => {
+      window.removeEventListener('authChange', handleAuthChange);
+    };
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const coupleId = localStorage.getItem('coupleId') || 'default_couple';
     const meuNome = localStorage.getItem('nome') || '';
 
-    if (!token) return;
+    if (!token) {
+      setSocket(null);
+      return;
+    }
 
     const socketUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' && window.location.port === '5173' ? 'http://localhost:5000' : '');
     
@@ -26,7 +41,7 @@ export function SocketProvider({ children }) {
     });
 
     newSocket.on('connect', () => {
-      console.log('Conectado ao servidor Socket.io');
+      console.log('Conectado ao servidor Socket.io, sala:', coupleId);
       newSocket.emit('join-couple', coupleId);
     });
 
@@ -66,7 +81,7 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [sessionKey]);
 
   const playNotificationSound = () => {
     try {

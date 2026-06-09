@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import DaysCounter from '../components/memories/DaysCounter';
-import MemoryForm from '../components/memories/MemoryForm';
-import MemoryTimeline from '../components/memories/MemoryTimeline';
-import useMemories from '../hooks/useMemories';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import DaysCounter from '../../components/memories/DaysCounter';
+import MemoryForm from '../../components/memories/MemoryForm';
+import MemoryTimeline from '../../components/memories/MemoryTimeline';
+import useMemories from '../../hooks/useMemories';
 import './Memorias.css';
 
 export default function Memorias() {

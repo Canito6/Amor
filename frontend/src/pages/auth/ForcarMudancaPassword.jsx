@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { authService } from '../../services/auth/authService';
 
 export default function ForcarMudancaPassword() {
   const [novaPassword, setNovaPassword] = useState('');
@@ -25,6 +25,8 @@ export default function ForcarMudancaPassword() {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role);
+      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      window.dispatchEvent(new Event('authChange'));
       alert('A tua password foi atualizada! Bem-vindo(a).');
       navigate('/dashboard');
     } catch (error) {

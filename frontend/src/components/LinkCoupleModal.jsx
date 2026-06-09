@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../services/auth/authService';
 
 export default function LinkCoupleModal({ isOpen, onClose, coupleInfo, t }) {
   const [inviteTokenInput, setInviteTokenInput] = useState('');
@@ -21,11 +21,16 @@ export default function LinkCoupleModal({ isOpen, onClose, coupleInfo, t }) {
     }
 
     try {
-      await authService.linkCouple(inviteTokenInput);
+      const res = await authService.linkCouple(inviteTokenInput);
       setLinkSuccess('Conectados com sucesso! ❤️');
       setInviteTokenInput('');
       
-      // Dispatch a custom event to notify other components (e.g. Dashboard) to reload
+      if (res && res.coupleId) {
+        localStorage.setItem('coupleId', res.coupleId);
+      }
+      
+      // Dispatch events to notify other components and trigger auth recheck
+      window.dispatchEvent(new Event('authChange'));
       window.dispatchEvent(new Event('refreshCoupleInfo'));
       
       setTimeout(() => {

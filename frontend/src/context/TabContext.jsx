@@ -1,17 +1,31 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { tabService } from '../services/tabService';
+import { tabService } from '../services/couple/tabService';
 
 const TabContext = createContext();
 
 export const TabProvider = ({ children }) => {
   const [customTabs, setCustomTabs] = useState([]);
   const [loadingTabs, setLoadingTabs] = useState(false);
+  const [sessionKey, setSessionKey] = useState(0);
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setSessionKey(prev => prev + 1);
+    };
+    window.addEventListener('authChange', handleAuthChange);
+    return () => {
+      window.removeEventListener('authChange', handleAuthChange);
+    };
+  }, []);
 
   // Carregar abas personalizadas do backend
   const fetchCustomTabs = async (force = false) => {
-    if (customTabs.length > 0 && !force) return;
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      setCustomTabs([]);
+      return;
+    }
+    if (customTabs.length > 0 && !force) return;
     try {
       setLoadingTabs(true);
       const data = await tabService.getTabs();
@@ -59,8 +73,8 @@ export const TabProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchCustomTabs();
-  }, []);
+    fetchCustomTabs(true);
+  }, [sessionKey]);
 
   return (
     <TabContext.Provider value={{

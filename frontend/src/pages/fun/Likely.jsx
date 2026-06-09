@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { likelyService } from '../services/likelyService';
-import { authService } from '../services/authService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import LikelyQuestionCard from '../components/likely/LikelyQuestionCard';
-import LikelyQuestionCreator from '../components/likely/LikelyQuestionCreator';
+import { likelyService } from '../../services/fun/likelyService';
+import { authService } from '../../services/auth/authService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import LikelyQuestionCard from '../../components/likely/LikelyQuestionCard';
+import LikelyQuestionCreator from '../../components/likely/LikelyQuestionCreator';
 import './Likely.css';
 
 export default function Likely() {

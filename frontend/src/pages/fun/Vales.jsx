@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { couponService } from '../services/couponService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import CouponCard from '../components/vales/CouponCard';
-import CouponCreator from '../components/vales/CouponCreator';
+import { couponService } from '../../services/fun/couponService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import CouponCard from '../../components/vales/CouponCard';
+import CouponCreator from '../../components/vales/CouponCreator';
 import './Vales.css';
 
 export default function Vales() {

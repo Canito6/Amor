@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb+srv://Canito:Love06@cluster0.cvli76g.mongodb.net/site_namorados?retryWrites=true&w=majority
+      - EMAIL_USER=miguelcanito55@gmail.com
+      - EMAIL_PASS=usgm fnzq oalg zqvh
+      - CLOUDINARY_CLOUD_NAME=du0av0rj4
+      - CLOUDINARY_API_KEY=332279726995964
+      - CLOUDINARY_API_SECRET=BNXAFxBqQmNg01C3aWaQWmIlh7o
+      - JWT_SECRET=chave_secreta_para_o_login_do_canito_e_namorada
+      - ADMIN_SECRET_CODE=ChefeCanito
+      - FRONTEND_URL=http://localhost:5173
+      - NODE_ENV=production
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: always

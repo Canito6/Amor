@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import AuthInput from '../components/auth/AuthInput';
-import SecurityMethodSelector from '../components/auth/SecurityMethodSelector';
-import useRegisterForm from '../hooks/useRegisterForm';
+import AuthInput from '../../components/auth/AuthInput';
+import SecurityMethodSelector from '../../components/auth/SecurityMethodSelector';
+import useRegisterForm from '../../hooks/useRegisterForm';
 
 export default function Registar() {
   const navigate = useNavigate();

@@ -1,16 +1,18 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./src/models/User'); // O teu molde de utilizador
 
 mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('🔌 Ligado com sucesso ao MongoDB Atlas...');
-    console.log('⏳ A apagar todos os utilizadores...');
+    console.log('⏳ A apagar todas as coleções do banco de dados...');
     
-    // O comando mágico que apaga TODOS os documentos da coleção de Utilizadores
-    await User.deleteMany({});
+    const collections = await mongoose.connection.db.collections();
+    for (let collection of collections) {
+      await collection.deleteMany({});
+      console.log(`🗑️ Limpa: ${collection.collectionName}`);
+    }
     
-    console.log('🗑️ Limpeza concluída! Todos os utilizadores foram eliminados.');
+    console.log('✨ Limpeza concluída! A base de dados foi totalmente limpa.');
     process.exit(0); // Fecha o script com sucesso
   })
   .catch((err) => {

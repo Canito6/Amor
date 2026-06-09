@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bucketListService } from '../services/bucketListService';
+import { bucketListService } from '../services/fun/bucketListService';
 import { validateImageSize } from '../utils/fileValidator';
 import { formatDateLong } from '../utils/dateFormatter';
 

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jarService } from '../services/jarService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import JarBottle from '../components/frasco/JarBottle';
-import NoteCreator from '../components/frasco/NoteCreator';
-import NoteUnfolder from '../components/frasco/NoteUnfolder';
+import { jarService } from '../../services/fun/jarService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import JarBottle from '../../components/frasco/JarBottle';
+import NoteCreator from '../../components/frasco/NoteCreator';
+import NoteUnfolder from '../../components/frasco/NoteUnfolder';
 import './Frasco.css';
 
 export default function Frasco() {

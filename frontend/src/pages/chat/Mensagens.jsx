@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { messageService } from '../services/messageService';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import MessageForm from '../components/messages/MessageForm';
-import PostItCard from '../components/messages/PostItCard';
+import { messageService } from '../../services/chat/messageService';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import { useSocket } from '../../context/SocketContext';
+import MessageForm from '../../components/messages/MessageForm';
+import PostItCard from '../../components/messages/PostItCard';
 import './Mensagens.css';
 
 export default function Mensagens() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  const [partnerTyping, setPartnerTyping] = useState(false);
+  const [partnerNameTyping, setPartnerNameTyping] = useState('');
 
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome');
@@ -18,6 +22,7 @@ export default function Mensagens() {
 
   const { language } = usePreferences();
   const t = translations[language];
+  const socket = useSocket();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -27,7 +32,24 @@ export default function Mensagens() {
     }
 
     carregarMensagens();
-  }, [navigate]);
+
+    if (socket) {
+      socket.on('partner-typing', (data) => {
+        setPartnerTyping(true);
+        setPartnerNameTyping(data.user);
+      });
+      socket.on('partner-stop-typing', () => {
+        setPartnerTyping(false);
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('partner-typing');
+        socket.off('partner-stop-typing');
+      }
+    };
+  }, [navigate, socket]);
 
   const carregarMensagens = async () => {
     try {
@@ -96,6 +118,15 @@ export default function Mensagens() {
       </div>
 
       <MessageForm onSubmit={handleCreateMessageSubmit} t={t} />
+
+      {partnerTyping && (
+        <div className="typing-container">
+          <span>💬 {partnerNameTyping} está a escrever</span>
+          <span className="dot-animation">.</span>
+          <span className="dot-animation" style={{ animationDelay: '0.2s' }}>.</span>
+          <span className="dot-animation" style={{ animationDelay: '0.4s' }}>.</span>
+        </div>
+      )}
 
       {error && <p style={{ color: 'var(--danger-color)', textAlign: 'center', marginBottom: '20px', fontWeight: 'bold' }}>{error}</p>}
 

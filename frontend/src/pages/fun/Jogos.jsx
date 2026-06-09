@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../context/PreferencesContext';
-import { translations } from '../services/translations';
-import { quizService } from '../services/quizService';
-import { scratchCardService } from '../services/scratchCardService';
-import { likelyService } from '../services/likelyService';
-import { couponService } from '../services/couponService';
-import { letterService } from '../services/letterService';
-import { jarService } from '../services/jarService';
-import { bucketListService } from '../services/bucketListService';
-import GameHubCard from '../components/jogos/GameHubCard';
+import { usePreferences } from '../../context/PreferencesContext';
+import { translations } from '../../services/common/translations';
+import { quizService } from '../../services/fun/quizService';
+import { scratchCardService } from '../../services/fun/scratchCardService';
+import { likelyService } from '../../services/fun/likelyService';
+import { couponService } from '../../services/fun/couponService';
+import { letterService } from '../../services/fun/letterService';
+import { jarService } from '../../services/fun/jarService';
+import { bucketListService } from '../../services/fun/bucketListService';
+import GameHubCard from '../../components/jogos/GameHubCard';
 import styles from './Jogos.module.css';
 
 export default function Jogos() {
@@ -131,6 +131,15 @@ export default function Jogos() {
       desc: t.games_card_roleta_desc || 'Roda a roleta para decidir qualquer coisa em casal.',
       icon: '🎡',
       accentColor: '#ff9f1c',
+      count: 0,
+      countLabel: ''
+    },
+    {
+      path: '/desenho',
+      title: language === 'pt' ? 'Quadro de Desenho' : 'Drawing Board',
+      desc: language === 'pt' ? 'Desenhem e rabisquem juntos em tempo real.' : 'Draw and doodle together in real-time.',
+      icon: '✍️',
+      accentColor: '#f72585',
       count: 0,
       countLabel: ''
     }

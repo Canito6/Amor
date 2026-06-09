@@ -1,12 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSocket } from '../../context/SocketContext';
 
 export default function MessageForm({ onSubmit, t }) {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
+  
+  const socket = useSocket();
+  const typingTimeoutRef = useRef(null);
+  const isTypingRef = useRef(false);
+
+  const coupleId = localStorage.getItem('coupleId') || 'default_couple';
+  const meuNome = localStorage.getItem('nome') || '';
+
+  // Limpar timeout ao desmontar
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleContentChange = (e) => {
+    const value = e.target.value;
+    setContent(value);
+
+    if (socket) {
+      if (!isTypingRef.current && value.trim().length > 0) {
+        isTypingRef.current = true;
+        socket.emit('typing', { room: coupleId, user: meuNome });
+      }
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        isTypingRef.current = false;
+        socket.emit('stop-typing', { room: coupleId, user: meuNome });
+      }, 1500);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
+
+    // Parar indicador de escrita imediatamente
+    if (socket && isTypingRef.current) {
+      isTypingRef.current = false;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      socket.emit('stop-typing', { room: coupleId, user: meuNome });
+    }
+
     try {
       setError('');
       await onSubmit(content.trim());
@@ -24,7 +72,7 @@ export default function MessageForm({ onSubmit, t }) {
           className="input-control"
           placeholder={t.messages_placeholder}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           rows="4"
           required
           style={{ resize: 'vertical' }}

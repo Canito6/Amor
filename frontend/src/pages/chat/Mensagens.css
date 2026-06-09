@@ -238,3 +238,38 @@
 .theme-dark .post-it-author {
   color: #111;
 }
+
+/* Indicador de Escrita */
+.typing-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 25px;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-family: var(--font-title), sans-serif;
+  font-size: 14px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.45));
+  padding: 10px 20px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(255, 77, 109, 0.15);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.3s ease;
+}
+
+.dot-animation {
+  animation: typingDot 1.4s infinite both;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 1;
+}
+
+@keyframes typingDot {
+  0% { opacity: 0.2; transform: scale(1); }
+  20% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.2; transform: scale(1); }
+}

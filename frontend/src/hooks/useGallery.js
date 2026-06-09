@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { photoService } from '../services/photoService';
+import { photoService } from '../services/gallery/photoService';
 import { validateImageSize } from '../utils/fileValidator';
 
 export default function useGallery(t, navigate) {

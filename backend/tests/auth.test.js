@@ -8,11 +8,11 @@ jest.spyOn(mongoose, 'connect').mockResolvedValue(mongoose);
 const app = require('../src/server');
 
 // Mock dos modelos Mongoose
-const User = require('../src/features/auth/user.model');
-const Couple = require('../src/features/couple/couple.model');
+const User = require('../src/models/auth/userModel');
+const Couple = require('../src/models/couple/coupleModel');
 
-jest.mock('../src/features/auth/user.model');
-jest.mock('../src/features/couple/couple.model');
+jest.mock('../src/models/auth/userModel');
+jest.mock('../src/models/couple/coupleModel');
 
 describe('Testes de Autenticação - API Endpoints', () => {
   beforeEach(() => {
