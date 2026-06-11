@@ -18,7 +18,7 @@ export default function Desenho() {
   const [brushSize, setBrushSize] = useState(5);
 
   const prevPosRef = useRef({ x: 0, y: 0 });
-  const coupleId = localStorage.getItem('coupleId') || 'default_couple';
+  const coupleId = localStorage.getItem('coupleId') || '';
 
   // Paleta de cores premium
   const colors = [

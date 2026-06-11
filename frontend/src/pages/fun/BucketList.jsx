@@ -49,7 +49,11 @@ export default function BucketList() {
     handleDeleteItem,
     handleFileChange,
     filteredItems,
-    formatDate
+    formatDate,
+    currentPage,
+    totalPages,
+    loadingMore,
+    carregarDesejos
   } = useBucketList(t, language, fileInputRef);
 
   return (
@@ -109,29 +113,46 @@ export default function BucketList() {
 
       {/* List Container */}
       {loading ? (
-        <div className="bucket-loading-spinner-container">
-          <div className="spinner"></div>
+        <div className="bucket-grid">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="glass-panel skeleton" style={{ height: '180px', borderRadius: '24px', border: 'none' }} />
+          ))}
         </div>
       ) : filteredItems.length === 0 ? (
         <div className="glass-panel empty-bucket-state">
           <p>{t.bucket_empty_state || 'Nenhum desejo na lista!'}</p>
         </div>
       ) : (
-        <div className="bucket-grid fade-in">
-          {filteredItems.map(item => (
-            <BucketCard
-              key={item._id}
-              item={item}
-              meuNome={meuNome}
-              minhaRole={minhaRole}
-              onDelete={handleDeleteItem}
-              onToggleComplete={handleToggleComplete}
-              formatDate={formatDate}
-              language={language}
-              t={t}
-            />
-          ))}
-        </div>
+        <>
+          <div className="bucket-grid fade-in">
+            {filteredItems.map(item => (
+              <BucketCard
+                key={item._id}
+                item={item}
+                meuNome={meuNome}
+                minhaRole={minhaRole}
+                onDelete={handleDeleteItem}
+                onToggleComplete={handleToggleComplete}
+                formatDate={formatDate}
+                language={language}
+                t={t}
+              />
+            ))}
+          </div>
+
+          {currentPage < totalPages && (
+            <div style={{ textAlign: 'center', marginTop: '30px' }}>
+              <button
+                className="btn btn-dark"
+                onClick={() => carregarDesejos(currentPage + 1, true)}
+                disabled={loadingMore}
+                style={{ padding: '12px 28px', fontSize: '15px', opacity: loadingMore ? 0.7 : 1 }}
+              >
+                {loadingMore ? '⏳ A carregar...' : (language === 'pt' ? 'Carregar Mais' : 'Load More')}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

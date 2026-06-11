@@ -12,7 +12,7 @@ const quizSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   },
   questions: [
     {

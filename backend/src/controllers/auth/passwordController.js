@@ -71,7 +71,7 @@ exports.forcarMudancaPassword = async (req, res, next) => {
 
     // Faz logo o login automático e devolve o token
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId || 'default_couple' }, 
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -84,7 +84,7 @@ exports.forcarMudancaPassword = async (req, res, next) => {
       token, 
       username: user.username,
       role: user.role,
-      coupleId: user.coupleId || 'default_couple'
+      coupleId: user.coupleId
     });
   } catch (error) {
     next(error);

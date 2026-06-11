@@ -12,7 +12,7 @@ const albumSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   },
   createdBy: {
     type: String,

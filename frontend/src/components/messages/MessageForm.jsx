@@ -9,7 +9,7 @@ export default function MessageForm({ onSubmit, t }) {
   const typingTimeoutRef = useRef(null);
   const isTypingRef = useRef(false);
 
-  const coupleId = localStorage.getItem('coupleId') || 'default_couple';
+  const coupleId = localStorage.getItem('coupleId') || '';
   const meuNome = localStorage.getItem('nome') || '';
 
   // Limpar timeout ao desmontar

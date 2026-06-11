@@ -41,7 +41,7 @@ export default function useLoginForm(navigate) {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role); 
-      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      localStorage.setItem('coupleId', dados.coupleId || '');
       window.dispatchEvent(new Event('authChange'));
       navigate('/dashboard');
     } catch (error) {
@@ -59,7 +59,7 @@ export default function useLoginForm(navigate) {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role);
-      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      localStorage.setItem('coupleId', dados.coupleId || '');
       window.dispatchEvent(new Event('authChange'));
 
       if (dados.trustedDeviceToken) {

@@ -1,12 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
 import { photoService } from '../services/gallery/photoService';
 import { validateImageSize } from '../utils/fileValidator';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 
 export default function useGallery(t, navigate) {
   const [photos, setPhotos] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [generalPhotoCount, setGeneralPhotoCount] = useState(0);
   const [activeTab, setActiveTab] = useState('albums'); // 'albums' | 'todas'
+
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const [currentAlbum, setCurrentAlbum] = useState(null); // null ou objeto Álbum
 
   // Estados de formulário
@@ -96,7 +101,7 @@ export default function useGallery(t, navigate) {
     const file = e.target.files[0];
     if (file) {
       if (!validateImageSize(file, 5)) {
-        alert(t.photos_img_too_large);
+        showToast(t.photos_img_too_large || 'O tamanho máximo da imagem é de 5MB.', 'warning');
         fileInputRef.current.value = null;
         setSelectedFile(null);
         return;
@@ -143,7 +148,7 @@ export default function useGallery(t, navigate) {
       setCaption('');
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
-      alert(t.photos_upload_success);
+      showToast(t.photos_upload_success || 'Foto carregada com sucesso! 📸', 'success');
     } catch (err) {
       setErro(err.message || 'Erro ao carregar foto.');
     } finally {
@@ -164,7 +169,7 @@ export default function useGallery(t, navigate) {
       setAlbums([novoComContagem, ...albums]);
       setNewAlbumName('');
       setNewAlbumDesc('');
-      alert(t.photos_create_album_success);
+      showToast(t.photos_create_album_success || 'Álbum criado com sucesso! 📁', 'success');
     } catch (err) {
       setErro(err.message || 'Erro ao criar álbum.');
     } finally {
@@ -174,7 +179,14 @@ export default function useGallery(t, navigate) {
 
   const apagarAlbum = async (e, id) => {
     e.stopPropagation();
-    if (!window.confirm(t.photos_delete_album_confirm)) return;
+    
+    const accepted = await confirm({
+      title: 'Eliminar Álbum 📁',
+      message: t.photos_delete_album_confirm || 'Tem a certeza que deseja eliminar este álbum?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    });
+    if (!accepted) return;
 
     try {
       setErro('');
@@ -190,6 +202,7 @@ export default function useGallery(t, navigate) {
       if (currentAlbum && currentAlbum._id === id) {
         setCurrentAlbum(null);
       }
+      showToast('Álbum eliminado com sucesso!', 'success');
     } catch (err) {
       setErro(err.message || 'Erro ao apagar álbum.');
     }
@@ -197,7 +210,14 @@ export default function useGallery(t, navigate) {
 
   const apagarFoto = async (e, id) => {
     e.stopPropagation();
-    if (!window.confirm(t.photos_delete_photo_confirm)) return;
+    
+    const accepted = await confirm({
+      title: 'Eliminar Foto 📸',
+      message: t.photos_delete_photo_confirm || 'Tem a certeza que deseja eliminar esta foto?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    });
+    if (!accepted) return;
 
     try {
       setErro('');
@@ -217,6 +237,7 @@ export default function useGallery(t, navigate) {
       if (selectedPhoto && selectedPhoto._id === id) {
         setSelectedPhoto(null);
       }
+      showToast('Foto eliminada com sucesso!', 'success');
     } catch (err) {
       setErro(err.message || 'Erro ao apagar foto.');
     }

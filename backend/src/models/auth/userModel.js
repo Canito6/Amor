@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: true, 
+    unique: true 
   },
   role: { 
     type: String, 
@@ -38,8 +39,7 @@ const userSchema = new mongoose.Schema({
     type: Date 
   },
   coupleId: {
-    type: String,
-    default: 'default_couple'
+    type: String
   },
   loginSecurityMethod: {
     type: String,

@@ -24,7 +24,7 @@ const memorySchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   },
   isTimeCapsule: {
     type: Boolean,

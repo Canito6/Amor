@@ -16,7 +16,7 @@ const messageSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   },
   isEdited: {
     type: Boolean,

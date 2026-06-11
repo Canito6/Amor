@@ -1,8 +1,9 @@
 import { apiFetch } from '../common/api';
 
 export const bucketListService = {
-  getBucketItems: () => {
-    return apiFetch('/api/fun/bucket-items');
+  getBucketItems: (page, limit) => {
+    const query = (page && limit) ? `?page=${page}&limit=${limit}` : '';
+    return apiFetch(`/api/fun/bucket-items${query}`);
   },
 
   createBucketItem: (itemData) => {

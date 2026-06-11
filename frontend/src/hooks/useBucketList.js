@@ -3,12 +3,22 @@ import { bucketListService } from '../services/fun/bucketListService';
 import { validateImageSize } from '../utils/fileValidator';
 import { formatDateLong } from '../utils/dateFormatter';
 import useSocketUpdate from './useSocketUpdate';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 
 export default function useBucketList(t, language, fileInputRef) {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all' | 'pending' | 'completed'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
+
+  // Estados de paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Form states (creating new goal)
   const [showCreator, setShowCreator] = useState(false);
@@ -29,23 +39,43 @@ export default function useBucketList(t, language, fileInputRef) {
     carregarDesejos();
   }, ['bucket-', 'desejo-']);
 
-  const carregarDesejos = async () => {
+  const carregarDesejos = async (page = 1, append = false) => {
     try {
-      setLoading(true);
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
       setError('');
-      const data = await bucketListService.getBucketItems();
-      setItems(data);
+      const data = await bucketListService.getBucketItems(page, 10);
+      
+      // Tratar resposta paginada ou array legado
+      if (data && data.data) {
+        const novosItens = data.data || [];
+        if (append) {
+          setItems(prev => [...prev, ...novosItens]);
+        } else {
+          setItems(novosItens);
+        }
+        setCurrentPage(data.currentPage || 1);
+        setTotalPages(data.pages || 1);
+      } else {
+        setItems(data || []);
+        setCurrentPage(1);
+        setTotalPages(1);
+      }
     } catch (err) {
       setError(t.bucket_error_load || 'Erro ao carregar a lista de desejos.');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   const handleCreateItem = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) {
-      alert(t.bucket_input_title || 'O título do desejo é obrigatório!');
+      showToast(t.bucket_input_title || 'O título do desejo é obrigatório!', 'warning');
       return;
     }
 
@@ -60,7 +90,7 @@ export default function useBucketList(t, language, fileInputRef) {
       setNewTitle('');
       setNewDescription('');
       setShowCreator(false);
-      alert(t.bucket_success_created || 'Desejo adicionado!');
+      showToast(t.bucket_success_created || 'Desejo adicionado! 🎉', 'success');
     } catch (err) {
       setError(t.bucket_error_save || 'Erro ao criar desejo.');
     } finally {
@@ -71,7 +101,13 @@ export default function useBucketList(t, language, fileInputRef) {
   const handleToggleComplete = async (item) => {
     if (item.completed) {
       const confirmMsg = t.bucket_uncomplete_confirm || 'Queres marcar este desejo como não cumprido? (A foto associada será apagada)';
-      if (!window.confirm(confirmMsg)) return;
+      const accepted = await confirm({
+        title: language === 'pt' ? 'Desmarcar Desejo' : 'Uncomplete Goal',
+        message: confirmMsg,
+        confirmText: language === 'pt' ? 'Desmarcar' : 'Uncomplete',
+        cancelText: language === 'pt' ? 'Cancelar' : 'Cancel'
+      });
+      if (!accepted) return;
 
       try {
         setError('');
@@ -115,12 +151,20 @@ export default function useBucketList(t, language, fileInputRef) {
   const handleDeleteItem = async (e, id) => {
     e.stopPropagation();
     const confirmMsg = t.bucket_confirm_delete || 'Tens a certeza que queres eliminar este desejo?';
-    if (!window.confirm(confirmMsg)) return;
+    
+    const accepted = await confirm({
+      title: language === 'pt' ? 'Eliminar Desejo 🗑' : 'Delete Goal 🗑',
+      message: confirmMsg,
+      confirmText: language === 'pt' ? 'Eliminar' : 'Delete',
+      cancelText: language === 'pt' ? 'Cancelar' : 'Cancel'
+    });
+    if (!accepted) return;
 
     try {
       setError('');
       await bucketListService.deleteBucketItem(id);
       setItems(items.filter(i => i._id !== id));
+      showToast(language === 'pt' ? 'Desejo eliminado com sucesso!' : 'Goal deleted successfully!', 'success');
     } catch (err) {
       setError(t.bucket_error_delete || 'Erro ao eliminar desejo.');
     }
@@ -130,7 +174,7 @@ export default function useBucketList(t, language, fileInputRef) {
     const file = e.target.files[0];
     if (file) {
       if (!validateImageSize(file, 5)) {
-        alert(language === 'pt' ? 'O tamanho máximo da imagem é de 5MB.' : 'Maximum image size is 5MB.');
+        showToast(language === 'pt' ? 'O tamanho máximo da imagem é de 5MB.' : 'Maximum image size is 5MB.', 'warning');
         fileInputRef.current.value = null;
         setCompletionFile(null);
         return;
@@ -174,6 +218,10 @@ export default function useBucketList(t, language, fileInputRef) {
     handleDeleteItem,
     handleFileChange,
     filteredItems,
-    formatDate
+    formatDate,
+    currentPage,
+    totalPages,
+    loadingMore,
+    carregarDesejos
   };
 }

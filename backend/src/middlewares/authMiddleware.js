@@ -30,7 +30,7 @@ const verificarAdmin = async (req, res, next) => {
     }
 
     req.user = decodificado;
-    req.coupleId = user.coupleId || 'default_couple';
+    req.coupleId = user.coupleId;
     next(); // Se estiver tudo bem, avança para a rota!
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });
@@ -58,7 +58,10 @@ const verificarToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Utilizador não encontrado.' });
     }
     req.user = decodificado;
-    req.coupleId = user.coupleId || 'default_couple';
+    req.coupleId = user.coupleId;
+    if (!req.coupleId) {
+      return res.status(403).json({ error: 'Acesso negado. O utilizador não tem um casal associado.' });
+    }
     next();
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });

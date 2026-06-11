@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
+import ProtectedRoute from './ProtectedRoute';
 
 // Lazy loading page components
 const Login = lazy(() => import('../pages/auth/Login'));
@@ -45,25 +46,27 @@ export default function AppRoutes() {
         <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
         
         {/* Rotas Autenticadas protegidas pelo MainLayout */}
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/mensagens" element={<Mensagens />} />
-          <Route path="/fotos" element={<Fotos />} />
-          <Route path="/memorias" element={<Memorias />} />
-          <Route path="/quizzes" element={<Quizzes />} />
-          <Route path="/calendario" element={<Calendario />} />
-          <Route path="/raspadinhas" element={<Raspadinhas />} />
-          <Route path="/roleta" element={<Roleta />} />
-          <Route path="/bucket-list" element={<BucketList />} />
-          <Route path="/vales" element={<Vales />} />
-          <Route path="/cartas" element={<Cartas />} />
-          <Route path="/frasco" element={<Frasco />} />
-          <Route path="/likely" element={<Likely />} />
-           <Route path="/jogos" element={<Jogos />} />
-          <Route path="/perfil-casal" element={<PerfilCasal />} />
-          <Route path="/desenho" element={<Desenho />} />
-          <Route path="/tab/:tabId" element={<CustomTabViewer />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/mensagens" element={<Mensagens />} />
+            <Route path="/fotos" element={<Fotos />} />
+            <Route path="/memorias" element={<Memorias />} />
+            <Route path="/quizzes" element={<Quizzes />} />
+            <Route path="/calendario" element={<Calendario />} />
+            <Route path="/raspadinhas" element={<Raspadinhas />} />
+            <Route path="/roleta" element={<Roleta />} />
+            <Route path="/bucket-list" element={<BucketList />} />
+            <Route path="/vales" element={<Vales />} />
+            <Route path="/cartas" element={<Cartas />} />
+            <Route path="/frasco" element={<Frasco />} />
+            <Route path="/likely" element={<Likely />} />
+             <Route path="/jogos" element={<Jogos />} />
+            <Route path="/perfil-casal" element={<PerfilCasal />} />
+            <Route path="/desenho" element={<Desenho />} />
+            <Route path="/tab/:tabId" element={<CustomTabViewer />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
         </Route>
       </Routes>
     </Suspense>

@@ -92,7 +92,7 @@ exports.login = async (req, res, next) => {
 
     // Cria o "bilhete" de acesso (Token) válido por 7 dias, incluindo também o cargo (role) no bilhete!
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId || 'default_couple' }, 
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -105,7 +105,7 @@ exports.login = async (req, res, next) => {
       token, 
       username: user.username,
       role: user.role,
-      coupleId: user.coupleId || 'default_couple'
+      coupleId: user.coupleId
     });
   } catch (error) {
     next(error);
@@ -140,7 +140,7 @@ exports.verifyLogin = async (req, res, next) => {
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId || 'default_couple' }, 
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -153,7 +153,7 @@ exports.verifyLogin = async (req, res, next) => {
       token,
       username: user.username,
       role: user.role,
-      coupleId: user.coupleId || 'default_couple',
+      coupleId: user.coupleId,
       trustedDeviceToken
     });
   } catch (error) {

@@ -17,7 +17,6 @@ const scratchCardSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple',
     required: true
   },
   isScratched: {

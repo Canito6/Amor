@@ -22,7 +22,7 @@ exports.getCoupleInfo = async (req, res, next) => {
     const users = await User.find({ coupleId });
     const partnerNames = users.map(u => u.username);
 
-    if (!couple && coupleId !== 'default_couple') {
+    if (!couple) {
       // Create Couple document if it was missing
       couple = new Couple({
         _id: coupleId,
@@ -57,9 +57,6 @@ exports.updateCoupleInfo = async (req, res, next) => {
 
     let couple = await Couple.findById(coupleId);
     if (!couple) {
-      if (coupleId === 'default_couple') {
-        throw new ApiError(400, 'Não é possível editar a conta de casal predefinida. Por favor, conecte a sua namorada primeiro.');
-      }
       couple = new Couple({ _id: coupleId, partner1: req.user.id });
     }
 
@@ -110,7 +107,7 @@ exports.linkCouple = async (req, res, next) => {
 
     let targetCoupleId = targetUser.coupleId;
 
-    if (targetCoupleId === 'default_couple') {
+    if (!targetCoupleId) {
       // Create a new Couple document and link both
       const newCouple = new Couple({
         partner1: targetUser._id,

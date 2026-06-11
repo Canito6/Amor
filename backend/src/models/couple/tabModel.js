@@ -37,7 +37,7 @@ const tabSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   }
 }, { timestamps: true });
 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useToast } from './ToastContext';
 
 const SocketContext = createContext(null);
 
@@ -9,7 +10,7 @@ export function useSocket() {
 
 export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast();
 
   const [sessionKey, setSessionKey] = useState(0);
 
@@ -25,7 +26,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const coupleId = localStorage.getItem('coupleId') || 'default_couple';
+    const coupleId = localStorage.getItem('coupleId') || '';
     const meuNome = localStorage.getItem('nome') || '';
 
     if (!token) {
@@ -68,14 +69,9 @@ export function SocketProvider({ children }) {
       }
 
       if (message) {
-        setToast(message);
+        showToast(message, 'info');
         // Tocar um som de notificação de sistema suave (Web Audio API)
         playNotificationSound();
-        
-        // Auto esconder após 5 segundos
-        setTimeout(() => {
-          setToast(prev => prev === message ? null : prev);
-        }, 5000);
       }
     });
 
@@ -124,58 +120,6 @@ export function SocketProvider({ children }) {
     <SocketContext.Provider value={socket}>
       {children}
       
-      {/* Toast Alert Render em Linha */}
-      {toast && (
-        <div style={toastStyles.container} className="fade-in">
-          <div style={toastStyles.icon}>💖</div>
-          <div style={toastStyles.body}>{toast}</div>
-          <button style={toastStyles.close} onClick={() => setToast(null)}>✕</button>
-        </div>
-      )}
     </SocketContext.Provider>
   );
 }
-
-const toastStyles = {
-  container: {
-    position: 'fixed',
-    bottom: '24px',
-    right: '24px',
-    zIndex: 9999,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
-    border: '1.5px solid var(--primary-color, #ff4d6d)',
-    borderRadius: '16px',
-    padding: '16px 20px',
-    boxShadow: '0 10px 25px rgba(255, 77, 109, 0.25)',
-    backdropFilter: 'blur(20px)',
-    maxWidth: '350px',
-    boxSizing: 'border-box',
-    animation: 'slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-  },
-  icon: {
-    fontSize: '22px',
-    flexShrink: 0
-  },
-  body: {
-    fontFamily: 'var(--font-title), sans-serif',
-    fontSize: '13.5px',
-    fontWeight: '700',
-    color: 'var(--text-main, #2b2d42)',
-    textAlign: 'left',
-    lineHeight: '1.4'
-  },
-  close: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--text-muted, #8c8c8c)',
-    cursor: 'pointer',
-    fontSize: '14px',
-    padding: '4px',
-    flexShrink: 0,
-    marginLeft: '5px',
-    transition: 'color 0.2s ease'
-  }
-};

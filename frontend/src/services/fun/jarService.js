@@ -1,8 +1,9 @@
 import { apiFetch } from '../common/api';
 
 export const jarService = {
-  getJarNotes: () => {
-    return apiFetch('/api/fun/jar-notes');
+  getJarNotes: (page, limit) => {
+    const query = (page && limit) ? `?page=${page}&limit=${limit}` : '';
+    return apiFetch(`/api/fun/jar-notes${query}`);
   },
 
   getRandomJarNote: () => {

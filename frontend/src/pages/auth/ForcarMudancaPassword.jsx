@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../services/auth/authService';
+import { useToast } from '../../context/ToastContext';
 
 export default function ForcarMudancaPassword() {
   const [novaPassword, setNovaPassword] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
   const userId = location.state?.userId; // Recebe o ID do utilizador vindo do Login
 
   if (!userId) {
@@ -25,9 +27,9 @@ export default function ForcarMudancaPassword() {
       localStorage.setItem('token', dados.token);
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role);
-      localStorage.setItem('coupleId', dados.coupleId || 'default_couple');
+      localStorage.setItem('coupleId', dados.coupleId || '');
       window.dispatchEvent(new Event('authChange'));
-      alert('A tua password foi atualizada! Bem-vindo(a).');
+      showToast('A tua password foi atualizada! Bem-vindo(a). 🎉', 'success');
       navigate('/dashboard');
     } catch (error) {
       setErro(error.message || 'Erro ao tentar definir nova password.');

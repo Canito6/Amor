@@ -19,7 +19,7 @@ const photoSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    default: 'default_couple'
+    required: true
   },
   albumId: {
     type: mongoose.Schema.Types.ObjectId,

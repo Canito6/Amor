@@ -14,6 +14,15 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiting específico para a verificação do código 2FA
+const twoFactorLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  limit: 5, // Limite de 5 tentativas por IP por janela de 5 min
+  message: { error: 'Demasiadas tentativas de código 2FA. Por favor, aguarde 5 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Esquemas de Validação
 const registerSchema = {
   username: { required: true, type: 'string', minLength: 3 },
@@ -57,7 +66,7 @@ router.post('/reset-password', authLimiter, validateSchema(resetPasswordSchema),
 router.post('/forcar-mudanca-password', authLimiter, validateSchema(forcarMudancaPasswordSchema), authController.forcarMudancaPassword);
 
 // 6. ROTA: Verificar código de login 2FA
-router.post('/verify-login', authLimiter, authController.verifyLogin);
+router.post('/verify-login', twoFactorLimiter, authController.verifyLogin);
 
 // 7. ROTA: Logout (Limpar Cookie)
 router.post('/logout', authController.logout);

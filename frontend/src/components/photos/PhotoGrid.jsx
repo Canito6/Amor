@@ -34,8 +34,10 @@ export default function PhotoGrid({
       )}
 
       {loadingPhotos ? (
-        <div style={{ textAlign: 'center', margin: '40px 0' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.photos_loading_photos}</p>
+        <div className="photo-grid">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="photo-card skeleton" style={{ height: '220px', borderRadius: '16px', border: 'none' }} />
+          ))}
         </div>
       ) : photos.length === 0 ? (
         <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
