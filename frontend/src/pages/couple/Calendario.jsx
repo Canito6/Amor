@@ -130,12 +130,12 @@ export default function Calendario() {
   return (
     <div className="app-container fade-in">
       {/* Cabeçalho */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }}>{t.calendar_title}</h1>
-        <div style={{ width: '150px' }}></div>
+        <h1 className="page-title">{t.calendar_title}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       {/* Formulário para Adicionar Evento */}

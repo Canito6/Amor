@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import BucketCreator from '../../components/bucket/BucketCreator';
-import BucketCompletionModal from '../../components/bucket/BucketCompletionModal';
-import BucketCard from '../../components/bucket/BucketCard';
-import BucketFilters from '../../components/bucket/BucketFilters';
-import useBucketList from '../../hooks/useBucketList';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import BucketCreator from '../../../components/bucket/BucketCreator';
+import BucketCompletionModal from '../../../components/bucket/BucketCompletionModal';
+import BucketCard from '../../../components/bucket/BucketCard';
+import BucketFilters from '../../../components/bucket/BucketFilters';
+import useBucketList from '../../../hooks/useBucketList';
 import './BucketList.css';
 
 export default function BucketList() {
@@ -59,12 +59,12 @@ export default function BucketList() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="bucket-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="bucket-page-title">{t.bucket_title || 'Lista de Desejos 📝'}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.bucket_title || 'Lista de Desejos 📝'}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="bucket-subtitle">{t.bucket_subtitle || 'Sonhos e metas de casal'}</p>

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import { quizService } from '../../services/fun/quizService';
-import { scratchCardService } from '../../services/fun/scratchCardService';
-import { likelyService } from '../../services/fun/likelyService';
-import { couponService } from '../../services/fun/couponService';
-import { letterService } from '../../services/fun/letterService';
-import { jarService } from '../../services/fun/jarService';
-import { bucketListService } from '../../services/fun/bucketListService';
-import GameHubCard from '../../components/jogos/GameHubCard';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import { quizService } from '../../../services/fun/quizService';
+import { scratchCardService } from '../../../services/fun/scratchCardService';
+import { likelyService } from '../../../services/fun/likelyService';
+import { couponService } from '../../../services/fun/couponService';
+import { letterService } from '../../../services/fun/letterService';
+import { jarService } from '../../../services/fun/jarService';
+import { bucketListService } from '../../../services/fun/bucketListService';
+import GameHubCard from '../../../components/jogos/GameHubCard';
 import styles from './Jogos.module.css';
 
 export default function Jogos() {

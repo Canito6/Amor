@@ -37,8 +37,8 @@ export default function ForcarMudancaPassword() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '85vh' }}>
-      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '85vh', padding: '20px' }}>
+      <div className="glass-panel auth-card fade-in">
         <h1 style={{ color: 'var(--danger-color)', fontSize: '28px', marginBottom: '10px' }}>Aviso de Segurança ⚠️</h1>
         <p style={{ color: 'var(--text-main)', marginBottom: '20px', fontSize: '14px' }}>
           O administrador repôs a tua password. Por favor, define uma nova credencial segura para aceder.

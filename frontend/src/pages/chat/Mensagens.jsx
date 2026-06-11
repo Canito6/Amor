@@ -114,12 +114,12 @@ export default function Mensagens() {
 
   return (
     <div className="app-container fade-in">
-      <div className="page-header">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
         <h1 className="page-title">{t.messages_title}</h1>
-        <div style={{ width: '150px' }}></div>
+        <div className="page-header-spacer"></div>
       </div>
 
       <MessageForm onSubmit={handleCreateMessageSubmit} t={t} />

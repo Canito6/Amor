@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSocket } from '../../context/SocketContext';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
+import { useSocket } from '../../../context/SocketContext';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
 import './Desenho.css';
 
 export default function Desenho() {
@@ -204,12 +204,12 @@ export default function Desenho() {
 
   return (
     <div className="app-container fade-in">
-      <div className="page-header">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/jogos')}>
           ⬅ {t.games_title || 'Jogos'}
         </button>
         <h1 className="page-title">Quadro do Amor ✍️</h1>
-        <div style={{ width: '100px' }}></div>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '30px' }}>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { couponService } from '../../services/fun/couponService';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import CouponCard from '../../components/vales/CouponCard';
-import CouponCreator from '../../components/vales/CouponCreator';
-import useSocketUpdate from '../../hooks/useSocketUpdate';
+import { couponService } from '../../../services/fun/couponService';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import CouponCard from '../../../components/vales/CouponCard';
+import CouponCreator from '../../../components/vales/CouponCreator';
+import useSocketUpdate from '../../../hooks/useSocketUpdate';
 import './Vales.css';
 
 export default function Vales() {
@@ -107,12 +107,12 @@ export default function Vales() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="coupon-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="coupon-page-title">{t.coupon_title || 'Vales de Amor 🎟️'}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.coupon_title || 'Vales de Casal 🎟️'}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="coupon-subtitle">{t.coupon_subtitle || 'Presentes virtuais para oferecer ao outro'}</p>

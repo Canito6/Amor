@@ -44,8 +44,8 @@ export default function RecuperarPassword() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh' }}>
-      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh', padding: '20px' }}>
+      <div className="glass-panel auth-card fade-in">
         <h1 style={{ color: 'var(--primary-color)', fontSize: '30px', marginBottom: '10px' }}>Recuperar Password 🔐</h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Redefine o teu acesso de forma segura</p>
         

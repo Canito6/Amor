@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import DaysCounter from '../../components/memories/DaysCounter';
-import MemoryForm from '../../components/memories/MemoryForm';
-import MemoryTimeline from '../../components/memories/MemoryTimeline';
-import useMemories from '../../hooks/useMemories';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import DaysCounter from '../../../components/memories/DaysCounter';
+import MemoryForm from '../../../components/memories/MemoryForm';
+import MemoryTimeline from '../../../components/memories/MemoryTimeline';
+import useMemories from '../../../hooks/useMemories';
 import './Memorias.css';
 
 export default function Memorias() {
@@ -52,11 +52,11 @@ export default function Memorias() {
 
   return (
     <div className="app-container fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }} className="memories-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark btn-back-memories" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '28px' }} className="memories-page-title">{t.memories_title}</h1>
+        <h1 className="page-title">{t.memories_title}</h1>
         <button className="btn btn-primary btn-export-pdf" onClick={() => window.print()}>
           📖 {language === 'pt' ? 'Exportar Livro' : 'Export Book'}
         </button>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { likelyService } from '../../services/fun/likelyService';
-import { authService } from '../../services/auth/authService';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import LikelyQuestionCard from '../../components/likely/LikelyQuestionCard';
-import LikelyQuestionCreator from '../../components/likely/LikelyQuestionCreator';
+import { likelyService } from '../../../services/fun/likelyService';
+import { authService } from '../../../services/auth/authService';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import LikelyQuestionCard from '../../../components/likely/LikelyQuestionCard';
+import LikelyQuestionCreator from '../../../components/likely/LikelyQuestionCreator';
 import './Likely.css';
 
 export default function Likely() {
@@ -124,12 +124,12 @@ export default function Likely() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="likely-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="likely-page-title">{t.likely_title || 'Quem é Mais Provável... 🃏'}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.likely_title || 'Quem é Mais Provável... 🃏'}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="likely-subtitle">{t.likely_subtitle || 'Votem secretamente e comparem respostas de sintonia'}</p>

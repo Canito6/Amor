@@ -12,20 +12,20 @@ const AdminDashboard = lazy(() => import('../pages/auth/AdminDashboard'));
 const ForcarMudancaPassword = lazy(() => import('../pages/auth/ForcarMudancaPassword'));
 const Mensagens = lazy(() => import('../pages/chat/Mensagens'));
 const Fotos = lazy(() => import('../pages/gallery/Fotos'));
-const Memorias = lazy(() => import('../pages/fun/Memorias'));
-const Quizzes = lazy(() => import('../pages/fun/Quizzes'));
+const Memorias = lazy(() => import('../pages/fun/memorias/Memorias'));
+const Quizzes = lazy(() => import('../pages/fun/quizzes/Quizzes'));
 const Calendario = lazy(() => import('../pages/couple/Calendario'));
 const CustomTabViewer = lazy(() => import('../pages/couple/CustomTabViewer'));
-const Raspadinhas = lazy(() => import('../pages/fun/Raspadinhas'));
-const Roleta = lazy(() => import('../pages/fun/Roleta'));
-const BucketList = lazy(() => import('../pages/fun/BucketList'));
-const Vales = lazy(() => import('../pages/fun/Vales'));
-const Cartas = lazy(() => import('../pages/fun/Cartas'));
-const Frasco = lazy(() => import('../pages/fun/Frasco'));
-const Likely = lazy(() => import('../pages/fun/Likely'));
-const Jogos = lazy(() => import('../pages/fun/Jogos'));
+const Raspadinhas = lazy(() => import('../pages/fun/raspadinhas/Raspadinhas'));
+const Roleta = lazy(() => import('../pages/fun/roleta/Roleta'));
+const BucketList = lazy(() => import('../pages/fun/bucket-list/BucketList'));
+const Vales = lazy(() => import('../pages/fun/vales/Vales'));
+const Cartas = lazy(() => import('../pages/fun/cartas/Cartas'));
+const Frasco = lazy(() => import('../pages/fun/frasco/Frasco'));
+const Likely = lazy(() => import('../pages/fun/likely/Likely'));
+const Jogos = lazy(() => import('../pages/fun/jogos/Jogos'));
 const PerfilCasal = lazy(() => import('../pages/couple/PerfilCasal'));
-const Desenho = lazy(() => import('../pages/fun/Desenho'));
+const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
 
 // Fallback loader component
 function LoadingFallback() {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { scratchCardService } from '../../services/fun/scratchCardService';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import ScratchLightbox from '../../components/raspadinhas/ScratchLightbox';
-import ScratchCardCreator from '../../components/raspadinhas/ScratchCardCreator';
-import ScratchCardItem from '../../components/raspadinhas/ScratchCardItem';
+import { scratchCardService } from '../../../services/fun/scratchCardService';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import ScratchLightbox from '../../../components/raspadinhas/ScratchLightbox';
+import ScratchCardCreator from '../../../components/raspadinhas/ScratchCardCreator';
+import ScratchCardItem from '../../../components/raspadinhas/ScratchCardItem';
 import './Raspadinhas.css';
 
 export default function Raspadinhas() {
@@ -94,12 +94,12 @@ export default function Raspadinhas() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="scratch-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="scratch-page-title">{t.scratch_title}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.scratch_title}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="scratch-subtitle">{t.scratch_subtitle}</p>

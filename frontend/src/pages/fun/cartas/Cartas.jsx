@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { letterService } from '../../services/fun/letterService';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import LetterCard from '../../components/cartas/LetterCard';
-import LetterCreator from '../../components/cartas/LetterCreator';
-import LetterReader from '../../components/cartas/LetterReader';
+import { letterService } from '../../../services/fun/letterService';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import LetterCard from '../../../components/cartas/LetterCard';
+import LetterCreator from '../../../components/cartas/LetterCreator';
+import LetterReader from '../../../components/cartas/LetterReader';
 import './Cartas.css';
 
 export default function Cartas() {
@@ -158,12 +158,12 @@ export default function Cartas() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="letter-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="letter-page-title">{t.letter_title || "Cartas 'Abrir Quando...' ✉️"}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.letter_title || "Cartas 'Abrir Quando...' ✉️"}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="letter-subtitle">{t.letter_subtitle || 'Mensagens surpresa para ler em momentos específicos'}</p>

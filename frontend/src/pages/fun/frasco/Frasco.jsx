@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jarService } from '../../services/fun/jarService';
-import { usePreferences } from '../../context/PreferencesContext';
-import { useToast } from '../../context/ToastContext';
-import { useConfirm } from '../../context/ConfirmContext';
-import { translations } from '../../services/common/translations';
-import JarBottle from '../../components/frasco/JarBottle';
-import NoteCreator from '../../components/frasco/NoteCreator';
-import NoteUnfolder from '../../components/frasco/NoteUnfolder';
+import { jarService } from '../../../services/fun/jarService';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { useToast } from '../../../context/ToastContext';
+import { useConfirm } from '../../../context/ConfirmContext';
+import { translations } from '../../../services/common/translations';
+import JarBottle from '../../../components/frasco/JarBottle';
+import NoteCreator from '../../../components/frasco/NoteCreator';
+import NoteUnfolder from '../../../components/frasco/NoteUnfolder';
 import './Frasco.css';
 
 export default function Frasco() {
@@ -188,12 +188,12 @@ export default function Frasco() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="jar-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="jar-page-title">{t.jar_title || 'Frasco dos Mimos 🏺'}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.jar_title || 'Frasco dos Mimos 🏺'}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="jar-subtitle">{t.jar_subtitle || 'Escrevam pequenos bilhetes carinhosos um para o outro'}</p>

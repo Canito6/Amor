@@ -96,12 +96,12 @@ export default function PerfilCasal() {
   return (
     <div className="app-container fade-in profile-casal-page">
       {/* Cabeçalho */}
-      <div className="profile-header">
+      <div className="page-header-row">
         <button className="btn btn-dark btn-back" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="profile-page-title">{t.profile_title || 'Perfil do Casal & Estatísticas 💖'}</h1>
-        <div style={{ width: '80px' }}></div> {/* Spacer */}
+        <h1 className="page-title">{t.profile_title || 'Perfil do Casal & Estatísticas 💖'}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       {error && (

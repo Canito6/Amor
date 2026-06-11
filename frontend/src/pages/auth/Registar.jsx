@@ -28,7 +28,7 @@ export default function Registar() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh', padding: '20px' }}>
-      <div className="glass-panel fade-in" style={{ padding: '40px', width: '100%', maxWidth: '500px', textAlign: 'center' }}>
+      <div className="glass-panel auth-card fade-in">
         <h1 style={{ color: 'var(--primary-color)', fontSize: '30px', marginBottom: '10px' }}>Criar Nova Conta ✨</h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Junta-te ao nosso cantinho de amor</p>
         

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '../../context/PreferencesContext';
-import { translations } from '../../services/common/translations';
-import WheelCreator from '../../components/wheel/WheelCreator';
-import WheelSpinner from '../../components/wheel/WheelSpinner';
-import WheelSelector from '../../components/wheel/WheelSelector';
-import useRoleta from '../../hooks/useRoleta';
+import { usePreferences } from '../../../context/PreferencesContext';
+import { translations } from '../../../services/common/translations';
+import WheelCreator from '../../../components/wheel/WheelCreator';
+import WheelSpinner from '../../../components/wheel/WheelSpinner';
+import WheelSelector from '../../../components/wheel/WheelSelector';
+import useRoleta from '../../../hooks/useRoleta';
 import './Roleta.css';
 
 export default function Roleta() {
@@ -47,12 +47,12 @@ export default function Roleta() {
   return (
     <div className="app-container fade-in">
       {/* Header */}
-      <div className="wheel-header-row">
+      <div className="page-header-row">
         <button className="btn btn-dark" onClick={() => navigate('/dashboard')}>
           ⬅ {t.dashboard}
         </button>
-        <h1 className="wheel-page-title">{t.wheel_title}</h1>
-        <div style={{ width: '100px' }} className="header-spacer"></div>
+        <h1 className="page-title">{t.wheel_title}</h1>
+        <div className="page-header-spacer"></div>
       </div>
 
       <p className="wheel-subtitle">{t.wheel_subtitle}</p>
