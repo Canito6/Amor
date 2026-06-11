@@ -46,6 +46,4 @@ desktop.ini
 *.njsproj
 *.sln
 *.sw?
-
-# Docker e ficheiros com segredos expostos
-docker-compose.yml
+
