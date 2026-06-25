@@ -46,4 +46,8 @@ desktop.ini
 *.njsproj
 *.sln
 *.sw?
+
+# Scripts utilitários locais
+backend/limpar-banco.js
+
 
