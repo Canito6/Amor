@@ -30,6 +30,10 @@ exports.register = async (req, res, next) => {
       // Find the couple by inviteCode (which is the coupleId)
       const couple = await Couple.findById(inviteCode);
       if (couple) {
+        // [SEGURANÇA] Impedir associação a casais que já estão completos
+        if (couple.partner2) {
+          throw new ApiError(400, 'Este código de convite pertence a um casal que já está completo.');
+        }
         user.coupleId = inviteCode;
         couple.partner2 = user._id;
         await couple.save();

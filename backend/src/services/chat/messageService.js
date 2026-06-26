@@ -1,5 +1,6 @@
 const eventBus = require('../../utils/eventBus');
 const ApiError = require('../../utils/apiError');
+const { escapeHTML } = require('../../utils/escape'); // [SEGURANÇA] Higienização de inputs para emails
 
 class MessageService {
   constructor(messageRepository) {
@@ -13,6 +14,10 @@ class MessageService {
       coupleId: coupleId
     });
 
+    // [SEGURANÇA] Escapar strings de input para evitar Stored HTML/XSS Injection no email do destinatário
+    const escapedContent = escapeHTML(content.trim());
+    const escapedUsername = escapeHTML(username);
+
     eventBus.emit('mail:notify-partner', {
       senderUsername: username,
       coupleId,
@@ -21,9 +26,9 @@ class MessageService {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; padding: 20px; text-align: center;">
           <h2 style="color: #ff4d6d;">Nova Mensagem! ❤️</h2>
-          <p style="font-size: 16px; color: #555;">O/A <strong>${username}</strong> deixou-te um miminho no vosso diário:</p>
+          <p style="font-size: 16px; color: #555;">O/A <strong>${escapedUsername}</strong> deixou-te um miminho no vosso diário:</p>
           <div style="background-color: #fff0f3; border-left: 4px solid #ff4d6d; padding: 15px; margin: 20px 0; text-align: left; border-radius: 4px; font-style: italic; color: #333;">
-            "${content.trim()}"
+            "${escapedContent}"
           </div>
           <p style="font-size: 14px; color: #999;">Clica no botão abaixo para veres e responderes no site.</p>
           <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" style="display: inline-block; background-color: #ff4d6d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(255, 77, 109, 0.2);">Ver no Nosso Cantinho</a>

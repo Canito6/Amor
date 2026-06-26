@@ -1,4 +1,5 @@
 const Photo = require('../../models/gallery/photoModel');
+const Album = require('../../models/gallery/albumModel'); // [SEGURANÇA - VULN-003] Requerido para verificar IDOR
 const storageService = require('../../services/common/storageService');
 
 exports.getPhotos = async (req, res) => {
@@ -42,6 +43,17 @@ exports.uploadPhoto = async (req, res) => {
     }
 
     const { caption, albumId } = req.body;
+
+    // [SEGURANÇA - VULN-003] Validar se o álbum pertence ao mesmo casal (prevenir IDOR)
+    if (albumId && albumId !== 'sem-album') {
+      const album = await Album.findById(albumId);
+      if (!album) {
+        return res.status(404).json({ error: 'Álbum não encontrado.' });
+      }
+      if (album.coupleId !== req.coupleId) {
+        return res.status(403).json({ error: 'Não tens permissão para associar fotos a este álbum.' });
+      }
+    }
 
     const resultado = await storageService.uploadFile(req.file.buffer);
 

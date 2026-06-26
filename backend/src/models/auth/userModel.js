@@ -60,6 +60,18 @@ const userSchema = new mongoose.Schema({
   loginVerificationExpires: {
     type: Date
   },
+  // [SEGURANÇA - VULN-001] Rastreio de tentativas incorretas para evitar brute-force
+  loginVerificationAttempts: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  // [SEGURANÇA - VULN-001] Rastreio de tentativas de código de recuperação
+  resetPasswordAttempts: {
+    type: Number,
+    required: true,
+    default: 0
+  },
   moodEmoji: {
     type: String,
     default: ''

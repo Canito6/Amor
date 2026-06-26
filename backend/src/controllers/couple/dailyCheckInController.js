@@ -126,7 +126,35 @@ class DailyCheckInController {
         });
       }
 
-      await checkIn.save();
+      try {
+        await checkIn.save();
+      } catch (err) {
+        // [SEGURANÇA - VULN-007] Resolver race condition de chave duplicada se ambos os parceiros enviam resposta ao mesmo tempo
+        if (err.code === 11000) {
+          checkIn = await DailyCheckIn.findOne({ coupleId: req.coupleId, date: dateString });
+          if (!checkIn) {
+            throw err;
+          }
+
+          const alreadyAnsweredIndex = checkIn.answers.findIndex(
+            ans => ans.userId.toString() === req.user.id.toString()
+          );
+
+          if (alreadyAnsweredIndex !== -1) {
+            checkIn.answers[alreadyAnsweredIndex].answerText = answerText.trim();
+            checkIn.answers[alreadyAnsweredIndex].createdAt = new Date();
+          } else {
+            checkIn.answers.push({
+              userId: req.user.id,
+              username: req.user.username,
+              answerText: answerText.trim()
+            });
+          }
+          await checkIn.save();
+        } else {
+          throw err;
+        }
+      }
 
       // 3. Se ambos responderam agora, emitir evento Socket.io via eventBus
       if (checkIn.answers.length >= 2) {

@@ -127,10 +127,8 @@ exports.linkCouple = async (req, res, next) => {
           couple.partner2 = req.user.id;
           await couple.save();
         } else if (couple.partner1.toString() !== req.user.id.toString() && couple.partner2.toString() !== req.user.id.toString()) {
-          // Both slots filled, but maybe we can overwrite or throw error
-          // Let's set us as partner2
-          couple.partner2 = req.user.id;
-          await couple.save();
+          // [SEGURANÇA] Impedir a intromissão num casal já completo (overwriting partner2)
+          throw new ApiError(400, 'Este casal já está completo e com ambos os parceiros vinculados.');
         }
       } else {
         const newCouple = new Couple({

@@ -42,9 +42,20 @@ exports.login = async (req, res, next) => {
 
     // NOVO: Verifica se o admin forçou a mudança de password
     if (user.precisaMudarPassword) {
+      // [SEGURANÇA] Emitir token temporário para permitir apenas que o utilizador legítimo altere a sua password
+      const tempToken = jwt.sign(
+        { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId, tempChangePassword: true }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: '15m' } // Válido apenas por 15 minutos
+      );
+
+      // Guardar token temporário num cookie HTTP-Only seguro
+      setTokenCookie(res, tempToken);
+
       return res.json({ 
         precisaMudarPassword: true, 
         userId: user._id, 
+        token: tempToken,
         message: 'Precisas de definir uma nova password antes de entrar.' 
       });
     }
@@ -65,6 +76,7 @@ exports.login = async (req, res, next) => {
       const code = crypto.randomInt(100000, 1000000).toString();
       user.loginVerificationCode = code;
       user.loginVerificationExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+      user.loginVerificationAttempts = 0; // [SEGURANÇA - VULN-001] Reset do contador ao gerar novo código
       await user.save();
 
       // Send code
@@ -120,13 +132,28 @@ exports.verifyLogin = async (req, res, next) => {
       throw new ApiError(404, 'Utilizador não encontrado.');
     }
 
-    if (!user.loginVerificationCode || user.loginVerificationCode !== code || !user.loginVerificationExpires || user.loginVerificationExpires < Date.now()) {
-      throw new ApiError(400, 'Código de verificação incorreto ou expirado.');
+    if (!user.loginVerificationCode || !user.loginVerificationExpires || user.loginVerificationExpires < Date.now()) {
+      throw new ApiError(400, 'Código de verificação expirado ou inexistente. Por favor, faça login novamente.');
     }
 
-    // Clear verification code
+    if (user.loginVerificationCode !== code) {
+      user.loginVerificationAttempts += 1;
+      if (user.loginVerificationAttempts >= 3) {
+        // [SEGURANÇA - VULN-001] Impedir força bruta invalidando o código após 3 tentativas falhadas
+        user.loginVerificationCode = undefined;
+        user.loginVerificationExpires = undefined;
+        user.loginVerificationAttempts = 0;
+        await user.save();
+        throw new ApiError(400, 'Limite de tentativas excedido para este código. Por favor, inicie sessão novamente para obter um novo.');
+      }
+      await user.save();
+      throw new ApiError(400, 'Código de verificação incorreto.');
+    }
+
+    // [SEGURANÇA - VULN-001] Reset das tentativas de 2FA em caso de sucesso
     user.loginVerificationCode = undefined;
     user.loginVerificationExpires = undefined;
+    user.loginVerificationAttempts = 0;
 
     let trustedDeviceToken = undefined;
     if (trustDevice) {
