@@ -107,7 +107,21 @@
   font-size: 14.5px;
   cursor: pointer;
   text-align: left;
-  transition: var(--transition-smooth);
+  position: relative;
+  transition: var(--transition-spring);
+}
+
+.sidebar-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 4px;
+  background: var(--primary-color);
+  border-radius: 4px;
+  transform: scaleY(0);
+  transition: var(--transition-spring);
 }
 
 .sidebar-nav-item:hover {
@@ -116,13 +130,25 @@
   transform: translateX(6px);
 }
 
+.sidebar-nav-item:hover::before {
+  transform: scaleY(1);
+}
+
 .sidebar-nav-item.active {
   background: linear-gradient(135deg, var(--primary-color) 0%, rgba(255, 117, 143, 0.8) 100%);
   color: white;
   box-shadow: 0 8px 20px rgba(255, 77, 109, 0.25);
 }
 
+.sidebar-nav-item.active::before {
+  background: white;
+  transform: scaleY(1.4);
+}
+
 /* Abas Personalizadas com a sua própria cor */
+.sidebar-nav-item.custom-tab-item::before {
+  background: var(--tab-accent);
+}
 .sidebar-nav-item.custom-tab-item:hover {
   background: rgba(var(--tab-accent), 0.06);
   color: var(--tab-accent);
@@ -131,6 +157,9 @@
   background: var(--tab-accent);
   color: white;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+.sidebar-nav-item.custom-tab-item.active::before {
+  background: white;
 }
 
 .sidebar-footer {

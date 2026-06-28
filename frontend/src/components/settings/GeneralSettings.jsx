@@ -23,6 +23,7 @@ export default function GeneralSettings({
         >
           <option value="pt">Português 🇵🇹</option>
           <option value="en">English 🇬🇧</option>
+          <option value="es">Español 🇪🇸</option>
         </select>
       </div>
 

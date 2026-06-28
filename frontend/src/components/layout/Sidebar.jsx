@@ -5,6 +5,29 @@ import './Sidebar.css';
 export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onOpenSettings, onLogout, t, isOpen, onClose }) {
   const navigate = useNavigate();
 
+  const [visibleItems, setVisibleItems] = React.useState(() => {
+    const saved = localStorage.getItem('sidebar_items');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (err) {}
+    }
+    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
+  });
+
+  React.useEffect(() => {
+    const handleUpdate = () => {
+      const saved = localStorage.getItem('sidebar_items');
+      if (saved) {
+        try {
+          setVisibleItems(JSON.parse(saved));
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('refreshSidebar', handleUpdate);
+    return () => window.removeEventListener('refreshSidebar', handleUpdate);
+  }, []);
+
   const defaultNavItems = [
     { path: '/dashboard', label: t.dashboard, icon: '🏠' },
     { path: '/perfil-casal', label: t.profile_title ? t.profile_title.replace(' 💖', '') : 'Perfil Casal', icon: '💖' },
@@ -17,6 +40,11 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
   ];
+
+  const filteredNavItems = defaultNavItems.filter(item => {
+    if (item.path === '/dashboard') return true;
+    return visibleItems.includes(item.path);
+  });
 
   const handleNavClick = (path) => {
     navigate(path);
@@ -45,7 +73,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       
       <nav className="sidebar-nav">
         <div className="sidebar-nav-links">
-          {defaultNavItems.map(item => {
+          {filteredNavItems.map(item => {
             const isActive = currentPath === item.path;
             return (
               <button

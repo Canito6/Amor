@@ -1,5 +1,5 @@
-import React from 'react';
-import { formatDateShort } from '../../utils/dateFormatter';
+﻿import React from 'react';
+import { formatDateShort } from '../../utils/formatting/dateFormatter';
 
 export default function QuizDashboardLists({
   loading,
@@ -13,7 +13,7 @@ export default function QuizDashboardLists({
   apagarQuiz
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+    <div className="quizzes-dashboard-container" style={{ gap: '40px' }}>
       
       {/* LISTA: QUIZZES PENDENTES DE RESPONDER */}
       <div className="glass-panel" style={{ padding: '25px' }}>
@@ -28,21 +28,9 @@ export default function QuizDashboardLists({
             {t.quizzes_dashboard_pending_empty}
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="quizzes-list-group">
             {quizzesPendentesParaMim.map((q) => (
-              <div 
-                key={q._id} 
-                style={{ 
-                  padding: '15px 20px', 
-                  background: 'white', 
-                  borderRadius: '16px', 
-                  border: '1px solid #eee', 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-              >
+              <div key={q._id} className="quiz-item-card">
                 <div>
                   <h3 style={{ fontSize: '16px', margin: '0 0 4px 0' }}>{q.title}</h3>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -71,21 +59,9 @@ export default function QuizDashboardLists({
             {t.quizzes_dashboard_my_empty}
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="quizzes-list-group">
             {meusQuizzesCriados.map((q) => (
-              <div 
-                key={q._id} 
-                style={{ 
-                  padding: '15px 20px', 
-                  background: 'white', 
-                  borderRadius: '16px', 
-                  border: '1px solid #eee', 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-              >
+              <div key={q._id} className="quiz-item-card">
                 <div>
                   <h3 style={{ fontSize: '16px', margin: '0 0 4px 0' }}>{q.title}</h3>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -111,29 +87,14 @@ export default function QuizDashboardLists({
                       {t.quizzes_dashboard_my_completed_status.replace('{score}', q.score).replace('{total}', q.questions.length)}
                     </span>
                   ) : (
-                    <span 
-                      style={{ 
-                        fontSize: '13px', 
-                        color: 'var(--text-muted)', 
-                        background: '#f5f5f5', 
-                        padding: '6px 12px', 
-                        borderRadius: '10px'
-                      }}
-                    >
+                    <span className="quiz-status-badge-pending">
                       {t.quizzes_dashboard_my_pending_status}
                     </span>
                   )}
 
                   <button
                     onClick={() => apagarQuiz(q._id)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--danger-color)',
-                      cursor: 'pointer',
-                      fontSize: '16px',
-                      padding: '5px'
-                    }}
+                    className="quiz-delete-btn"
                     title="Apagar Quiz"
                   >
                     🗑️
@@ -158,21 +119,9 @@ export default function QuizDashboardLists({
             {t.quizzes_dashboard_history_empty}
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="quizzes-list-group">
             {historicoQuizzesCompletados.map((q) => (
-              <div 
-                key={q._id} 
-                style={{ 
-                  padding: '15px 20px', 
-                  background: 'white', 
-                  borderRadius: '16px', 
-                  border: '1px solid #eee', 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-              >
+              <div key={q._id} className="quiz-item-card">
                 <div>
                   <h3 style={{ fontSize: '16px', margin: '0 0 4px 0' }}>{q.title}</h3>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>

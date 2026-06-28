@@ -43,15 +43,11 @@ export default function TwoFactorPanel({
         </div>
 
         <div className="form-group" style={{ alignItems: 'flex-start' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14.5px', cursor: 'pointer', userSelect: 'none' }}>
+          <label className="auth-checkbox-label">
             <input 
               type="checkbox" 
               checked={trustDevice} 
               onChange={(e) => setTrustDevice(e.target.checked)}
-              style={{ 
-                width: '18px', height: '18px', accentColor: 'var(--primary-color)',
-                cursor: 'pointer' 
-              }}
             />
             Confiar neste dispositivo (Guardar sessão)
           </label>

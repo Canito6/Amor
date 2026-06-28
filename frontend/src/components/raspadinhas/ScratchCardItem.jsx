@@ -1,5 +1,5 @@
-import React from 'react';
-import { formatDateShort } from '../../utils/dateFormatter';
+﻿import React from 'react';
+import { formatDateShort } from '../../utils/formatting/dateFormatter';
 
 export default function ScratchCardItem({ card, activeTab, t, language, onScratch, onDelete }) {
   if (activeTab === 'pending') {

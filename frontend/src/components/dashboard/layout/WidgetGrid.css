@@ -1,0 +1,56 @@
+/* ==========================================================================
+   BENTO GRID WIDGET LAYOUT
+   ========================================================================== */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.widget-slot {
+  width: 100%;
+  position: relative;
+  transition: var(--transition-spring);
+  border-radius: 24px;
+}
+
+.widget-slot:hover {
+  transform: translateY(-6px) scale(1.008);
+}
+
+/* Bento slot span rules */
+.widget-size-normal {
+  grid-column: span 4;
+}
+
+.widget-size-wide {
+  grid-column: span 8;
+}
+
+.widget-size-stretched {
+  grid-column: span 12;
+}
+
+/* Responsive overrides */
+@media (max-width: 1024px) {
+  .widget-slot-love,
+  .widget-slot-mood,
+  .widget-slot-checkin,
+  .widget-slot-countdown,
+  .widget-slot-spotify,
+  .widget-slot-navigation {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 768px) {
+  .widget-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .widget-slot {
+    grid-column: span 12 !important;
+  }
+}

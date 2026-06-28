@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { letterService } from '../../../services/fun/letterService';
 import { usePreferences } from '../../../context/PreferencesContext';
+import { useToast } from '../../../context/ToastContext';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
 import LetterCard from '../../../components/cartas/LetterCard';
 import LetterCreator from '../../../components/cartas/LetterCreator';
@@ -27,6 +29,8 @@ export default function Cartas() {
   const minhaRole = localStorage.getItem('role') || '';
   
   const { language } = usePreferences();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const t = translations[language];
 
   // Obter o humor atual do utilizador local
@@ -68,7 +72,7 @@ export default function Cartas() {
       });
       setLetters([newLetter, ...letters]);
       setShowCreator(false);
-      alert(t.letter_success_created || 'Carta surpresa enviada!');
+      showToast(t.letter_success_created || 'Carta surpresa enviada!', 'success');
     } catch (err) {
       setError(t.letter_error_save || 'Erro ao enviar carta.');
     } finally {
@@ -108,7 +112,8 @@ export default function Cartas() {
   const handleDeleteLetter = async (e, id) => {
     e.stopPropagation();
     const confirmMsg = t.letter_confirm_delete || 'Tens a certeza que queres eliminar esta carta?';
-    if (!window.confirm(confirmMsg)) return;
+    const ok = await confirm({ title: confirmMsg, message: confirmMsg, confirmText: t.delete || 'Apagar', cancelText: t.cancel || 'Cancelar' });
+    if (!ok) return;
 
     try {
       setError('');

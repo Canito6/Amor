@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
 
 export default function LikelyQuestionCreator({
   onClose,
@@ -6,12 +7,13 @@ export default function LikelyQuestionCreator({
   creating,
   t
 }) {
+  const { showToast } = useToast();
   const [newText, setNewText] = useState('');
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (!newText.trim()) {
-      alert(t.likely_input_text || 'O texto da pergunta é obrigatório!');
+      showToast(t.likely_input_text || 'O texto da pergunta é obrigatório!', 'error');
       return;
     }
     onSubmit(newText);

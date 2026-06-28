@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { likelyService } from '../../../services/fun/likelyService';
 import { authService } from '../../../services/auth/authService';
 import { usePreferences } from '../../../context/PreferencesContext';
+import { useToast } from '../../../context/ToastContext';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
 import LikelyQuestionCard from '../../../components/likely/LikelyQuestionCard';
 import LikelyQuestionCreator from '../../../components/likely/LikelyQuestionCreator';
@@ -24,6 +26,8 @@ export default function Likely() {
   const minhaRole = localStorage.getItem('role') || '';
   
   const { language } = usePreferences();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const t = translations[language];
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function Likely() {
       });
       setQuestions([newQuestion, ...questions]);
       setShowCreator(false);
-      alert(t.likely_success_created || 'Pergunta adicionada!');
+      showToast(t.likely_success_created || 'Pergunta adicionada!', 'success');
     } catch (err) {
       setError(t.likely_error_save || 'Erro ao criar pergunta.');
     } finally {
@@ -75,7 +79,7 @@ export default function Likely() {
 
   const handleVote = async (questionId, voteTarget) => {
     if (!partnerName) {
-      alert(language === 'pt' ? 'Conecta primeiro um parceiro nas Definições para jogar!' : 'Connect a partner in Settings first to play!');
+      showToast(language === 'pt' ? 'Conecta primeiro um parceiro nas Definições para jogar!' : 'Connect a partner in Settings first to play!', 'error');
       return;
     }
 
@@ -93,7 +97,8 @@ export default function Likely() {
   const handleDeleteQuestion = async (e, id) => {
     e.stopPropagation();
     const confirmMsg = t.likely_confirm_delete || 'Tens a certeza que queres eliminar esta pergunta?';
-    if (!window.confirm(confirmMsg)) return;
+    const ok = await confirm({ title: confirmMsg, message: confirmMsg, confirmText: t.delete || 'Apagar', cancelText: t.cancel || 'Cancelar' });
+    if (!ok) return;
 
     try {
       setError('');

@@ -24,7 +24,7 @@ export default function ForcarMudancaPassword() {
       const dados = await authService.forcarMudancaPassword(userId, novaPassword);
 
       // Faz o login automático e guarda os dados
-      localStorage.setItem('token', dados.token);
+      localStorage.setItem('token', 'session_active');
       localStorage.setItem('nome', dados.username);
       localStorage.setItem('role', dados.role);
       localStorage.setItem('coupleId', dados.coupleId || '');

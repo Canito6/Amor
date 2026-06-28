@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 import AuthInput from '../../components/auth/AuthInput';
 import SecurityMethodSelector from '../../components/auth/SecurityMethodSelector';
-import useRegisterForm from '../../hooks/useRegisterForm';
+import useRegisterForm from '../../hooks/auth/useRegisterForm';
 
 export default function Registar() {
   const navigate = useNavigate();
@@ -27,10 +27,12 @@ export default function Registar() {
   } = useRegisterForm(navigate);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '90vh', padding: '20px' }}>
+    <div className="auth-container">
+      <div className="auth-glow-1"></div>
+      <div className="auth-glow-2"></div>
       <div className="glass-panel auth-card fade-in">
-        <h1 style={{ color: 'var(--primary-color)', fontSize: '30px', marginBottom: '10px' }}>Criar Nova Conta ✨</h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Junta-te ao nosso cantinho de amor</p>
+        <h1>Criar Nova Conta ✨</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '15.5px' }}>Junta-te ao nosso cantinho de amor</p>
         
         <form onSubmit={criarConta} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <AuthInput

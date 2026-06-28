@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4d6d" />
+      <stop offset="100%" stop-color="#ff758f" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7209b7" />
+      <stop offset="100%" stop-color="#9b5de5" />
+    </linearGradient>
+  </defs>
+  <!-- Interlocking Hearts -->
+  <path d="M60 30 C53 30, 48 34, 46 38 C44 34, 39 30, 32 30 C22 30, 14 38, 14 50 C14 66, 32 79, 46 88 C60 79, 78 66, 78 50 C78 38, 70 30, 60 30 Z" fill="url(#grad2)" opacity="0.85" transform="rotate(-15 46 59) translate(-5, 0)" />
+  <path d="M62 25 C55 25, 50 29, 48 33 C46 29, 41 25, 34 25 C24 25, 16 33, 16 45 C16 61, 34 74, 48 83 C62 74, 80 61, 80 45 C80 33, 72 25, 62 25 Z" fill="url(#grad1)" transform="rotate(15 48 54) translate(5, -2)" />
+</svg>

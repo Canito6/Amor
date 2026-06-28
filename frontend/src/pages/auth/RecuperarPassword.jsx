@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth/authService';
+import { useToast } from '../../context/ToastContext';
 
 export default function RecuperarPassword() {
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
   const [novaPassword, setNovaPassword] = useState('');
@@ -35,7 +37,7 @@ export default function RecuperarPassword() {
 
     try {
       await authService.resetPassword(email, codigo, novaPassword);
-      alert('Password alterada com sucesso! Podes fazer login.');
+      showToast('Password alterada com sucesso! Podes fazer login.', 'success');
       navigate('/'); 
     } catch (error) {
       setMensagem('');

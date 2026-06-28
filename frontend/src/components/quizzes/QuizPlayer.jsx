@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function QuizPlayer({
   t,
@@ -11,6 +12,7 @@ export default function QuizPlayer({
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const { language } = usePreferences();
+  const { showToast } = useToast();
 
   const totalQuestions = activeQuiz.questions.length;
   const activeQuestion = activeQuiz.questions[currentStep];
@@ -18,7 +20,7 @@ export default function QuizPlayer({
 
   const handleNext = () => {
     if (!currentGuesses[currentStep]) {
-      alert(language === 'pt' ? 'Por favor, responde a esta pergunta antes de avançar!' : 'Please answer this question before proceeding!');
+      showToast(language === 'pt' ? 'Por favor, responde a esta pergunta antes de avançar!' : 'Please answer this question before proceeding!', 'error');
       return;
     }
     if (currentStep < totalQuestions - 1) {

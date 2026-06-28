@@ -1,4 +1,5 @@
 import React from 'react';
+import Skeleton from '../shared/Skeleton';
 
 export default function EventList({
   t,
@@ -15,14 +16,15 @@ export default function EventList({
 }) {
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', margin: '40px 0' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.calendar_loading}</p>
+      <div className="calendar-events-skeletons" style={{ padding: '10px 0' }}>
+        <Skeleton variant="card" height="150px" style={{ marginBottom: '20px' }} />
+        <Skeleton variant="card" height="150px" style={{ marginBottom: '20px' }} />
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+    <div className="calendar-events-container">
       
       {/* EVENTOS FUTUROS */}
       <div className="glass-panel" style={{ padding: '25px' }}>
@@ -35,7 +37,7 @@ export default function EventList({
             {t.calendar_upcoming_empty}
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div className="event-card-list">
             {eventosFuturos.map((evt) => {
               const diasRestantes = obterDiasRestantes(evt.date);
               const podeApagar = evt.createdBy === meuNome || minhaRole === 'admin';
@@ -45,18 +47,8 @@ export default function EventList({
               return (
                 <div 
                   key={evt._id} 
-                  style={{ 
-                    padding: '20px', 
-                    background: 'white', 
-                    borderRadius: '18px', 
-                    borderLeft: `6px solid ${corCat}`,
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    boxShadow: 'var(--shadow-sm)',
-                    flexWrap: 'wrap',
-                    gap: '15px'
-                  }}
+                  className="event-item-card"
+                  style={{ '--event-color': corCat }}
                 >
                   <div style={{ flex: '1', minWidth: '250px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -67,7 +59,7 @@ export default function EventList({
                       📅 {formatarDataExtenso(evt.date)} | {t.calendar_event_created_by} <strong>{evt.createdBy}</strong>
                     </p>
                     {evt.description && (
-                      <p style={{ fontSize: '14px', color: 'var(--text-main)', background: '#fcfcfc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #f0f0f0', margin: 0 }}>
+                      <p className="event-description-text">
                         {evt.description}
                       </p>
                     )}
@@ -75,15 +67,8 @@ export default function EventList({
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <span 
-                      style={{ 
-                        fontSize: '14px', 
-                        color: 'white', 
-                        background: corCat, 
-                        padding: '8px 16px', 
-                        borderRadius: '12px',
-                        fontWeight: '700',
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
-                      }}
+                      className="event-badge-days"
+                      style={{ background: corCat }}
                     >
                       {diasRestantes === 0 
                         ? t.days_remaining_today 
@@ -95,14 +80,7 @@ export default function EventList({
                     {podeApagar && (
                       <button
                         onClick={() => apagarEvento(evt._id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--danger-color)',
-                          cursor: 'pointer',
-                          fontSize: '16px',
-                          padding: '5px'
-                        }}
+                        className="event-delete-btn"
                         title={t.delete}
                       >
                         🗑️
@@ -127,7 +105,7 @@ export default function EventList({
             {t.calendar_past_empty}
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="event-card-list" style={{ gap: '12px' }}>
             {eventosPassados.map((evt) => {
               const podeApagar = evt.createdBy === meuNome || minhaRole === 'admin';
               const icone = obterIconeCategoria(evt.category);
@@ -135,16 +113,7 @@ export default function EventList({
               return (
                 <div 
                   key={evt._id} 
-                  style={{ 
-                    padding: '15px 20px', 
-                    background: '#fafafa', 
-                    borderRadius: '16px', 
-                    borderLeft: `5px solid #ccc`,
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    opacity: '0.85'
-                  }}
+                  className="past-event-item-card"
                 >
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -159,14 +128,8 @@ export default function EventList({
                   {podeApagar && (
                     <button
                       onClick={() => apagarEvento(evt._id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--danger-color)',
-                        cursor: 'pointer',
-                        fontSize: '15px',
-                        padding: '4px'
-                      }}
+                      className="event-delete-btn"
+                      style={{ fontSize: '15px' }}
                       title={t.delete}
                     >
                       🗑️

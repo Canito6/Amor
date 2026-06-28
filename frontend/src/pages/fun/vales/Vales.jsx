@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { couponService } from '../../../services/fun/couponService';
 import { usePreferences } from '../../../context/PreferencesContext';
+import { useToast } from '../../../context/ToastContext';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
 import CouponCard from '../../../components/vales/CouponCard';
 import CouponCreator from '../../../components/vales/CouponCreator';
-import useSocketUpdate from '../../../hooks/useSocketUpdate';
+import useSocketUpdate from '../../../hooks/shared/useSocketUpdate';
 import './Vales.css';
 
 export default function Vales() {
@@ -23,6 +25,8 @@ export default function Vales() {
   const minhaRole = localStorage.getItem('role') || '';
   
   const { language } = usePreferences();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const t = translations[language];
 
   useEffect(() => {
@@ -62,7 +66,7 @@ export default function Vales() {
       });
       setCoupons([newCoupon, ...coupons]);
       setShowCreator(false);
-      alert(t.coupon_success_created || 'Vale oferecido!');
+      showToast(t.coupon_success_created || 'Vale oferecido!', 'success');
     } catch (err) {
       setError(t.coupon_error_save || 'Erro ao criar vale.');
     } finally {
@@ -72,13 +76,14 @@ export default function Vales() {
 
   const handleRedeemCoupon = async (coupon) => {
     const confirmMsg = t.coupon_redeem_confirm || 'Queres resgatar este vale agora? O teu parceiro será avisado!';
-    if (!window.confirm(confirmMsg)) return;
+    const ok = await confirm({ title: confirmMsg, message: confirmMsg, confirmText: t.save || 'Sim', cancelText: t.cancel || 'Cancelar' });
+    if (!ok) return;
 
     try {
       setError('');
       const updated = await couponService.redeemCoupon(coupon._id);
       setCoupons(coupons.map(c => c._id === coupon._id ? updated : c));
-      alert(language === 'pt' ? 'Vale resgatado com sucesso! 🎉' : 'Coupon redeemed successfully! 🎉');
+      showToast(language === 'pt' ? 'Vale resgatado com sucesso! 🎉' : 'Coupon redeemed successfully! 🎉', 'success');
     } catch (err) {
       setError(t.coupon_error_redeem || 'Erro ao resgatar vale.');
     }
@@ -87,7 +92,8 @@ export default function Vales() {
   const handleDeleteCoupon = async (e, id) => {
     e.stopPropagation();
     const confirmMsg = t.coupon_confirm_delete || 'Tens a certeza que queres eliminar este vale?';
-    if (!window.confirm(confirmMsg)) return;
+    const ok = await confirm({ title: confirmMsg, message: confirmMsg, confirmText: t.delete || 'Apagar', cancelText: t.cancel || 'Cancelar' });
+    if (!ok) return;
 
     try {
       setError('');

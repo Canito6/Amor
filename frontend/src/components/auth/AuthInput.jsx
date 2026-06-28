@@ -35,17 +35,8 @@ export default function AuthInput({
         {isPasswordType && (
           <button
             type="button"
+            className="auth-password-toggle"
             onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
           >
             {showPassword ? '🙈' : '👁️'}
           </button>

@@ -92,13 +92,13 @@
   border-radius: 20px;
   box-shadow: var(--shadow-md);
   position: relative;
-  transition: var(--transition-smooth);
+  transition: var(--transition-spring);
 }
 
 .timeline-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px) scale(1.008);
   box-shadow: var(--shadow-hover);
-  border-color: rgba(255, 77, 109, 0.4);
+  border-color: rgba(255, 77, 109, 0.35);
 }
 
 .timeline-date {

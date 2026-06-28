@@ -38,7 +38,8 @@ export function SocketProvider({ children }) {
     
     // Conectar ao socket
     const newSocket = io(socketUrl, {
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      withCredentials: true
     });
 
     newSocket.on('connect', () => {

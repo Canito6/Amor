@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
 
 export default function NoteCreator({
   onClose,
@@ -6,13 +7,14 @@ export default function NoteCreator({
   creating,
   t
 }) {
+  const { showToast } = useToast();
   const [newContent, setNewContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('miminho'); // 'miminho' | 'piada' | 'recordacao'
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (!newContent.trim()) {
-      alert(t.jar_input_content || 'O conteúdo do papelinho é obrigatório!');
+      showToast(t.jar_input_content || 'O conteúdo do papelinho é obrigatório!', 'error');
       return;
     }
     onSubmit(newContent, selectedCategory);

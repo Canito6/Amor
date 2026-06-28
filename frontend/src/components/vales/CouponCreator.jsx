@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
 
 const COUPON_ICONS = ['🎟️', '💆', '🍿', '🍽️', '🚗', '🧼', '☕', '🎮', '❤️', '✈️'];
 
@@ -8,6 +9,7 @@ export default function CouponCreator({
   creating,
   t
 }) {
+  const { showToast } = useToast();
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('🎟️');
@@ -15,7 +17,7 @@ export default function CouponCreator({
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (!newTitle.trim()) {
-      alert(t.coupon_input_title || 'O título do vale é obrigatório!');
+      showToast(t.coupon_input_title || 'O título do vale é obrigatório!', 'error');
       return;
     }
     onSubmit(newTitle, newDescription, selectedIcon);

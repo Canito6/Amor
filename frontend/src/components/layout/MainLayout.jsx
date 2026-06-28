@@ -5,11 +5,12 @@ import { useTabs } from '../../context/TabContext';
 import { translations } from '../../services/common/translations';
 import { authService } from '../../services/auth/authService';
 import Sidebar from './Sidebar';
-import SettingsModal from '../SettingsModal';
-import LinkCoupleModal from '../LinkCoupleModal';
+import SettingsModal from '../shared/SettingsModal';
+import LinkCoupleModal from '../shared/LinkCoupleModal';
 import Header from './Header';
+import FloatingHeartsBackground from '../shared/FloatingHeartsBackground';
 import './MainLayout.css';
-import '../../pages/couple/Dashboard.css';
+import '../../pages/couple/dashboard/Dashboard.css';
 
 export default function MainLayout() {
   const {
@@ -135,6 +136,7 @@ export default function MainLayout() {
 
   return (
     <div className={`layout-root layout-${layoutStyle} ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+      <FloatingHeartsBackground />
       
       {/* Global Topbar Header */}
       <Header

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
 import WheelCreator from '../../../components/wheel/WheelCreator';
 import WheelSpinner from '../../../components/wheel/WheelSpinner';
 import WheelSelector from '../../../components/wheel/WheelSelector';
-import useRoleta from '../../../hooks/useRoleta';
+import useRoleta from '../../../hooks/fun/useRoleta';
 import './Roleta.css';
 
 export default function Roleta() {

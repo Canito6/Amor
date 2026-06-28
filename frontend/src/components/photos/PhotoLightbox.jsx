@@ -1,5 +1,5 @@
-import React from 'react';
-import { formatDateShort } from '../../utils/dateFormatter';
+﻿import React from 'react';
+import { formatDateShort } from '../../utils/formatting/dateFormatter';
 
 export default function PhotoLightbox({
   t,

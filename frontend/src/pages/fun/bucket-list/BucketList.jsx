@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -6,7 +6,7 @@ import BucketCreator from '../../../components/bucket/BucketCreator';
 import BucketCompletionModal from '../../../components/bucket/BucketCompletionModal';
 import BucketCard from '../../../components/bucket/BucketCard';
 import BucketFilters from '../../../components/bucket/BucketFilters';
-import useBucketList from '../../../hooks/useBucketList';
+import useBucketList from '../../../hooks/fun/useBucketList';
 import './BucketList.css';
 
 export default function BucketList() {

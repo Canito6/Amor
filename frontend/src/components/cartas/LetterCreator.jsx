@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
 
 const MOOD_EMOJIS_LIST = ['😊', '🥰', '😢', '😡', '😴', '😷', '🧠', '❤️', '😱'];
 
@@ -9,6 +10,7 @@ export default function LetterCreator({
   language,
   t
 }) {
+  const { showToast } = useToast();
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [conditionType, setConditionType] = useState('instant'); // 'instant' | 'date' | 'mood'
@@ -17,12 +19,12 @@ export default function LetterCreator({
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) {
-      alert(language === 'pt' ? 'Preenche o título e o conteúdo da carta!' : 'Fill in the letter title and content!');
+      showToast(language === 'pt' ? 'Preenche o título e o conteúdo da carta!' : 'Fill in the letter title and content!', 'error');
       return;
     }
 
     if (conditionType !== 'instant' && !conditionValue) {
-      alert(language === 'pt' ? 'Define o valor da condição (data ou humor)!' : 'Define the condition value (date or mood)!');
+      showToast(language === 'pt' ? 'Define o valor da condição (data ou humor)!' : 'Define the condition value (date or mood)!', 'error');
       return;
     }
 

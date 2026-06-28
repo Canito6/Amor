@@ -1,0 +1,55 @@
+/* ==========================================================================
+   COMPONENT: SKELETON PLACEHOLDER
+   ========================================================================== */
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 25%, rgba(0, 0, 0, 0.12) 37%, rgba(0, 0, 0, 0.06) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-pulse 1.4s ease infinite;
+  display: inline-block;
+  vertical-align: middle;
+  width: 100%;
+}
+
+/* Dark Theme overrides */
+.theme-dark .skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 37%, rgba(255, 255, 255, 0.05) 63%);
+  background-size: 400% 100%;
+}
+
+/* Variants */
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-avatar {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+
+.skeleton-card {
+  height: 150px;
+  border-radius: 20px;
+  margin-bottom: 15px;
+}
+
+.skeleton-image {
+  height: 200px;
+  border-radius: 12px;
+}
+
+.skeleton-rect {
+  border-radius: 8px;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

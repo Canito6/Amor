@@ -1,5 +1,6 @@
 import React from 'react';
 import MemoryCard from './MemoryCard';
+import Skeleton from '../shared/Skeleton';
 
 export default function MemoryTimeline({
   t,
@@ -18,8 +19,10 @@ export default function MemoryTimeline({
 }) {
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', margin: '40px 0' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.memories_loading}</p>
+      <div className="memory-timeline-skeletons" style={{ padding: '10px 0' }}>
+        <Skeleton variant="card" height="140px" style={{ marginBottom: '20px' }} />
+        <Skeleton variant="card" height="140px" style={{ marginBottom: '20px' }} />
+        <Skeleton variant="card" height="140px" style={{ marginBottom: '20px' }} />
       </div>
     );
   }

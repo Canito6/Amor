@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { themePresets, adjustColorBrightness } from '../utils/themeUtils';
+﻿import React, { createContext, useState, useEffect, useContext } from 'react';
+import { themePresets, adjustColorBrightness } from '../utils/ui/themeUtils';
 
 export { themePresets };
 

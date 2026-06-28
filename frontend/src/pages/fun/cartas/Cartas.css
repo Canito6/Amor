@@ -405,6 +405,22 @@
   box-sizing: border-box;
 }
 
+.theme-dark .reader-letter-paper {
+  background: #252220; /* Dark premium textured paper */
+  border-color: rgba(255, 255, 255, 0.06);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.theme-dark .reader-header {
+  border-bottom-color: rgba(255, 77, 109, 0.3);
+}
+
+.theme-dark .reader-header h2,
+.theme-dark .letter-paper-text,
+.theme-dark .letter-paper-signature {
+  color: #ebdcd9;
+}
+
 .reader-header {
   display: flex;
   justify-content: space-between;

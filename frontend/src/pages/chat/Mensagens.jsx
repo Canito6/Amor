@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { messageService } from '../../services/chat/messageService';
 import { usePreferences } from '../../context/PreferencesContext';
+import { useConfirm } from '../../context/ConfirmContext';
 import { translations } from '../../services/common/translations';
 import { useSocket } from '../../context/SocketContext';
 import MessageForm from '../../components/messages/MessageForm';
 import PostItCard from '../../components/messages/PostItCard';
-import useSocketUpdate from '../../hooks/useSocketUpdate';
+import useSocketUpdate from '../../hooks/shared/useSocketUpdate';
 import './Mensagens.css';
 
 export default function Mensagens() {
@@ -22,6 +23,7 @@ export default function Mensagens() {
   const minhaRole = localStorage.getItem('role');
 
   const { language } = usePreferences();
+  const { confirm } = useConfirm();
   const t = translations[language];
   const socket = useSocket();
 
@@ -101,7 +103,7 @@ export default function Mensagens() {
   };
 
   const handleDeleteMessage = async (id) => {
-    if (!window.confirm(t.messages_delete_confirm)) return;
+    const _ok = await confirm({ title: t.messages_delete_confirm, message: t.messages_delete_confirm, confirmText: t.delete || 'Apagar', cancelText: t.cancel || 'Cancelar' }); if (!_ok) return;
 
     try {
       setError('');
@@ -126,10 +128,12 @@ export default function Mensagens() {
 
       {partnerTyping && (
         <div className="typing-container">
-          <span>💬 {partnerNameTyping} está a escrever</span>
-          <span className="dot-animation">.</span>
-          <span className="dot-animation" style={{ animationDelay: '0.2s' }}>.</span>
-          <span className="dot-animation" style={{ animationDelay: '0.4s' }}>.</span>
+          <div className="typing-dots-bubble">
+            <span className="typing-dot"></span>
+            <span className="typing-dot" style={{ animationDelay: '0.2s' }}></span>
+            <span className="typing-dot" style={{ animationDelay: '0.4s' }}></span>
+          </div>
+          <span className="typing-label">💬 {partnerNameTyping} está a escrever</span>
         </div>
       )}
 

@@ -1,0 +1,103 @@
+/* ==========================================================================
+   COMPONENTE: QUIZZES - ESTILOS PREMIUM E SUPORTE A TEMAS
+   ========================================================================== */
+.quizzes-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.quizzes-creator-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.45));
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.6));
+  box-shadow: var(--shadow-sm);
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.quizzes-quick-cat-btn {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  color: var(--text-main);
+}
+
+.theme-dark .quizzes-quick-cat-btn {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.quizzes-quick-cat-btn:hover {
+  background: rgba(255, 255, 255, 0.75);
+  transform: scale(1.05);
+}
+
+.theme-dark .quizzes-quick-cat-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+/* Listas de Quizzes */
+.quizzes-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-item-card {
+  padding: 15px 20px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.45));
+  border-radius: 16px;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.5));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+  text-align: left;
+}
+
+.quiz-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.quiz-status-badge-pending {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.theme-dark .quiz-status-badge-pending {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.quiz-delete-btn {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  transition: var(--transition-smooth);
+}
+
+.quiz-delete-btn:hover {
+  transform: scale(1.2);
+}

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { scratchCardService } from '../../../services/fun/scratchCardService';
 import { usePreferences } from '../../../context/PreferencesContext';
+import { useToast } from '../../../context/ToastContext';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
 import ScratchLightbox from '../../../components/raspadinhas/ScratchLightbox';
 import ScratchCardCreator from '../../../components/raspadinhas/ScratchCardCreator';
@@ -23,6 +25,8 @@ export default function Raspadinhas() {
   const navigate = useNavigate();
   const meuNome = localStorage.getItem('nome') || '';
   const { language } = usePreferences();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const t = translations[language];
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function Raspadinhas() {
       setError('');
       const newCard = await scratchCardService.createScratchCard({ title, reward });
       setCards([newCard, ...cards]);
-      alert(t.scratch_success_created || 'Raspadinha criada!');
+      showToast(t.scratch_success_created || 'Raspadinha criada!', 'success');
     } catch (err) {
       setError(t.scratch_error_save || 'Erro ao guardar raspadinha.');
       throw err; // throw to propagate to the form state
@@ -60,7 +64,13 @@ export default function Raspadinhas() {
   };
 
   const handleDeleteCard = async (id) => {
-    if (!window.confirm(t.scratch_confirm_delete || 'Tens a certeza?')) return;
+    const ok = await confirm({
+      title: t.scratch_confirm_delete || 'Apagar raspadinha?',
+      message: t.scratch_confirm_delete || 'Tens a certeza?',
+      confirmText: t.delete || 'Apagar',
+      cancelText: t.cancel || 'Cancelar',
+    });
+    if (!ok) return;
     try {
       setError('');
       await scratchCardService.deleteScratchCard(id);

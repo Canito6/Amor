@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -6,7 +6,8 @@ import QuizCreator from '../../../components/quizzes/QuizCreator';
 import QuizPlayer from '../../../components/quizzes/QuizPlayer';
 import QuizFeedback from '../../../components/quizzes/QuizFeedback';
 import QuizDashboardLists from '../../../components/quizzes/QuizDashboardLists';
-import useQuizzes from '../../../hooks/useQuizzes';
+import useQuizzes from '../../../hooks/fun/useQuizzes';
+import './Quizzes.css';
 
 export default function Quizzes() {
   const navigate = useNavigate();
@@ -144,25 +145,11 @@ export default function Quizzes() {
 
       {/* DASHBOARD PRINCIPAL DE QUIZZES */}
       {!activeQuiz && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        <div className="quizzes-dashboard-container">
           
           {/* Botão de abrir criador e Bloco IA */}
           {!showCreator && (
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              gap: '20px',
-              padding: '25px',
-              background: 'rgba(255, 255, 255, 0.2)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '24px',
-              border: '1px solid rgba(255, 255, 255, 0.4)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
-              maxWidth: '600px',
-              margin: '0 auto',
-              width: '100%'
-            }}>
+            <div className="quizzes-creator-selector">
               <h2 style={{ fontSize: '18px', margin: '0 0 5px 0', color: 'var(--primary-color)', textAlign: 'center' }}>
                 ✨ Como queres criar o teu Quiz?
               </h2>
@@ -173,7 +160,7 @@ export default function Quizzes() {
                 </button>
               </div>
 
-              <div style={{ width: '100%', borderTop: '1px solid rgba(255, 255, 255, 0.3)', margin: '5px 0' }}></div>
+              <div style={{ width: '100%', borderTop: '1px solid var(--card-border, rgba(255, 255, 255, 0.3))', margin: '5px 0' }}></div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
                 <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-color-secondary)' }}>
@@ -210,18 +197,7 @@ export default function Quizzes() {
                         type="button"
                         onClick={() => handleGenerateAI(cleanName)}
                         disabled={generatingAI}
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.5)',
-                          border: '1px solid rgba(255, 255, 255, 0.8)',
-                          borderRadius: '20px',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          color: '#555'
-                        }}
-                        onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.8)'}
-                        onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.5)'}
+                        className="quizzes-quick-cat-btn"
                       >
                         {cat}
                       </button>

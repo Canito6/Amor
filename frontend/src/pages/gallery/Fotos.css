@@ -17,7 +17,7 @@
   cursor: pointer;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--card-border);
-  background: #ffffff;
+  background: var(--card-bg);
   transition: var(--transition-smooth);
 }
 

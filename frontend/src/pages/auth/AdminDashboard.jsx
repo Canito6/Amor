@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/auth/adminService';
 import { usePreferences } from '../../context/PreferencesContext';
+import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 import { translations } from '../../services/common/translations';
 import './AdminDashboard.css';
 
@@ -13,6 +15,8 @@ export default function AdminDashboard() {
   const meuNome = localStorage.getItem('nome');
 
   const { language } = usePreferences();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const t = translations[language];
 
   useEffect(() => {
@@ -43,7 +47,8 @@ export default function AdminDashboard() {
   // 1. MUDAR CARGO (Admin <-> User)
   const mudarPermissao = async (user) => {
     if (user.username === meuNome) {
-      return alert(language === 'pt' ? 'Não podes tirar as tuas próprias permissões de Admin!' : 'You cannot remove your own Admin permissions!');
+      showToast(language === 'pt' ? 'Não podes tirar as tuas próprias permissões de Admin!' : 'You cannot remove your own Admin permissions!', 'error');
+      return;
     }
 
     const novaRole = user.role === 'admin' ? 'user' : 'admin';
@@ -52,27 +57,34 @@ export default function AdminDashboard() {
       await adminService.updateUserRole(user._id, novaRole);
       
       setUsers(users.map(u => u._id === user._id ? { ...u, role: novaRole } : u));
-      alert(language === 'pt' ? 'Permissões alteradas com sucesso!' : 'Permissions updated successfully!');
+      showToast(language === 'pt' ? 'Permissões alteradas com sucesso!' : 'Permissions updated successfully!', 'success');
     } catch (error) {
-      alert(error.message || (language === 'pt' ? 'Erro ao alterar permissões.' : 'Error updating permissions.'));
+      showToast(error.message || (language === 'pt' ? 'Erro ao alterar permissões.' : 'Error updating permissions.'), 'error');
     }
   };
 
   // 2. APAGAR UTILIZADOR
   const apagarUtilizador = async (user) => {
     if (user.username === meuNome) {
-      return alert(language === 'pt' ? 'Não podes apagar a tua própria conta!' : 'You cannot delete your own account!');
+      showToast(language === 'pt' ? 'Não podes apagar a tua própria conta!' : 'You cannot delete your own account!', 'error');
+      return;
     }
 
-    if (!window.confirm(language === 'pt' ? `Tens a certeza que queres apagar o/a ${user.username} para sempre?` : `Are you sure you want to delete ${user.username} forever?`)) return;
+    const ok = await confirm({
+      title: language === 'pt' ? 'Apagar Utilizador' : 'Delete User',
+      message: language === 'pt' ? `Tens a certeza que queres apagar o/a ${user.username} para sempre?` : `Are you sure you want to delete ${user.username} forever?`,
+      confirmText: t.delete || 'Apagar',
+      cancelText: t.cancel || 'Cancelar',
+    });
+    if (!ok) return;
 
     try {
       await adminService.deleteUser(user._id);
       
       setUsers(users.filter(u => u._id !== user._id));
-      alert(language === 'pt' ? 'Utilizador apagado com sucesso!' : 'User deleted successfully!');
+      showToast(language === 'pt' ? 'Utilizador apagado com sucesso!' : 'User deleted successfully!', 'success');
     } catch (error) {
-      alert(error.message || (language === 'pt' ? 'Erro ao apagar utilizador.' : 'Error deleting user.'));
+      showToast(error.message || (language === 'pt' ? 'Erro ao apagar utilizador.' : 'Error deleting user.'), 'error');
     }
   };
 
@@ -91,7 +103,8 @@ export default function AdminDashboard() {
     if (novaPassword.trim() !== '') corpo.password = novaPassword.trim();
 
     if (Object.keys(corpo).length === 0) {
-      return alert(language === 'pt' ? 'Nenhuma alteração foi feita.' : 'No changes were made.');
+      showToast(language === 'pt' ? 'Nenhuma alteração foi feita.' : 'No changes were made.', 'info');
+      return;
     }
 
     try {
@@ -100,14 +113,14 @@ export default function AdminDashboard() {
       setUsers(users.map(u => u._id === user._id ? { ...u, email: novoEmail || u.email } : u));
       
       if (corpo.password) {
-        alert(language === 'pt' 
+        showToast(language === 'pt' 
           ? 'Utilizador atualizado! Na próxima vez que ele entrar, o site vai obrigá-lo a escolher uma password nova.' 
-          : 'User updated! Next time they log in, the website will require them to choose a new password.');
+          : 'User updated! Next time they log in, the website will require them to choose a new password.', 'success');
       } else {
-        alert(language === 'pt' ? 'Email atualizado com sucesso!' : 'Email updated successfully!');
+        showToast(language === 'pt' ? 'Email atualizado com sucesso!' : 'Email updated successfully!', 'success');
       }
     } catch (error) {
-      alert(error.message || (language === 'pt' ? 'Erro ao editar utilizador.' : 'Error editing user.'));
+      showToast(error.message || (language === 'pt' ? 'Erro ao editar utilizador.' : 'Error editing user.'), 'error');
     }
   };
 

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { formatDateTime } from '../../utils/dateFormatter';
+﻿import React, { useState, useEffect } from 'react';
+import { formatDateTime } from '../../utils/formatting/dateFormatter';
 
 const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
 
 const CORES_POST_IT = [
-  { bg: '#fff9db', border: '#ffe066' }, // Amarelo
-  { bg: '#e3faf2', border: '#96f2d7' }, // Verde
-  { bg: '#e8f0fe', border: '#adc6ff' }, // Azul
-  { bg: '#fff0f6', border: '#ffdeeb' }, // Rosa
-  { bg: '#f3f0ff', border: '#d0bfff' }  // Roxo
+  { bg: 'linear-gradient(135deg, #fffcf0 0%, #fff9db 100%)', border: '#ffe066' }, // Amarelo Pastel
+  { bg: 'linear-gradient(135deg, #f4fcf9 0%, #e3faf2 100%)', border: '#96f2d7' }, // Menta Suave
+  { bg: 'linear-gradient(135deg, #f1f6fe 0%, #e8f0fe 100%)', border: '#adc6ff' }, // Céu Translúcido
+  { bg: 'linear-gradient(135deg, #fff5f8 0%, #fff0f6 100%)', border: '#ffdeeb' }, // Rosa Romântico
+  { bg: 'linear-gradient(135deg, #f8f6ff 0%, #f3f0ff 100%)', border: '#d0bfff' }  // Roxo Alfazema
 ];
 
 export default function PostItCard({ msg, index, meuNome, minhaRole, language, t, onUpdate, onDelete, onReact }) {
@@ -54,7 +54,7 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
     <div 
       className="post-it"
       style={{ 
-        backgroundColor: cores.bg, 
+        background: cores.bg, 
         borderColor: cores.border 
       }}
     >
@@ -70,10 +70,10 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
             style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderColor: cores.border }}
           />
           <div className="post-it-edit-actions">
-            <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={handleSave}>
+            <button className="btn btn-primary post-it-edit-btn" onClick={handleSave}>
               💾 {t.save}
             </button>
-            <button className="btn btn-dark" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={handleCancel}>
+            <button className="btn btn-dark post-it-edit-btn" onClick={handleCancel}>
               ✕ {t.cancel}
             </button>
           </div>

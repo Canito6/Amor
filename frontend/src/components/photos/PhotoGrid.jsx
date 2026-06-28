@@ -1,4 +1,5 @@
 import React from 'react';
+import Skeleton from '../shared/Skeleton';
 
 export default function PhotoGrid({
   t,
@@ -17,11 +18,11 @@ export default function PhotoGrid({
   carregarFotos
 }) {
   return (
-    <div>
+    <div className="photo-view-section">
       {currentAlbum && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
           <button 
-            className="btn btn-dark" 
+            className="btn btn-secondary" 
             onClick={() => setCurrentAlbum(null)}
             style={{ padding: '8px 16px', fontSize: '13px' }}
           >
@@ -36,7 +37,7 @@ export default function PhotoGrid({
       {loadingPhotos ? (
         <div className="photo-grid">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="photo-card skeleton" style={{ height: '220px', borderRadius: '16px', border: 'none' }} />
+            <Skeleton key={i} variant="card" height="220px" style={{ borderRadius: '16px', marginBottom: 0 }} />
           ))}
         </div>
       ) : photos.length === 0 ? (

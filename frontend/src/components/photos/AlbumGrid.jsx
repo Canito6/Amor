@@ -1,4 +1,5 @@
 import React from 'react';
+import Skeleton from '../shared/Skeleton';
 
 export default function AlbumGrid({
   t,
@@ -12,8 +13,10 @@ export default function AlbumGrid({
 }) {
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', margin: '30px 0' }}>
-        <p style={{ color: 'var(--text-muted)' }}>{t.photos_loading_albums}</p>
+      <div className="album-grid-skeletons" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px', padding: '10px 0' }}>
+        <Skeleton variant="card" height="160px" style={{ borderRadius: '20px' }} />
+        <Skeleton variant="card" height="160px" style={{ borderRadius: '20px' }} />
+        <Skeleton variant="card" height="160px" style={{ borderRadius: '20px' }} />
       </div>
     );
   }

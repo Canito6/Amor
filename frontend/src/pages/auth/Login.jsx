@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthInput from '../../components/auth/AuthInput';
 import TwoFactorPanel from '../../components/auth/TwoFactorPanel';
-import useLoginForm from '../../hooks/useLoginForm';
+import useLoginForm from '../../hooks/auth/useLoginForm';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,13 +34,15 @@ export default function Login() {
   } = useLoginForm(navigate);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '85vh', padding: '20px' }}>
+    <div className="auth-container">
+      <div className="auth-glow-1"></div>
+      <div className="auth-glow-2"></div>
       <div className="glass-panel auth-card fade-in">
-        <h1 style={{ color: 'var(--primary-color)', fontSize: '32px', marginBottom: '10px' }}>O Nosso Cantinho ❤️</h1>
+        <h1>O Nosso Cantinho ❤️</h1>
         
         {!requiresVerification ? (
           <>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '15px' }}>Entra para aceder ao nosso diário privado</p>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '25px', fontSize: '15.5px' }}>Entra para aceder ao nosso diário privado</p>
             
             <form onSubmit={fazerLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <AuthInput

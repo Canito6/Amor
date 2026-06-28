@@ -4,7 +4,7 @@ import { TabProvider } from './context/TabContext';
 import { SocketProvider } from './context/SocketContext';
 import { ToastProvider } from './context/ToastContext';
 import { ConfirmProvider } from './context/ConfirmContext';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 import AppRoutes from './routes/AppRoutes';
 
 function App() {

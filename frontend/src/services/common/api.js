@@ -12,8 +12,8 @@ export async function apiFetch(endpoint, options = {}) {
   // Inicializa o objeto de cabeçalhos
   const headers = { ...options.headers };
 
-  // Adiciona o token de autorização se existir
-  if (token) {
+  // Adiciona o token de autorização se existir e for um token JWT real
+  if (token && token !== 'session_active') {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
