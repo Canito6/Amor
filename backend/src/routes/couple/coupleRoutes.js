@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path'); // [SEGURANÇA - VULN-005] Requerido para verificar extensões
 const coupleController = require('../../controllers/couple/coupleController');
 const { verificarToken } = require('../../middlewares/authMiddleware');
+const imageProcessor = require('../../middlewares/imageProcessor');
 const router = express.Router();
 
 // Configurar o multer para carregar avatar na memória com verificações de segurança
@@ -29,6 +30,6 @@ router.post('/couple-info', verificarToken, coupleController.updateCoupleInfo);
 router.post('/link-couple', verificarToken, coupleController.linkCouple);
 router.post('/mood', verificarToken, coupleController.updateMood);
 router.get('/couple-stats', verificarToken, coupleController.getCoupleStats);
-router.post('/profile-avatar', verificarToken, upload.single('image'), coupleController.uploadAvatar);
+router.post('/profile-avatar', verificarToken, upload.single('image'), imageProcessor, coupleController.uploadAvatar);
 
 module.exports = router;

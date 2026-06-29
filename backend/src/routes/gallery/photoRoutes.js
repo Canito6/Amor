@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path'); // [SEGURANÇA - VULN-006] Requerido para verificar extensões
 const { verificarToken } = require('../../middlewares/authMiddleware');
+const imageProcessor = require('../../middlewares/imageProcessor');
 const photoController = require('../../controllers/gallery/photoController');
 const router = express.Router();
 
@@ -28,7 +29,7 @@ const upload = multer({
 router.get('/', verificarToken, photoController.getPhotos);
 
 // 2. Rota para fazer upload de uma foto para o Cloudinary e guardar no MongoDB
-router.post('/upload', verificarToken, upload.single('image'), photoController.uploadPhoto);
+router.post('/upload', verificarToken, upload.single('image'), imageProcessor, photoController.uploadPhoto);
 
 // 3. Rota para apagar uma foto
 router.delete('/:id', verificarToken, photoController.deletePhoto);

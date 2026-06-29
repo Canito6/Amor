@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path'); // [SEGURANÇA - VULN-006] Requerido para verificar extensões
 const { verificarToken } = require('../../middlewares/authMiddleware');
+const imageProcessor = require('../../middlewares/imageProcessor');
 const bucketListController = require('../../controllers/fun/bucketItemController');
 
 const router = express.Router();
@@ -26,7 +27,7 @@ const upload = multer({
 
 router.get('/', verificarToken, bucketListController.getBucketItems);
 router.post('/', verificarToken, bucketListController.createBucketItem);
-router.patch('/:id/complete', verificarToken, upload.single('image'), bucketListController.completeBucketItem);
+router.patch('/:id/complete', verificarToken, upload.single('image'), imageProcessor, bucketListController.completeBucketItem);
 router.delete('/:id', verificarToken, bucketListController.deleteBucketItem);
 
 module.exports = router;
