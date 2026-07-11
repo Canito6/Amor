@@ -42,10 +42,16 @@ export default function LoveCounter({ relationshipDate, language, t }) {
     day: 'numeric'
   });
 
+  const nextMilestone = Math.ceil((timeTogether.days + 1) / 100) * 100;
+  const daysToMilestone = nextMilestone - timeTogether.days;
+
   return (
     <div className="counter-widget fade-in">
+      <div className="pulsing-heart-wrapper">
+        <span className="pulsing-heart">❤️</span>
+      </div>
       <h2 className="counter-title">
-        <span>💖</span> {t.memories_counter_title || 'Contador do Amor'} <span>💖</span>
+        {t.memories_counter_title || 'Contador do Amor'}
       </h2>
       <div className="counter-grid">
         <div className="counter-item">
@@ -65,10 +71,15 @@ export default function LoveCounter({ relationshipDate, language, t }) {
           <span className="counter-label">{language === 'en' ? 'Secs' : 'Segundos'}</span>
         </div>
       </div>
-      <p className="counter-footer">
+      <p className="counter-footer" style={{ marginBottom: '10px' }}>
         {language === 'en' 
           ? `Together since ${formattedRelationshipDate} ✨` 
           : `Juntos desde ${formattedRelationshipDate} ✨`}
+      </p>
+      <p className="milestone-subtext">
+        {language === 'en'
+          ? `✨ Only ${daysToMilestone} days left to reach the ${nextMilestone} days milestone! ✨`
+          : `✨ Faltam apenas ${daysToMilestone} dias para o marco de ${nextMilestone} dias juntos! ✨`}
       </p>
     </div>
   );

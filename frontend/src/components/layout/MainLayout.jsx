@@ -20,6 +20,8 @@ export default function MainLayout() {
     changeLayoutStyle,
     globalTheme,
     changeGlobalTheme,
+    colorTheme,
+    changeColorTheme,
     setActiveTabTheme,
     applyTabSpecificTheme
   } = usePreferences();
@@ -204,6 +206,8 @@ export default function MainLayout() {
         changeLayoutStyle={changeLayoutStyle}
         globalTheme={globalTheme}
         changeGlobalTheme={changeGlobalTheme}
+        colorTheme={colorTheme}
+        changeColorTheme={changeColorTheme}
         customTabs={customTabs}
         addCustomTab={addCustomTab}
         updateCustomTab={updateCustomTab}

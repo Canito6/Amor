@@ -6,8 +6,10 @@ import { usePreferences } from '../../../context/PreferencesContext';
 import { useToast } from '../../../context/ToastContext';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
-import LikelyQuestionCard from '../../../components/likely/LikelyQuestionCard';
 import LikelyQuestionCreator from '../../../components/likely/LikelyQuestionCreator';
+import LikelyScoreCard from '../../../components/likely/LikelyScoreCard';
+import LikelyFilters from '../../../components/likely/LikelyFilters';
+import LikelyList from '../../../components/likely/LikelyList';
 import './Likely.css';
 
 export default function Likely() {
@@ -147,58 +149,26 @@ export default function Likely() {
 
       {/* Affinity Score Card */}
       {!loading && completedQuestions.length > 0 && (
-        <div className="glass-panel likely-score-widget fade-in">
-          <div className="score-ring-container">
-            <svg className="score-ring-svg" viewBox="0 0 100 100">
-              <circle className="ring-bg" cx="50" cy="50" r="40" />
-              <circle 
-                className="ring-progress" 
-                cx="50" 
-                cy="50" 
-                r="40" 
-                strokeDasharray="251.2"
-                strokeDashoffset={251.2 - (251.2 * affinityScore) / 100}
-              />
-            </svg>
-            <div className="score-ring-text">
-              <span className="score-value">{affinityScore}%</span>
-              <span className="score-label">{language === 'pt' ? 'Afinidade' : 'Affinity'}</span>
-            </div>
-          </div>
-
-          <div className="score-stats-info">
-            <h3>{t.likely_affinity_score || 'A vossa afinidade'}</h3>
-            <p>
-              {language === 'pt'
-                ? `Acertaram em ${matchedCount} de ${completedQuestions.length} perguntas completas!`
-                : `Matched ${matchedCount} out of ${completedQuestions.length} completed questions!`}
-            </p>
-          </div>
-        </div>
+        <LikelyScoreCard 
+          affinityScore={affinityScore}
+          matchedCount={matchedCount}
+          completedQuestionsLength={completedQuestions.length}
+          language={language}
+          t={t}
+        />
       )}
 
       {/* Controls Bar */}
       <div className="likely-controls-bar">
-        <div className="likely-filters glass-panel">
-          <button 
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            {t.coupon_filter_all || 'Todos'} ({questions.length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
-            onClick={() => setFilter('active')}
-          >
-            {language === 'pt' ? 'Ativos' : 'Active'} ({questions.filter(q => !getIsQuestionCompleted(q)).length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
-            onClick={() => setFilter('completed')}
-          >
-            {t.letter_status_opened ? t.letter_status_opened.split(' ')[0] : 'Completos'} ({completedQuestions.length})
-          </button>
-        </div>
+        <LikelyFilters 
+          filter={filter}
+          setFilter={setFilter}
+          totalCount={questions.length}
+          activeCount={questions.filter(q => !getIsQuestionCompleted(q)).length}
+          completedCount={completedQuestions.length}
+          language={language}
+          t={t}
+        />
 
         <button 
           className="btn btn-primary btn-add-likely" 
@@ -220,31 +190,17 @@ export default function Likely() {
       )}
 
       {/* Questions list */}
-      {loading ? (
-        <div className="likely-loading-spinner-container">
-          <div className="spinner"></div>
-        </div>
-      ) : filteredQuestions.length === 0 ? (
-        <div className="glass-panel empty-likely-state">
-          <p>{t.likely_empty_state || 'Nenhuma pergunta adicionada.'}</p>
-        </div>
-      ) : (
-        <div className="likely-grid fade-in">
-          {filteredQuestions.map(q => (
-            <LikelyQuestionCard
-              key={q._id}
-              q={q}
-              meuNome={meuNome}
-              minhaRole={minhaRole}
-              partnerName={partnerName}
-              onVote={handleVote}
-              onDelete={handleDeleteQuestion}
-              language={language}
-              t={t}
-            />
-          ))}
-        </div>
-      )}
+      <LikelyList 
+        loading={loading}
+        filteredQuestions={filteredQuestions}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        partnerName={partnerName}
+        onVote={handleVote}
+        onDelete={handleDeleteQuestion}
+        language={language}
+        t={t}
+      />
     </div>
   );
 }

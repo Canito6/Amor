@@ -17,6 +17,8 @@ export default function SettingsModal({
   changeLayoutStyle,
   globalTheme,
   changeGlobalTheme,
+  colorTheme,
+  changeColorTheme,
   customTabs,
   addCustomTab,
   updateCustomTab,
@@ -153,6 +155,8 @@ export default function SettingsModal({
             changeLayoutStyle={changeLayoutStyle}
             globalTheme={globalTheme}
             changeGlobalTheme={changeGlobalTheme}
+            colorTheme={colorTheme}
+            changeColorTheme={changeColorTheme}
           />
 
           {/* Custom Tabs management */}

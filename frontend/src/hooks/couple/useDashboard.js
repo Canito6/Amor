@@ -13,6 +13,7 @@ export const DEFAULT_WIDGETS = [
   { id: 'checkin',   visible: true, size: 'normal' },
   { id: 'countdown', visible: true, size: 'normal' },
   { id: 'spotify',   visible: true, size: 'normal' },
+  { id: 'achievements', visible: true, size: 'wide' },
 ];
 
 export function useDashboard() {
@@ -23,6 +24,7 @@ export function useDashboard() {
   const [nome, setNome] = useState('');
   const [nextEvent, setNextEvent] = useState(null);
   const [daysRemaining, setDaysRemaining] = useState(null);
+  const [stats, setStats] = useState(null);
 
   const [widgets, setWidgets] = useState([]);
   const [isEditingLayout, setIsEditingLayout] = useState(false);
@@ -82,6 +84,15 @@ export function useDashboard() {
     }
   };
 
+  const loadStats = async () => {
+    try {
+      const data = await authService.getCoupleStats();
+      setStats(data);
+    } catch (err) {
+      console.error('Erro ao carregar estatísticas:', err);
+    }
+  };
+
   const carregarProximoEvento = async () => {
     try {
       const events = await eventService.getEvents();
@@ -109,6 +120,7 @@ export function useDashboard() {
       navigate('/');
     } else {
       loadCoupleInfo();
+      loadStats();
       carregarProximoEvento();
 
       const saved = localStorage.getItem('dashboard_widgets');
@@ -223,7 +235,7 @@ export function useDashboard() {
 
   return {
     // Data
-    nome, nextEvent, daysRemaining, coupleInfo, widgets,
+    nome, nextEvent, daysRemaining, coupleInfo, widgets, stats,
     // Layout editing
     isEditingLayout, setIsEditingLayout,
     selectedSidebarItems,

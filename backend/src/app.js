@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
@@ -26,17 +27,23 @@ configureSecurity(app);
 
 // 4. Servir ficheiros estáticos do frontend com cache de longa duração
 const distPath = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(distPath, {
-  maxAge: '1y',
-  setHeaders: (res, filePath) => {
-    // Cache permanente para assets compilados do Vite
-    if (filePath.includes(path.sep + 'assets' + path.sep)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+const hasFrontendBuild = fs.existsSync(distPath);
+
+if (hasFrontendBuild) {
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      // Cache permanente para assets compilados do Vite
+      if (filePath.includes(path.sep + 'assets' + path.sep)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      }
     }
-  }
-}));
+  }));
+} else {
+  logger.warn('⚠️ Pasta frontend/dist não encontrada. O backend não está a servir o frontend de forma estática.');
+}
 
 // 5. Registar as Rotas da API sob /api
 app.use('/api', apiRouter);
@@ -46,14 +53,19 @@ app.get('*any', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.join(distPath, 'index.html'), (err) => {
-    if (err) {
-      res.status(200).send('O backend do nosso site está vivo e a funcionar! (Dica: faça o build do frontend para ver o site aqui)');
-    }
-  });
+  if (hasFrontendBuild) {
+    res.sendFile(path.join(distPath, 'index.html'), (err) => {
+      if (err) {
+        res.status(200).send('O backend do nosso site está vivo e a funcionar! (Dica: faça o build do frontend para ver o site aqui)');
+      }
+    });
+  } else {
+    res.status(200).send('O backend do nosso site está vivo e a funcionar! (Dica: faça o build do frontend para ver o site aqui)');
+  }
 });
 
 // 7. Middleware Centralizado de Controlo de Erros
 app.use(errorHandler);
 
 module.exports = app;
+

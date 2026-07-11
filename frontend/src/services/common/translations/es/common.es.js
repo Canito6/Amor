@@ -5,6 +5,7 @@ export const commonEs = {
   memories: "Nuestros Recuerdos",
   quizzes: "Quizzes del Amor",
   calendar: "Calendario",
+  timeline: "Línea del Tiempo",
   admin: "Panel de Admin",
   
   settings: "Ajustes",

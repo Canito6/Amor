@@ -97,6 +97,12 @@ io.on('connection', (socket) => {
       socket.to(data.room).emit('partner-clear-canvas');
     }
   });
+
+  socket.on('update-canvas-image', (data) => {
+    if (data.room && (socket.user.coupleId === data.room || socket.user.role === 'admin')) {
+      socket.to(data.room).emit('partner-update-canvas-image', data);
+    }
+  });
 });
 
 app.set('io', io);

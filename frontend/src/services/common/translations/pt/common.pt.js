@@ -5,6 +5,7 @@ export const commonPt = {
   memories: "As Nossas Memórias",
   quizzes: "Quizzes do Amor",
   calendar: "Calendário",
+  timeline: "Linha do Tempo",
   admin: "Painel Admin",
   
   settings: "Definições",

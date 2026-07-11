@@ -83,7 +83,11 @@ const userSchema = new mongoose.Schema({
   avatarUrl: {
     type: String,
     default: ''
-  }
+  },
+  moodHistory: [{
+    emoji: { type: String, required: true },
+    updatedAt: { type: Date, default: Date.now }
+  }]
 });
 
 // MAGIA DE SEGURANÇA (Sem o problemático "next")

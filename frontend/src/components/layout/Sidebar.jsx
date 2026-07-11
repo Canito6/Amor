@@ -12,7 +12,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
         return JSON.parse(saved);
       } catch (err) {}
     }
-    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
+    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/timeline', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
   });
 
   React.useEffect(() => {
@@ -34,6 +34,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/mensagens', label: t.messages, icon: '💌' },
     { path: '/fotos', label: t.photos, icon: '📸' },
     { path: '/memorias', label: t.memories, icon: '⏳' },
+    { path: '/timeline', label: t.timeline || 'Linha do Tempo', icon: '📈' },
     { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : 'Jogos', icon: '🎮' },
     { path: '/calendario', label: t.calendar, icon: '📅' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },

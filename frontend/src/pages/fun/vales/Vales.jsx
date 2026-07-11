@@ -5,8 +5,9 @@ import { usePreferences } from '../../../context/PreferencesContext';
 import { useToast } from '../../../context/ToastContext';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
-import CouponCard from '../../../components/vales/CouponCard';
 import CouponCreator from '../../../components/vales/CouponCreator';
+import CouponFilters from '../../../components/vales/CouponFilters';
+import CouponList from '../../../components/vales/CouponList';
 import useSocketUpdate from '../../../hooks/shared/useSocketUpdate';
 import './Vales.css';
 
@@ -131,26 +132,14 @@ export default function Vales() {
 
       {/* Control Bar (Filters & Add button) */}
       <div className="coupon-controls-bar">
-        <div className="coupon-filters glass-panel">
-          <button 
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            {t.coupon_filter_all || 'Todos'} ({coupons.length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'available' ? 'active' : ''}`}
-            onClick={() => setFilter('available')}
-          >
-            {t.coupon_filter_available || 'Disponíveis'} ({coupons.filter(c => c.status === 'gifted').length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'redeemed' ? 'active' : ''}`}
-            onClick={() => setFilter('redeemed')}
-          >
-            {t.coupon_filter_redeemed || 'Usados'} ({coupons.filter(c => c.status === 'redeemed').length})
-          </button>
-        </div>
+        <CouponFilters 
+          filter={filter}
+          setFilter={setFilter}
+          totalCoupons={coupons.length}
+          availableCoupons={coupons.filter(c => c.status === 'gifted').length}
+          redeemedCoupons={coupons.filter(c => c.status === 'redeemed').length}
+          t={t}
+        />
 
         <button 
           className="btn btn-primary btn-add-coupon" 
@@ -172,29 +161,15 @@ export default function Vales() {
       )}
 
       {/* Coupons List */}
-      {loading ? (
-        <div className="coupon-loading-spinner-container">
-          <div className="spinner"></div>
-        </div>
-      ) : filteredCoupons.length === 0 ? (
-        <div className="glass-panel empty-coupon-state">
-          <p>{t.coupon_empty_state || 'Não há vales na carteira.'}</p>
-        </div>
-      ) : (
-        <div className="coupon-grid fade-in">
-          {filteredCoupons.map(coupon => (
-            <CouponCard
-              key={coupon._id}
-              coupon={coupon}
-              meuNome={meuNome}
-              minhaRole={minhaRole}
-              onRedeem={handleRedeemCoupon}
-              onDelete={handleDeleteCoupon}
-              t={t}
-            />
-          ))}
-        </div>
-      )}
+      <CouponList 
+        loading={loading}
+        filteredCoupons={filteredCoupons}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        handleRedeemCoupon={handleRedeemCoupon}
+        handleDeleteCoupon={handleDeleteCoupon}
+        t={t}
+      />
     </div>
   );
 }

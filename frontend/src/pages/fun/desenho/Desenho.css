@@ -151,3 +151,64 @@
   justify-content: center;
   gap: 8px;
 }
+
+/* Novos Controles do Desenho */
+.template-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px dashed rgba(255, 77, 109, 0.15);
+  padding-top: 15px;
+}
+
+.templates-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.btn-template-select {
+  padding: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--card-border, #ddd);
+  background: var(--bg-body, #fff0f3);
+  color: var(--text-main, #333);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-template-select:hover {
+  background: var(--primary-color, #ff4d6d);
+  color: white;
+  border-color: var(--primary-color, #ff4d6d);
+}
+
+.btn-template-select.active {
+  background: var(--primary-color, #ff4d6d);
+  color: white;
+  border-color: var(--primary-color, #ff4d6d);
+  box-shadow: 0 2px 5px rgba(255, 77, 109, 0.2);
+}
+
+.canvas-history-controls {
+  display: flex;
+  gap: 10px;
+  border-top: 1px dashed rgba(255, 77, 109, 0.15);
+  padding-top: 15px;
+}
+
+.history-btn {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+.export-canvas-btn {
+  width: 100%;
+  padding: 10px 15px;
+  font-weight: 700;
+  margin-top: 5px;
+}

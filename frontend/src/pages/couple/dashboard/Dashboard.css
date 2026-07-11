@@ -324,3 +324,33 @@
     display: none;
   }
 }
+
+/* Pulsing Heart and Milestones Styles */
+.pulsing-heart-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.pulsing-heart {
+  display: inline-block;
+  font-size: 32px;
+  animation: heartBeatAnimation 1.4s infinite ease-in-out;
+}
+
+.milestone-subtext {
+  font-size: 13px;
+  color: var(--secondary-color, #ff758f);
+  font-weight: 600;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+@keyframes heartBeatAnimation {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.18); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.18); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}

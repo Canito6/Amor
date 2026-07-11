@@ -5,9 +5,10 @@ import { usePreferences } from '../../../context/PreferencesContext';
 import { useToast } from '../../../context/ToastContext';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
-import JarBottle from '../../../components/frasco/JarBottle';
 import NoteCreator from '../../../components/frasco/NoteCreator';
 import NoteUnfolder from '../../../components/frasco/NoteUnfolder';
+import JarWorkspace from '../../../components/frasco/JarWorkspace';
+import JarHistoryList from '../../../components/frasco/JarHistoryList';
 import './Frasco.css';
 
 export default function Frasco() {
@@ -205,39 +206,15 @@ export default function Frasco() {
       )}
 
       {/* Main Interactive Area */}
-      <div className="jar-workspace">
-        <div className="jar-bottle-stage">
-          {/* O FRASCO VIRTUAL */}
-          <JarBottle
-            notes={notes}
-            isShaking={isShaking}
-            language={language}
-            onDraw={handleDrawNote}
-          />
-
-          <div className="jar-action-buttons">
-            <button 
-              className="btn btn-primary btn-shake-jar" 
-              onClick={handleDrawNote}
-              disabled={isShaking || notes.length === 0}
-            >
-              {isShaking ? '...' : (t.jar_shake_btn || 'Agitar e Tirar!')}
-            </button>
-            
-            <button 
-              className="btn btn-dark btn-write-jar" 
-              onClick={() => setShowCreator(true)}
-              disabled={isShaking}
-            >
-              ✍️ {language === 'pt' ? 'Colocar Papelinho' : 'Add Note'}
-            </button>
-          </div>
-
-          {drawingError && (
-            <p className="jar-drawing-error">{drawingError}</p>
-          )}
-        </div>
-      </div>
+      <JarWorkspace 
+        notes={notes}
+        isShaking={isShaking}
+        language={language}
+        handleDrawNote={handleDrawNote}
+        drawingError={drawingError}
+        setShowCreator={setShowCreator}
+        t={t}
+      />
 
       {/* Write Note Modal */}
       {showCreator && (
@@ -261,56 +238,21 @@ export default function Frasco() {
         />
       )}
 
-      {/* History panel (only for deleting / checking own list) */}
-      {loading ? (
-        <div className="jar-history-container glass-panel fade-in">
-          <h3>📜 {language === 'pt' ? 'A carregar papelinhos...' : 'Loading Placed Notes...'}</h3>
-          <div className="jar-history-list">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="jar-history-item skeleton" style={{ height: '70px', borderRadius: '16px', border: 'none' }} />
-            ))}
-          </div>
-        </div>
-      ) : notes.length > 0 && (
-        <div className="jar-history-container glass-panel fade-in">
-          <h3>📜 {language === 'pt' ? 'Papelinhos Colocados' : 'Placed Notes'}</h3>
-          <div className="jar-history-list">
-            {notes.map(note => (
-              <div key={note._id} className="jar-history-item">
-                <span className="history-cat-icon">{getCategoryIcon(note.category)}</span>
-                <div className="history-text">
-                  <p className="history-message">"{note.content}"</p>
-                  <span className="history-meta">
-                    {language === 'pt' ? 'Por' : 'By'}: {note.createdBy}
-                  </span>
-                </div>
-                {(note.createdBy === meuNome || minhaRole === 'admin') && (
-                  <button 
-                    className="history-delete-btn"
-                    onClick={(e) => handleDeleteNote(e, note._id)}
-                    title={t.jar_confirm_delete}
-                  >
-                    🗑️
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {currentPage < totalPages && (
-            <div style={{ textAlign: 'center', marginTop: '25px' }}>
-              <button
-                className="btn btn-dark"
-                onClick={() => carregarNotas(currentPage + 1, true)}
-                disabled={loadingMore}
-                style={{ padding: '10px 24px', fontSize: '14px', opacity: loadingMore ? 0.7 : 1 }}
-              >
-                {loadingMore ? '⏳ A carregar...' : (language === 'pt' ? 'Carregar Mais' : 'Load More')}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {/* History panel */}
+      <JarHistoryList 
+        loading={loading}
+        notes={notes}
+        getCategoryIcon={getCategoryIcon}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        handleDeleteNote={handleDeleteNote}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        carregarNotas={carregarNotas}
+        loadingMore={loadingMore}
+        language={language}
+        t={t}
+      />
     </div>
   );
 }

@@ -26,11 +26,13 @@ const imageProcessor = async (req, res, next) => {
     // 2. Processar a imagem com sharp
     try {
       let sharpInstance;
+      let finalMime = typeInfo.mime;
       if (typeInfo.mime === 'image/gif') {
         // Ativar suporte para GIFs animados se necessário
         sharpInstance = sharp(req.file.buffer, { animated: true });
       } else {
-        sharpInstance = sharp(req.file.buffer);
+        sharpInstance = sharp(req.file.buffer).toFormat('webp', { quality: 80 });
+        finalMime = 'image/webp';
       }
 
       // rotate() corrige a rotação da imagem conforme metadados EXIF.
@@ -40,7 +42,16 @@ const imageProcessor = async (req, res, next) => {
       // 3. Atualizar as propriedades do ficheiro na requisição para que sejam enviadas higienizadas
       req.file.buffer = cleanBuffer;
       req.file.size = cleanBuffer.length;
-      req.file.mimetype = typeInfo.mime;
+      req.file.mimetype = finalMime;
+
+      if (finalMime === 'image/webp' && req.file.originalname) {
+        const lastDot = req.file.originalname.lastIndexOf('.');
+        if (lastDot !== -1) {
+          req.file.originalname = req.file.originalname.substring(0, lastDot) + '.webp';
+        } else {
+          req.file.originalname = req.file.originalname + '.webp';
+        }
+      }
     } catch (sharpError) {
       return next(new ApiError(400, 'Falha ao processar o ficheiro de imagem. Certifica-te de que o ficheiro não está corrompido.'));
     }

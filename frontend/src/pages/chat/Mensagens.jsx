@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { messageService } from '../../services/chat/messageService';
 import { usePreferences } from '../../context/PreferencesContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { useToast } from '../../context/ToastContext';
 import { translations } from '../../services/common/translations';
 import { useSocket } from '../../context/SocketContext';
 import MessageForm from '../../components/messages/MessageForm';
-import PostItCard from '../../components/messages/PostItCard';
+import TypingIndicator from '../../components/messages/TypingIndicator';
+import MessageList from '../../components/messages/MessageList';
 import useSocketUpdate from '../../hooks/shared/useSocketUpdate';
 import './Mensagens.css';
 
@@ -24,6 +26,7 @@ export default function Mensagens() {
 
   const { language } = usePreferences();
   const { confirm } = useConfirm();
+  const { showToast } = useToast();
   const t = translations[language];
   const socket = useSocket();
 
@@ -58,6 +61,37 @@ export default function Mensagens() {
     carregarMensagens();
   }, ['mensagem-']);
 
+  const syncOfflineMessages = async () => {
+    const queue = JSON.parse(localStorage.getItem('messages_offline_queue') || '[]');
+    if (queue.length === 0) return;
+
+    try {
+      showToast(
+        language === 'pt' ? 'A enviar notas guardadas localmente...' : 'Sending locally saved notes...',
+        'info'
+      );
+      for (const item of queue) {
+        await messageService.createMessage(item.content);
+      }
+      localStorage.removeItem('messages_offline_queue');
+      carregarMensagens();
+      showToast(
+        language === 'pt' ? 'Notas offline enviadas com sucesso! 🎉' : 'Offline notes sent successfully! 🎉',
+        'success'
+      );
+    } catch (e) {
+      console.error('Erro ao sincronizar notas offline:', e);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('online', syncOfflineMessages);
+    if (navigator.onLine) {
+      syncOfflineMessages();
+    }
+    return () => window.removeEventListener('online', syncOfflineMessages);
+  }, []);
+
   const carregarMensagens = async () => {
     try {
       setLoading(true);
@@ -72,8 +106,33 @@ export default function Mensagens() {
   };
 
   const handleCreateMessageSubmit = async (content) => {
+    setError('');
+    if (!navigator.onLine) {
+      const tempMsg = {
+        _id: `temp-${Date.now()}`,
+        content,
+        createdBy: meuNome || 'Amor',
+        sender: meuNome || 'Amor',
+        createdAt: new Date().toISOString(),
+        reactions: [],
+        isOffline: true
+      };
+      
+      const queue = JSON.parse(localStorage.getItem('messages_offline_queue') || '[]');
+      queue.push({ content });
+      localStorage.setItem('messages_offline_queue', JSON.stringify(queue));
+      
+      setMessages([...messages, tempMsg]);
+      showToast(
+        language === 'pt'
+          ? 'Sem ligação de rede! A nota foi guardada localmente e será enviada quando estiveres online. ⏳'
+          : 'No connection! The note has been saved locally and will be sent when you are online. ⏳',
+        'warning'
+      );
+      return;
+    }
+
     try {
-      setError('');
       const novaMsg = await messageService.createMessage(content);
       setMessages([...messages, novaMsg]);
     } catch (err) {
@@ -127,44 +186,22 @@ export default function Mensagens() {
       <MessageForm onSubmit={handleCreateMessageSubmit} t={t} />
 
       {partnerTyping && (
-        <div className="typing-container">
-          <div className="typing-dots-bubble">
-            <span className="typing-dot"></span>
-            <span className="typing-dot" style={{ animationDelay: '0.2s' }}></span>
-            <span className="typing-dot" style={{ animationDelay: '0.4s' }}></span>
-          </div>
-          <span className="typing-label">💬 {partnerNameTyping} está a escrever</span>
-        </div>
+        <TypingIndicator partnerNameTyping={partnerNameTyping} />
       )}
 
       {error && <p style={{ color: 'var(--danger-color)', textAlign: 'center', marginBottom: '20px', fontWeight: 'bold' }}>{error}</p>}
 
-      {loading ? (
-        <div style={{ textAlign: 'center', margin: '40px 0' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{t.messages_loading}</p>
-        </div>
-      ) : messages.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
-          <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>{t.messages_empty}</p>
-        </div>
-      ) : (
-        <div className="notes-grid">
-          {messages.map((msg, index) => (
-            <PostItCard
-              key={msg._id}
-              msg={msg}
-              index={index}
-              meuNome={meuNome}
-              minhaRole={minhaRole}
-              language={language}
-              t={t}
-              onUpdate={handleUpdateMessage}
-              onDelete={handleDeleteMessage}
-              onReact={handleReactToMessage}
-            />
-          ))}
-        </div>
-      )}
+      <MessageList 
+        loading={loading}
+        messages={messages}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        language={language}
+        t={t}
+        handleUpdateMessage={handleUpdateMessage}
+        handleDeleteMessage={handleDeleteMessage}
+        handleReactToMessage={handleReactToMessage}
+      />
     </div>
   );
 }

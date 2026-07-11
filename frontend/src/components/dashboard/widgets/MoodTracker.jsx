@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth/authService';
+import MoodSelectionPanel from './MoodSelectionPanel';
+import MoodPartnerPanel from './MoodPartnerPanel';
+import MoodHistoryPanel from './MoodHistoryPanel';
 import './MoodTracker.css';
-
-const MOOD_EMOJIS = ['💖', '🥰', '😊', '🤪', '🥺', '😴', '😢', '🔥'];
 
 export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language }) {
   const meuNome = localStorage.getItem('username') || localStorage.getItem('nome') || '';
@@ -13,6 +14,7 @@ export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language })
   const parceiroRegisto = coupleInfo?.partners?.find(p => p.username !== meuNome);
 
   const [meuMood, setMeuMood] = useState(meuRegisto?.moodEmoji || '');
+  const [showHistory, setShowHistory] = useState(false);
 
   // Sincronizar estado local quando o coupleInfo é atualizado pelo pai
   useEffect(() => {
@@ -60,57 +62,78 @@ export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language })
     return (t.mood_days_ago || '{count}d atrás').replace('{count}', diffDays);
   };
 
+  const formatarDataHistorial = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const calcularSintonia = () => {
+    if (!meuRegisto?.moodEmoji || !parceiroRegisto?.moodEmoji) return 0;
+    if (meuRegisto.moodEmoji === parceiroRegisto.moodEmoji) return 100;
+    const meusEmojis = (meuRegisto.moodHistory || []).slice(-5).map(h => h.emoji);
+    const parceiroEmojis = (parceiroRegisto.moodHistory || []).slice(-5).map(h => h.emoji);
+    let matches = 0;
+    meusEmojis.forEach(e => {
+      if (e && parceiroEmojis.includes(e)) matches++;
+    });
+    return Math.min(Math.round((matches / Math.max(meusEmojis.length, 1)) * 100), 95);
+  };
+
+  const sintonia = calcularSintonia();
+
   return (
     <div className="mood-tracker-widget glass-panel fade-in">
-      <div className="mood-tracker-grid">
-        
-        {/* Painel do Utilizador */}
-        <div className="mood-my-panel">
-          <h4>{t.mood_tracker_title || 'Como te sentes hoje? 😊'}</h4>
-          <p className="mood-instruction">{t.mood_select_instruction || 'Escolhe o teu humor:'}</p>
-          <div className="mood-emojis-row">
-            {MOOD_EMOJIS.map(emoji => {
-              const isSelected = meuMood === emoji;
-              return (
-                <button
-                  key={emoji}
-                  className={`mood-emoji-btn ${isSelected ? 'active' : ''} ${updating ? 'disabled' : ''}`}
-                  onClick={() => handleSelectMood(emoji)}
-                  disabled={updating}
-                  title={isSelected ? 'Limpar humor' : `Selecionar ${emoji}`}
-                >
-                  {emoji}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Painel do Parceiro */}
-        <div className="mood-partner-panel">
-          <h4>{t.mood_partner_title || 'Humor do meu Amor'} 💑</h4>
-          
-          {parceiroRegisto && parceiroRegisto.moodEmoji ? (
-            <div className="mood-partner-display">
-              <span className="mood-partner-emoji-bubble bounce-animation">
-                {parceiroRegisto.moodEmoji}
-              </span>
-              <div className="mood-partner-info">
-                <span className="mood-partner-name">{parceiroRegisto.username}</span>
-                <span className="mood-partner-time">
-                  {t.mood_updated_at ? t.mood_updated_at.replace('{time}', formatarTempoRelativo(parceiroRegisto.moodUpdatedAt)) : `Atualizado há ${formatarTempoRelativo(parceiroRegisto.moodUpdatedAt)}`}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="mood-partner-empty">
-              <span className="mood-empty-icon">💭</span>
-              <p>{t.mood_partner_empty || 'O teu amor ainda não registou o humor hoje.'}</p>
-            </div>
-          )}
-        </div>
-
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+        <h3 style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>
+          💭 {language === 'pt' ? 'Rastreador de Humor' : 'Mood Tracker'}
+        </h3>
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--primary-color)',
+            fontSize: '12.5px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            transition: 'all 0.2s ease',
+            backgroundColor: 'rgba(255, 77, 109, 0.05)'
+          }}
+        >
+          {showHistory ? '✕' : '📊 Historial'}
+        </button>
       </div>
+
+      {!showHistory ? (
+        <div className="mood-tracker-grid">
+          <MoodSelectionPanel 
+            meuMood={meuMood}
+            handleSelectMood={handleSelectMood}
+            updating={updating}
+            t={t}
+          />
+          <MoodPartnerPanel 
+            parceiroRegisto={parceiroRegisto}
+            formatarTempoRelativo={formatarTempoRelativo}
+            t={t}
+          />
+        </div>
+      ) : (
+        <MoodHistoryPanel 
+          sintonia={sintonia}
+          meuRegisto={meuRegisto}
+          parceiroRegisto={parceiroRegisto}
+          formatarDataHistorial={formatarDataHistorial}
+        />
+      )}
     </div>
   );
 }

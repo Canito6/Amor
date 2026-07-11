@@ -5,6 +5,7 @@ export const commonEn = {
   memories: "Our Memories",
   quizzes: "Love Quizzes",
   calendar: "Calendar",
+  timeline: "Timeline",
   admin: "Admin Panel",
   
   settings: "Settings",

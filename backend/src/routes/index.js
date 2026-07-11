@@ -25,6 +25,8 @@ const routeFiles = scanFiles(__dirname, 'Routes.js');
 const routePrefixes = {
   'authRoutes.js': '/auth',
   'coupleRoutes.js': '/auth',
+  'userRoutes.js': '/auth',
+  'statsRoutes.js': '/auth',
   'adminRoutes.js': '/admin',
   'messageRoutes.js': '/messages',
   'photoRoutes.js': '/photos',

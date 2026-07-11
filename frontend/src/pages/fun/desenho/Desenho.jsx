@@ -3,7 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../../context/SocketContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
+import QuadroCanvas from './components/QuadroCanvas';
+import QuadroControls from './components/QuadroControls';
+import QuadroSettings from './components/QuadroSettings';
 import './Desenho.css';
+
+// Templates de fundo premium
+const TEMPLATES = [
+  { id: 'branco', label: 'Em Branco ⚪' },
+  { id: 'galo', label: 'Jogo do Galo ❌⭕' },
+  { id: 'coracao', label: 'Colorir Coração ❤️' },
+  { id: 'quadricula', label: 'Quadrícula 🗺️' }
+];
+
+// Paleta de cores premium
+const COLORS = [
+  { value: '#ff4d6d', name: 'Rosa Mimo' },
+  { value: '#ff0a54', name: 'Vermelho Paixão' },
+  { value: '#7209b7', name: 'Roxo Magia' },
+  { value: '#3f37c9', name: 'Azul Sonho' },
+  { value: '#4cc9f0', name: 'Turquesa' },
+  { value: '#2a9d8f', name: 'Verde Carinho' },
+  { value: '#ff9f1c', name: 'Laranja Sol' },
+  { value: '#2b2d42', name: 'Preto' },
+  { value: '#ffffff', name: 'Borracha 🧽' } // Branco serve de borracha
+];
 
 export default function Desenho() {
   const navigate = useNavigate();
@@ -20,18 +44,62 @@ export default function Desenho() {
   const prevPosRef = useRef({ x: 0, y: 0 });
   const coupleId = localStorage.getItem('coupleId') || '';
 
-  // Paleta de cores premium
-  const colors = [
-    { value: '#ff4d6d', name: 'Rosa Mimo' },
-    { value: '#ff0a54', name: 'Vermelho Paixão' },
-    { value: '#7209b7', name: 'Roxo Magia' },
-    { value: '#3f37c9', name: 'Azul Sonho' },
-    { value: '#4cc9f0', name: 'Turquesa' },
-    { value: '#2a9d8f', name: 'Verde Carinho' },
-    { value: '#ff9f1c', name: 'Laranja Sol' },
-    { value: '#2b2d42', name: 'Preto' },
-    { value: '#ffffff', name: 'Borracha 🧽' } // Branco serve de borracha
-  ];
+  // Histórico de estados para Undo / Redo
+  const [historyStack, setHistoryStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+  const [activeTemplate, setActiveTemplate] = useState('branco');
+
+  const drawTemplate = (templateName, width, height, ctx) => {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    if (templateName === 'galo') {
+      ctx.strokeStyle = 'rgba(255, 77, 109, 0.3)'; // Rosa suave
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      // Linhas verticais
+      ctx.moveTo(width / 3, 20);
+      ctx.lineTo(width / 3, height - 20);
+      ctx.moveTo((width * 2) / 3, 20);
+      ctx.lineTo((width * 2) / 3, height - 20);
+      // Linhas horizontais
+      ctx.moveTo(20, height / 3);
+      ctx.lineTo(width - 20, height / 3);
+      ctx.moveTo(20, (height * 2) / 3);
+      ctx.lineTo(width - 20, (height * 2) / 3);
+      ctx.stroke();
+      ctx.closePath();
+    } else if (templateName === 'coracao') {
+      ctx.strokeStyle = 'rgba(255, 77, 109, 0.25)';
+      ctx.lineWidth = 5;
+      ctx.fillStyle = 'rgba(255, 77, 109, 0.03)';
+      ctx.beginPath();
+      const cx = width / 2;
+      const cy = height / 2 + 10;
+      const size = Math.min(width, height) * 0.7;
+      ctx.moveTo(cx, cy - size / 4);
+      ctx.bezierCurveTo(cx - size / 2, cy - size / 1.5, cx - size, cy - size / 3, cx, cy + size / 2.2);
+      ctx.bezierCurveTo(cx + size, cy - size / 3, cx + size / 2, cy - size / 1.5, cx, cy - size / 4);
+      ctx.stroke();
+      ctx.fill();
+      ctx.closePath();
+    } else if (templateName === 'quadricula') {
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const step = 25;
+      for (let x = step; x < width; x += step) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+      }
+      for (let y = step; y < height; y += step) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+      }
+      ctx.stroke();
+      ctx.closePath();
+    }
+  };
 
   // Configurar o Canvas
   useEffect(() => {
@@ -52,13 +120,19 @@ export default function Desenho() {
       // Manter o fundo do canvas branco para permitir borracha
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Desenhar o template ativo
+      drawTemplate(activeTemplate, canvas.width, canvas.height, context);
+
+      setHistoryStack([canvas.toDataURL()]);
+      setRedoStack([]);
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
     return () => window.removeEventListener('resize', resizeCanvas);
-  }, []);
+  }, [activeTemplate]);
 
   // Ouvintes de Sockets
   useEffect(() => {
@@ -92,16 +166,37 @@ export default function Desenho() {
       const context = contextRef.current;
       if (!canvas || !context) return;
 
+      setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+      setRedoStack([]);
+
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, canvas.width, canvas.height);
     };
 
+    const handlePartnerUpdateCanvasImage = (data) => {
+      const canvas = canvasRef.current;
+      const context = contextRef.current;
+      if (!canvas || !context) return;
+
+      setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+      setRedoStack([]);
+
+      const img = new Image();
+      img.src = data.imageData;
+      img.onload = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(img, 0, 0);
+      };
+    };
+
     socket.on('partner-draw-line', handlePartnerDrawLine);
     socket.on('partner-clear-canvas', handlePartnerClearCanvas);
+    socket.on('partner-update-canvas-image', handlePartnerUpdateCanvasImage);
 
     return () => {
       socket.off('partner-draw-line', handlePartnerDrawLine);
       socket.off('partner-clear-canvas', handlePartnerClearCanvas);
+      socket.off('partner-update-canvas-image', handlePartnerUpdateCanvasImage);
     };
   }, [socket]);
 
@@ -168,6 +263,13 @@ export default function Desenho() {
     const coords = getCoordinates(e);
     if (!coords) return;
 
+    // Guardar estado atual no histórico antes do novo traço
+    const canvas = canvasRef.current;
+    if (canvas) {
+      setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+      setRedoStack([]);
+    }
+
     setIsDrawing(true);
     prevPosRef.current = coords;
   };
@@ -192,6 +294,10 @@ export default function Desenho() {
     const context = contextRef.current;
     if (!canvas || !context) return;
 
+    // Guardar estado no histórico antes de limpar
+    setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+    setRedoStack([]);
+
     // Limpar localmente
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -200,6 +306,83 @@ export default function Desenho() {
     if (socket) {
       socket.emit('clear-canvas', { room: coupleId });
     }
+  };
+
+  const handleUndo = () => {
+    if (historyStack.length === 0) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // Pop anterior e puxar o atual para o redo
+    const previousState = historyStack[historyStack.length - 1];
+    setRedoStack(prev => [...prev, canvas.toDataURL()]);
+    setHistoryStack(prev => prev.slice(0, -1));
+
+    const img = new Image();
+    img.src = previousState;
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      
+      // Emitir imagem completa para sincronizar
+      if (socket) {
+        socket.emit('update-canvas-image', { room: coupleId, imageData: previousState });
+      }
+    };
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const nextState = redoStack[redoStack.length - 1];
+    setRedoStack(prev => prev.slice(0, -1));
+    setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+
+    const img = new Image();
+    img.src = nextState;
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      
+      if (socket) {
+        socket.emit('update-canvas-image', { room: coupleId, imageData: nextState });
+      }
+    };
+  };
+
+  const handleSelectTemplate = (templateId) => {
+    const canvas = canvasRef.current;
+    const context = contextRef.current;
+    if (!canvas || !context) return;
+
+    setHistoryStack(prev => [...prev, canvas.toDataURL()]);
+    setRedoStack([]);
+    setActiveTemplate(templateId);
+
+    drawTemplate(templateId, canvas.width, canvas.height, context);
+
+    if (socket) {
+      socket.emit('update-canvas-image', { room: coupleId, imageData: canvas.toDataURL() });
+    }
+  };
+
+  const handleExportPNG = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dataURL = canvas.toDataURL('image/png');
+    
+    const link = document.createElement('a');
+    link.download = `quadro-do-amor-${Date.now()}.png`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -217,54 +400,33 @@ export default function Desenho() {
       </p>
 
       <div className="canvas-layout">
-        {/* Painel do Canvas */}
-        <div className="canvas-wrapper-panel glass-panel">
-          <canvas
-            ref={canvasRef}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-            className="drawing-canvas"
-          />
-        </div>
+        <QuadroCanvas 
+          canvasRef={canvasRef}
+          startDrawing={startDrawing}
+          draw={draw}
+          stopDrawing={stopDrawing}
+        />
 
-        {/* Caixa de Ferramentas */}
         <div className="canvas-toolbox glass-panel">
-          <h3>Paleta de Cores</h3>
-          <div className="colors-grid">
-            {colors.map((c) => (
-              <button
-                key={c.value}
-                onClick={() => setColor(c.value)}
-                style={{ backgroundColor: c.value }}
-                className={`color-dot ${color === c.value ? 'active' : ''} ${c.value === '#ffffff' ? 'eraser-dot' : ''}`}
-                title={c.name}
-              />
-            ))}
-          </div>
+          <QuadroSettings 
+            colors={COLORS}
+            color={color}
+            setColor={setColor}
+            brushSize={brushSize}
+            setBrushSize={setBrushSize}
+            templates={TEMPLATES}
+            activeTemplate={activeTemplate}
+            handleSelectTemplate={handleSelectTemplate}
+          />
 
-          <div className="brush-slider-container">
-            <div className="brush-slider-header">
-              <span>Espessura do Pincel</span>
-              <span className="brush-size-badge" style={{ width: `${brushSize + 10}px`, height: `${brushSize + 10}px`, backgroundColor: color }} />
-            </div>
-            <input
-              type="range"
-              min="2"
-              max="24"
-              value={brushSize}
-              onChange={(e) => setBrushSize(parseInt(e.target.value))}
-              className="brush-slider"
-            />
-          </div>
-
-          <button onClick={clearCanvas} className="btn btn-secondary clear-canvas-btn">
-            🗑️ Limpar Quadro
-          </button>
+          <QuadroControls 
+            handleUndo={handleUndo}
+            historyStackLength={historyStack.length}
+            handleRedo={handleRedo}
+            redoStackLength={redoStack.length}
+            handleExportPNG={handleExportPNG}
+            clearCanvas={clearCanvas}
+          />
         </div>
       </div>
     </div>

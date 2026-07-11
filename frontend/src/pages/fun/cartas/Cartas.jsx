@@ -5,9 +5,10 @@ import { usePreferences } from '../../../context/PreferencesContext';
 import { useToast } from '../../../context/ToastContext';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
-import LetterCard from '../../../components/cartas/LetterCard';
 import LetterCreator from '../../../components/cartas/LetterCreator';
 import LetterReader from '../../../components/cartas/LetterReader';
+import LetterFilters from '../../../components/cartas/LetterFilters';
+import LetterList from '../../../components/cartas/LetterList';
 import './Cartas.css';
 
 export default function Cartas() {
@@ -181,34 +182,16 @@ export default function Cartas() {
 
       {/* Control Panel */}
       <div className="letter-controls-bar">
-        <div className="letter-filters glass-panel">
-          <button 
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            {t.coupon_filter_all || 'Todos'} ({letters.length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'unlocked' ? 'active' : ''}`}
-            onClick={() => setFilter('unlocked')}
-            title="Cartas prontas a abrir escritas pelo parceiro"
-          >
-            {language === 'pt' ? 'Prontas a Abrir' : 'Ready to Open'} ({letters.filter(l => !checkIsLocked(l) && !l.isOpened && l.createdBy !== meuNome).length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'locked' ? 'active' : ''}`}
-            onClick={() => setFilter('locked')}
-            title="Cartas com regras de abertura pendentes"
-          >
-            {language === 'pt' ? 'Bloqueadas' : 'Locked'} ({letters.filter(l => checkIsLocked(l)).length})
-          </button>
-          <button 
-            className={`filter-btn ${filter === 'opened' ? 'active' : ''}`}
-            onClick={() => setFilter('opened')}
-          >
-            {t.letter_status_opened ? t.letter_status_opened.split(' ')[0] : 'Abertas'} ({letters.filter(l => l.isOpened).length})
-          </button>
-        </div>
+        <LetterFilters 
+          filter={filter}
+          setFilter={setFilter}
+          totalLetters={letters.length}
+          readyCount={letters.filter(l => !checkIsLocked(l) && !l.isOpened && l.createdBy !== meuNome).length}
+          lockedCount={letters.filter(l => checkIsLocked(l)).length}
+          openedCount={letters.filter(l => l.isOpened).length}
+          language={language}
+          t={t}
+        />
 
         <button 
           className="btn btn-primary btn-add-letter" 
@@ -231,33 +214,19 @@ export default function Cartas() {
       )}
 
       {/* Letters List */}
-      {loading ? (
-        <div className="letter-loading-spinner-container">
-          <div className="spinner"></div>
-        </div>
-      ) : filteredLetters.length === 0 ? (
-        <div className="glass-panel empty-letter-state">
-          <p>{t.letter_empty_state || 'Nenhuma carta surpresa encontrada.'}</p>
-        </div>
-      ) : (
-        <div className="letter-grid fade-in">
-          {filteredLetters.map(letter => (
-            <LetterCard
-              key={letter._id}
-              letter={letter}
-              meuNome={meuNome}
-              minhaRole={minhaRole}
-              isLocked={checkIsLocked(letter)}
-              isOpening={openingId === letter._id}
-              onOpen={handleOpenLetter}
-              onDelete={handleDeleteLetter}
-              formatDate={formatDate}
-              language={language}
-              t={t}
-            />
-          ))}
-        </div>
-      )}
+      <LetterList 
+        loading={loading}
+        filteredLetters={filteredLetters}
+        meuNome={meuNome}
+        minhaRole={minhaRole}
+        checkIsLocked={checkIsLocked}
+        openingId={openingId}
+        onOpen={handleOpenLetter}
+        onDelete={handleDeleteLetter}
+        formatDate={formatDate}
+        language={language}
+        t={t}
+      />
 
       {/* Reader Modal Lightbox */}
       {readingLetter && (

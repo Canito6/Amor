@@ -49,31 +49,38 @@ export default function PhotoGrid({
       ) : (
         <>
           <div className="photo-grid">
-            {photos.map((photo) => {
+            {photos.map((photo, index) => {
               const podeApagar = photo.uploadedBy === meuNome || minhaRole === 'admin';
+              const tilt = index % 3 === 0 ? -1.8 : index % 3 === 1 ? 1.8 : -1;
               return (
                 <div 
                   key={photo._id} 
-                  className="photo-card"
+                  className="photo-card polaroid-style-card"
                   onClick={() => setSelectedPhoto(photo)}
+                  style={{ '--polaroid-tilt': `${tilt}deg` }}
                 >
-                  <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
-                  <div className="photo-overlay">
-                    <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
-                      {podeApagar && (
-                        <button
-                          className="btn btn-danger"
-                          onClick={(e) => apagarFoto(e, photo._id)}
-                          style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
-                          title={t.delete}
-                        >
-                          🗑️
-                        </button>
-                      )}
+                  <div className="polaroid-image-wrapper" style={{ position: 'relative' }}>
+                    <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
+                    <div className="photo-overlay">
+                      <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="photo-meta">{t.photos_lightbox_by}: {photo.uploadedBy}</span>
+                        {podeApagar && (
+                          <button
+                            className="btn btn-danger"
+                            onClick={(e) => apagarFoto(e, photo._id)}
+                            style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', cursor: 'pointer' }}
+                            title={t.delete}
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <p className="photo-card-caption-text">
+                    {photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}
+                  </p>
                 </div>
               );
             })}

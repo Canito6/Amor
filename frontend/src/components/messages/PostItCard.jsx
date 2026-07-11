@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatDateTime } from '../../utils/formatting/dateFormatter';
-
-const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
+import PostItEditForm from './PostItEditForm';
+import PostItEmojiPicker from './PostItEmojiPicker';
 
 const CORES_POST_IT = [
   { bg: 'linear-gradient(135deg, #fffcf0 0%, #fff9db 100%)', border: '#ffe066' }, // Amarelo Pastel
@@ -17,8 +17,8 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
   const [isEmojiPanelOpen, setIsEmojiPanelOpen] = useState(false);
 
   const cores = CORES_POST_IT[index % CORES_POST_IT.length];
-  const podeEditar = msg.sender === meuNome || minhaRole === 'admin';
-  const podeApagar = msg.sender === meuNome || minhaRole === 'admin';
+  const podeEditar = !msg.isOffline && (msg.sender === meuNome || minhaRole === 'admin');
+  const podeApagar = !msg.isOffline && (msg.sender === meuNome || minhaRole === 'admin');
   const minhaReacao = msg.reactions?.find(r => r.username === meuNome);
 
   useEffect(() => {
@@ -60,24 +60,14 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
     >
       {/* Conteúdo ou Campo de Edição */}
       {isEditing ? (
-        <div className="post-it-edit-area">
-          <textarea
-            className="post-it-edit-input"
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            rows={4}
-            autoFocus
-            style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderColor: cores.border }}
-          />
-          <div className="post-it-edit-actions">
-            <button className="btn btn-primary post-it-edit-btn" onClick={handleSave}>
-              💾 {t.save}
-            </button>
-            <button className="btn btn-dark post-it-edit-btn" onClick={handleCancel}>
-              ✕ {t.cancel}
-            </button>
-          </div>
-        </div>
+        <PostItEditForm 
+          editContent={editContent}
+          setEditContent={setEditContent}
+          cores={cores}
+          handleSave={handleSave}
+          handleCancel={handleCancel}
+          t={t}
+        />
       ) : (
         <div className="post-it-content">
           {msg.content}
@@ -102,39 +92,36 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
         <div>
           {t.messages_by} <span className="post-it-author">{msg.sender}</span>
           <br />
-          <span style={{ fontSize: '10px', opacity: 0.8 }}>
-            {formatDateTime(msg.createdAt, language === 'pt' ? 'pt' : 'en')}
+          <span style={{ fontSize: '10px', opacity: 0.8, color: msg.isOffline ? 'var(--secondary-color, #ff758f)' : 'inherit', fontWeight: msg.isOffline ? '600' : 'normal' }}>
+            {msg.isOffline 
+              ? (language === 'pt' ? '⏳ Guardado localmente (Offline)' : '⏳ Saved locally (Offline)')
+              : formatDateTime(msg.createdAt, language === 'pt' ? 'pt' : 'en')}
           </span>
         </div>
 
         {!isEditing && (
           <div className="post-it-actions">
             {/* Botão de reação */}
-            <div style={{ position: 'relative' }}>
-              <button
-                className={`reaction-btn ${minhaReacao ? 'reacted' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEmojiPanelOpen(!isEmojiPanelOpen);
-                }}
-                title="Reagir"
-              >
-                {minhaReacao ? minhaReacao.emoji : '😊'}
-              </button>
-              {isEmojiPanelOpen && (
-                <div className="emoji-picker-panel" onClick={(e) => e.stopPropagation()}>
-                  {QUICK_EMOJIS.map(emoji => (
-                    <button
-                      key={emoji}
-                      className="emoji-option"
-                      onClick={(e) => handleReact(e, emoji)}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {!msg.isOffline && (
+              <div style={{ position: 'relative' }}>
+                <button
+                  className={`reaction-btn ${minhaReacao ? 'reacted' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEmojiPanelOpen(!isEmojiPanelOpen);
+                  }}
+                  title="Reagir"
+                >
+                  {minhaReacao ? minhaReacao.emoji : '😊'}
+                </button>
+                {isEmojiPanelOpen && (
+                  <PostItEmojiPicker 
+                    minhaReacao={minhaReacao}
+                    handleReact={handleReact}
+                  />
+                )}
+              </div>
+            )}
 
             {/* Botão de editar */}
             {podeEditar && (

@@ -9,6 +9,7 @@ import SpotifyWidget from '../../../components/dashboard/widgets/SpotifyWidget';
 import MoodTracker from '../../../components/dashboard/widgets/MoodTracker';
 import DailyCheckIn from '../../../components/dashboard/widgets/daily-check-in/DailyCheckIn';
 import LoveCounter from '../../../components/dashboard/widgets/LoveCounter';
+import AchievementsWidget from '../../../components/dashboard/widgets/AchievementsWidget';
 import CoupleEditModal from '../../../components/dashboard/modals/CoupleEditModal';
 import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBar';
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
@@ -24,6 +25,7 @@ function getWidgetFriendlyName(id, language) {
     countdown:  language === 'pt' ? 'Contagem Decrescente' : 'Event Countdown',
     navigation: language === 'pt' ? 'Atalhos de Navegação' : 'Navigation Cards',
     spotify:    language === 'pt' ? 'Playlist Spotify' : 'Spotify Playlist',
+    achievements: language === 'pt' ? 'Nível & Conquistas' : 'Level & Achievements',
   };
   return names[id] ?? id;
 }
@@ -34,7 +36,7 @@ export default function Dashboard() {
   const t = translations[language];
 
   const {
-    nome, nextEvent, daysRemaining, coupleInfo, widgets,
+    nome, nextEvent, daysRemaining, coupleInfo, widgets, stats,
     isEditingLayout, setIsEditingLayout,
     selectedSidebarItems,
     isEditModalOpen, setIsEditModalOpen,
@@ -71,6 +73,8 @@ export default function Dashboard() {
         return <NavigationCards layoutStyle={layoutStyle} customTabs={customTabs} t={t} language={language} />;
       case 'spotify':
         return <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />;
+      case 'achievements':
+        return <AchievementsWidget stats={stats} t={t} language={language} />;
       default:
         return null;
     }

@@ -1,17 +1,6 @@
 const User = require('../../models/auth/userModel');
 const Couple = require('../../models/couple/coupleModel');
 const ApiError = require('../../utils/apiError');
-const storageService = require('../../services/common/storageService');
-const eventBus = require('../../utils/eventBus');
-
-const Quiz = require('../../models/fun/quizModel');
-const ScratchCard = require('../../models/fun/scratchCardModel');
-const BucketItem = require('../../models/fun/bucketItemModel');
-const Memory = require('../../models/fun/memoryModel');
-const Photo = require('../../models/gallery/photoModel');
-const Coupon = require('../../models/fun/couponModel');
-const LikelyQuestion = require('../../models/fun/likelyModel');
-
 
 exports.getCoupleInfo = async (req, res, next) => {
   try {
@@ -42,7 +31,8 @@ exports.getCoupleInfo = async (req, res, next) => {
         username: u.username,
         moodEmoji: u.moodEmoji || '',
         moodUpdatedAt: u.moodUpdatedAt || null,
-        avatarUrl: u.avatarUrl || ''
+        avatarUrl: u.avatarUrl || '',
+        moodHistory: u.moodHistory || []
       }))
     });
   } catch (error) {
@@ -153,122 +143,3 @@ exports.linkCouple = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.updateMood = async (req, res, next) => {
-  try {
-    const { moodEmoji } = req.body;
-    
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      throw new ApiError(404, 'Utilizador não encontrado.');
-    }
-
-    user.moodEmoji = moodEmoji !== undefined ? moodEmoji.trim() : '';
-    user.moodUpdatedAt = new Date();
-    await user.save();
-
-    eventBus.emit('socket:emit-update', {
-      room: req.coupleId,
-      type: 'mood',
-      user: req.user.username,
-      value: user.moodEmoji
-    });
-
-    res.json({
-      message: 'Humor atualizado com sucesso!',
-      moodEmoji: user.moodEmoji,
-      moodUpdatedAt: user.moodUpdatedAt
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.uploadAvatar = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      throw new ApiError(400, 'Por favor, seleciona um ficheiro de imagem.');
-    }
-
-    const resultado = await storageService.uploadFile(req.file.buffer, 'o-nosso-cantinho-perfis');
-
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      throw new ApiError(404, 'Utilizador não encontrado.');
-    }
-
-    // Se o user já tinha avatar, tentar apagar do Cloudinary para poupar espaço
-    if (user.avatarUrl) {
-      await storageService.deleteFile(user.avatarUrl);
-    }
-
-    user.avatarUrl = resultado.secure_url;
-    await user.save();
-
-    res.json({
-      message: 'Avatar atualizado com sucesso!',
-      avatarUrl: user.avatarUrl
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.getCoupleStats = async (req, res, next) => {
-  try {
-    const coupleId = req.coupleId;
-
-    const [
-      quizzesTotal,
-      quizzesCompleted,
-      scratchTotal,
-      scratchScratched,
-      bucketTotal,
-      bucketCompleted,
-      memoriesTotal,
-      photosTotal,
-      couponsRedeemed,
-      likelyQuestions
-    ] = await Promise.all([
-      Quiz.countDocuments({ coupleId }),
-      Quiz.countDocuments({ coupleId, completed: true }),
-      ScratchCard.countDocuments({ coupleId }),
-      ScratchCard.countDocuments({ coupleId, isScratched: true }),
-      BucketItem.countDocuments({ coupleId }),
-      BucketItem.countDocuments({ coupleId, completed: true }),
-      Memory.countDocuments({ coupleId }),
-      Photo.countDocuments({ coupleId }),
-      Coupon.countDocuments({ coupleId, status: 'redeemed' }),
-      LikelyQuestion.find({ coupleId })
-    ]);
-
-    // Calcular sintonia do Likely
-    const completedLikely = likelyQuestions.filter(q => q.votes.length === 2);
-    const matchedLikely = completedLikely.filter(q => q.isMatched).length;
-
-    res.json({
-      quizzes: {
-        total: quizzesTotal,
-        completed: quizzesCompleted
-      },
-      scratchCards: {
-        total: scratchTotal,
-        scratched: scratchScratched
-      },
-      bucketList: {
-        total: bucketTotal,
-        completed: bucketCompleted
-      },
-      memoriesCount: memoriesTotal,
-      photosCount: photosTotal,
-      couponsCount: couponsRedeemed,
-      likely: {
-        total: completedLikely.length,
-        matched: matchedLikely
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-

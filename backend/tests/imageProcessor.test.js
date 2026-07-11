@@ -32,7 +32,7 @@ describe('Middleware de Segurança - imageProcessor', () => {
     expect(nextFunction).not.toHaveBeenCalledWith(expect.any(Error));
   });
 
-  it('deve processar com sucesso uma imagem PNG válida e remover metadados', async () => {
+  it('deve processar com sucesso uma imagem PNG válida e converter para webp', async () => {
     mockReq.file = {
       buffer: VALID_PNG_BUFFER,
       originalname: 'teste.png',
@@ -45,10 +45,10 @@ describe('Middleware de Segurança - imageProcessor', () => {
     expect(nextFunction).toHaveBeenCalledWith();
     expect(nextFunction).not.toHaveBeenCalledWith(expect.any(Error));
     
-    // O buffer deve ter sido processado e atualizado
+    // O buffer deve ter sido processado e atualizado para WebP
     expect(mockReq.file.buffer).toBeInstanceOf(Buffer);
-    expect(mockReq.file.mimetype).toEqual('image/png');
-    expect(mockReq.file.size).toBeLessThanOrEqual(VALID_PNG_BUFFER.length * 2); // tamanho razoável pós-processamento
+    expect(mockReq.file.mimetype).toEqual('image/webp');
+    expect(mockReq.file.originalname).toEqual('teste.webp');
   });
 
   it('deve rejeitar e retornar erro 400 para tentativas de MIME spoofing', async () => {

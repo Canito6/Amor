@@ -23,6 +23,11 @@ export const themePresets = {
     accent: '#4cc9f0',
     lightGradient: 'linear-gradient(-45deg, #e0f2fe, #bae6fd, #7dd3fc, #f0f9ff)',
     darkGradient: 'linear-gradient(-45deg, #002c40, #004666, #001724, #003752)'
+  },
+  cotton_candy: {
+    accent: '#ff85a2',
+    lightGradient: 'linear-gradient(-45deg, #ffe5ec, #f0fdfa, #e0f2fe, #fff0f3)',
+    darkGradient: 'linear-gradient(-45deg, #4d001b, #002d23, #002c40, #2a0835)'
   }
 };
 

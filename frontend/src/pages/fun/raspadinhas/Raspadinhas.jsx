@@ -7,7 +7,8 @@ import { useConfirm } from '../../../context/ConfirmContext';
 import { translations } from '../../../services/common/translations';
 import ScratchLightbox from '../../../components/raspadinhas/ScratchLightbox';
 import ScratchCardCreator from '../../../components/raspadinhas/ScratchCardCreator';
-import ScratchCardItem from '../../../components/raspadinhas/ScratchCardItem';
+import ScratchTabs from '../../../components/raspadinhas/ScratchTabs';
+import ScratchCardList from '../../../components/raspadinhas/ScratchCardList';
 import './Raspadinhas.css';
 
 export default function Raspadinhas() {
@@ -136,95 +137,27 @@ export default function Raspadinhas() {
       </div>
 
       {/* Tabs */}
-      <div className="scratch-tabs-container">
-        <button
-          className={`scratch-tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pending')}
-        >
-          {t.scratch_tab_pending.replace('{count}', pendingCards.length)}
-        </button>
-        <button
-          className={`scratch-tab-btn ${activeTab === 'scratched' ? 'active' : ''}`}
-          onClick={() => setActiveTab('scratched')}
-        >
-          {t.scratch_tab_scratched.replace('{count}', scratchedCards.length)}
-        </button>
-        <button
-          className={`scratch-tab-btn ${activeTab === 'created' ? 'active' : ''}`}
-          onClick={() => setActiveTab('created')}
-        >
-          {t.scratch_tab_created.replace('{count}', createdCards.length)}
-        </button>
-      </div>
+      <ScratchTabs 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        pendingCount={pendingCards.length}
+        scratchedCount={scratchedCards.length}
+        createdCount={createdCards.length}
+        t={t}
+      />
 
       {/* List content */}
-      {loading ? (
-        <div style={{ textAlign: 'center', margin: '40px 0' }}>
-          <div className="spinner"></div>
-        </div>
-      ) : (
-        <div className="scratch-cards-grid fade-in">
-          {activeTab === 'pending' && (
-            pendingCards.length === 0 ? (
-              <div className="glass-panel empty-tab-panel">
-                <p>{t.scratch_empty_pending}</p>
-              </div>
-            ) : (
-              pendingCards.map(card => (
-                <ScratchCardItem
-                  key={card._id}
-                  card={card}
-                  activeTab={activeTab}
-                  t={t}
-                  language={language}
-                  onScratch={setScratchingCard}
-                  onDelete={handleDeleteCard}
-                />
-              ))
-            )
-          )}
-
-          {activeTab === 'scratched' && (
-            scratchedCards.length === 0 ? (
-              <div className="glass-panel empty-tab-panel">
-                <p>{t.scratch_empty_scratched}</p>
-              </div>
-            ) : (
-              scratchedCards.map(card => (
-                <ScratchCardItem
-                  key={card._id}
-                  card={card}
-                  activeTab={activeTab}
-                  t={t}
-                  language={language}
-                  onScratch={setScratchingCard}
-                  onDelete={handleDeleteCard}
-                />
-              ))
-            )
-          )}
-
-          {activeTab === 'created' && (
-            createdCards.length === 0 ? (
-              <div className="glass-panel empty-tab-panel">
-                <p>{t.scratch_empty_created}</p>
-              </div>
-            ) : (
-              createdCards.map(card => (
-                <ScratchCardItem
-                  key={card._id}
-                  card={card}
-                  activeTab={activeTab}
-                  t={t}
-                  language={language}
-                  onScratch={setScratchingCard}
-                  onDelete={handleDeleteCard}
-                />
-              ))
-            )
-          )}
-        </div>
-      )}
+      <ScratchCardList 
+        loading={loading}
+        activeTab={activeTab}
+        pendingCards={pendingCards}
+        scratchedCards={scratchedCards}
+        createdCards={createdCards}
+        t={t}
+        language={language}
+        setScratchingCard={setScratchingCard}
+        handleDeleteCard={handleDeleteCard}
+      />
 
       {/* SCRATCH LIGHTBOX OVERLAY */}
       {scratchingCard && (

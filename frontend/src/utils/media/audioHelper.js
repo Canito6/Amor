@@ -77,33 +77,7 @@ export function playScratchSound() {
   }
 }
 
-// 3. Som de toque suave (Tap/Click Button Sound)
-export function playTapSound() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(320, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
-
-    gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.08);
-  } catch (err) {
-    console.warn('Audio Context bloqueado:', err);
-  }
-}
-
-// 4. Vibração Háptica
+// 3. Vibração Háptica
 export function triggerHaptic(duration = 40) {
   if ('vibrate' in navigator) {
     try {

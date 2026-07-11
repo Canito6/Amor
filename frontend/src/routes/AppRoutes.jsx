@@ -26,6 +26,7 @@ const Likely = lazy(() => import('../pages/fun/likely/Likely'));
 const Jogos = lazy(() => import('../pages/fun/jogos/Jogos'));
 const PerfilCasal = lazy(() => import('../pages/couple/perfil/PerfilCasal'));
 const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
+const Timeline = lazy(() => import('../pages/couple/timeline/Timeline'));
 
 // Fallback loader component
 function LoadingFallback() {
@@ -52,6 +53,7 @@ export default function AppRoutes() {
             <Route path="/mensagens" element={<Mensagens />} />
             <Route path="/fotos" element={<Fotos />} />
             <Route path="/memorias" element={<Memorias />} />
+            <Route path="/timeline" element={<Timeline />} />
             <Route path="/quizzes" element={<Quizzes />} />
             <Route path="/calendario" element={<Calendario />} />
             <Route path="/raspadinhas" element={<Raspadinhas />} />

@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../context/PreferencesContext';
 import { translations } from '../../services/common/translations';
 import PhotoUploader from '../../components/photos/PhotoUploader';
@@ -150,6 +150,7 @@ export default function Fotos() {
       {/* MODAL LIGHTBOX */}
       <PhotoLightbox
         t={t}
+        photos={photos}
         selectedPhoto={selectedPhoto}
         setSelectedPhoto={setSelectedPhoto}
         meuNome={meuNome}

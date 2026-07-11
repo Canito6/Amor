@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -6,6 +6,7 @@ import QuizCreator from '../../../components/quizzes/QuizCreator';
 import QuizPlayer from '../../../components/quizzes/QuizPlayer';
 import QuizFeedback from '../../../components/quizzes/QuizFeedback';
 import QuizDashboardLists from '../../../components/quizzes/QuizDashboardLists';
+import QuizAiGenerator from '../../../components/quizzes/QuizAiGenerator';
 import useQuizzes from '../../../hooks/fun/useQuizzes';
 import './Quizzes.css';
 
@@ -53,8 +54,6 @@ export default function Quizzes() {
     setAiNotice,
     gerarQuizComIA
   } = useQuizzes(t, language, meuNome);
-
-  const [aiTheme, setAiTheme] = useState('');
 
   const handleGenerateAI = async (themeToGenerate) => {
     if (!themeToGenerate.trim()) return;
@@ -162,49 +161,11 @@ export default function Quizzes() {
 
               <div style={{ width: '100%', borderTop: '1px solid var(--card-border, rgba(255, 255, 255, 0.3))', margin: '5px 0' }}></div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-color-secondary)' }}>
-                  🤖 {t.quizzes_ai_generate_btn}
-                </span>
-
-                <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                  <input
-                    type="text"
-                    placeholder={t.quizzes_ai_theme_placeholder}
-                    value={aiTheme}
-                    onChange={(e) => setAiTheme(e.target.value)}
-                    className="input-control"
-                    style={{ flex: 1, margin: 0 }}
-                    disabled={generatingAI}
-                  />
-                  <button 
-                    className="btn btn-dark" 
-                    onClick={() => handleGenerateAI(aiTheme)}
-                    disabled={generatingAI || !aiTheme.trim()}
-                    style={{ padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                  >
-                    {generatingAI ? t.quizzes_ai_generating : t.quizzes_ai_btn_generate}
-                  </button>
-                </div>
-
-                {/* Categorias Rápidas */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '5px' }}>
-                  {['Romântico 💖', 'Engraçado 🤪', 'Futuro 🔮', 'Geral 🧠'].map((cat) => {
-                    const cleanName = cat.split(' ')[0];
-                    return (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => handleGenerateAI(cleanName)}
-                        disabled={generatingAI}
-                        className="quizzes-quick-cat-btn"
-                      >
-                        {cat}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <QuizAiGenerator 
+                generatingAI={generatingAI}
+                handleGenerateAI={handleGenerateAI}
+                t={t}
+              />
             </div>
           )}
 

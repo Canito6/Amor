@@ -45,7 +45,25 @@ export function SocketProvider({ children }) {
     newSocket.on('connect', () => {
       console.log('Conectado ao servidor Socket.io, sala:', coupleId);
       newSocket.emit('join-couple', coupleId);
+      
+      // Solicitar permissão para Notificações do Browser
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
     });
+
+    const triggerBrowserNotification = (title, body) => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title, {
+            body: body,
+            icon: '/favicon.ico'
+          });
+        } catch (e) {
+          console.error('Erro ao disparar notificação nativa:', e);
+        }
+      }
+    };
 
     newSocket.on('update', (data) => {
       // Ignorar eventos gerados por nós próprios
@@ -56,7 +74,7 @@ export function SocketProvider({ children }) {
 
       let message = '';
       if (data.type === 'mood') {
-        message = `O teu amor atualizou o humor para ${data.value}!`;
+        message = meuNome ? `O teu amor atualizou o humor para ${data.value}! 🔥` : `Your love updated their mood to ${data.value}! 🔥`;
       } else if (data.type === 'coupon-gifted') {
         message = `O teu amor ofereceu-te um novo vale: "${data.value}"! 🎟️`;
       } else if (data.type === 'coupon-redeemed') {
@@ -67,12 +85,27 @@ export function SocketProvider({ children }) {
         message = `O teu amor concluiu o desejo: "${data.value}"! 🏆`;
       } else if (data.type === 'bucket-uncompleted') {
         message = `O teu amor desmarcou o desejo: "${data.value}" como pendente.`;
+      } else if (data.type === 'quiz-answered') {
+        message = `O teu amor respondeu ao teu quiz: "${data.value}"! 🧠`;
+      } else if (data.type === 'scratch-scratched') {
+        message = `O teu amor raspou a raspadinha: "${data.value}"! 🎟️`;
+      } else if (data.type === 'letter-created' || data.type === 'openwhen-created') {
+        message = `O teu amor escreveu uma nova carta "Abrir Quando...": "${data.value}"! ✉️`;
+      } else if (data.type === 'memory-created') {
+        message = `O teu amor criou uma nova memória: "${data.value}"! ⏳`;
+      } else if (data.type === 'message-sent' || data.type === 'message-created') {
+        message = `Nova nota no mural do teu amor: "${data.value}"! 💌`;
       }
 
       if (message) {
         showToast(message, 'info');
-        // Tocar um som de notificação de sistema suave (Web Audio API)
+        // Tocar som de notificação
         playNotificationSound();
+        
+        // Se a página estiver minimizada ou noutra aba, disparar notificação nativa
+        if (document.hidden) {
+          triggerBrowserNotification('Cantinho ❤️', message);
+        }
       }
     });
 

@@ -1,4 +1,4 @@
-﻿import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { themePresets, adjustColorBrightness } from '../utils/ui/themeUtils';
 
 export { themePresets };
@@ -9,6 +9,7 @@ export const PreferencesProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'pt');
   const [layoutStyle, setLayoutStyle] = useState(() => localStorage.getItem('layoutStyle') || 'sidebar');
   const [globalTheme, setTheme] = useState(() => localStorage.getItem('globalTheme') || 'system');
+  const [colorTheme, setColorTheme] = useState(() => localStorage.getItem('colorTheme') || 'dynamic');
   const [activeTabTheme, setActiveTabTheme] = useState(null);
 
   // Guardar preferências locais
@@ -25,6 +26,11 @@ export const PreferencesProvider = ({ children }) => {
   const changeGlobalTheme = (theme) => {
     setTheme(theme);
     localStorage.setItem('globalTheme', theme);
+  };
+
+  const changeColorTheme = (theme) => {
+    setColorTheme(theme);
+    localStorage.setItem('colorTheme', theme);
   };
 
   // Monitorizar preferências de tema do sistema e aplicar classes
@@ -58,7 +64,7 @@ export const PreferencesProvider = ({ children }) => {
       mediaQuery.addEventListener('change', listener);
       return () => mediaQuery.removeEventListener('change', listener);
     }
-  }, [globalTheme, activeTabTheme]);
+  }, [globalTheme, activeTabTheme, colorTheme]);
 
   // Função auxiliar para aplicar cores e gradientes dinâmicos do tab ativo
   const applyTabSpecificTheme = (themeConfig, forceDarkState = null) => {
@@ -71,31 +77,27 @@ export const PreferencesProvider = ({ children }) => {
       (globalTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
     );
 
-    if (themeConfig) {
-      if (themePresets[themeConfig.preset]) {
-        const presetObj = themePresets[themeConfig.preset];
-        accent = presetObj.accent;
-        gradient = isDark ? presetObj.darkGradient : presetObj.lightGradient;
+    // Apply colorTheme override if not dynamic
+    const activePreset = colorTheme !== 'dynamic' ? colorTheme : (themeConfig?.preset || 'romance');
+
+    if (colorTheme === 'dynamic' && themeConfig && !themePresets[themeConfig.preset]) {
+      // Custom tab with custom custom colors
+      accent = themeConfig.accentColor || '#ff4d6d';
+      const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 77, 109';
+      };
+      const rgb = hexToRgb(accent);
+      
+      if (isDark) {
+        gradient = `linear-gradient(-45deg, rgba(${rgb}, 0.15), #12121e, #1a1b2d, rgba(${rgb}, 0.05))`;
       } else {
-        accent = themeConfig.accentColor || '#ff4d6d';
-        const hexToRgb = (hex) => {
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-          return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 77, 109';
-        };
-        const rgb = hexToRgb(accent);
-        
-        if (isDark) {
-          gradient = `linear-gradient(-45deg, rgba(${rgb}, 0.15), #12121e, #1a1b2d, rgba(${rgb}, 0.05))`;
-        } else {
-          gradient = `linear-gradient(-45deg, rgba(${rgb}, 0.15), #ffffff, #fff0f3, rgba(${rgb}, 0.1))`;
-        }
+        gradient = `linear-gradient(-45deg, rgba(${rgb}, 0.15), #ffffff, #fff0f3, rgba(${rgb}, 0.1))`;
       }
     } else {
-      // Tema base do Dashboard/Login
-      accent = '#ff4d6d';
-      gradient = isDark 
-        ? 'linear-gradient(-45deg, #2d0015, #15002b, #001724, #12121e)'
-        : 'linear-gradient(-45deg, #ffccd5, #ffcad4, #b5e2fa, #ffe5ec)';
+      const presetObj = themePresets[activePreset] || themePresets['romance'];
+      accent = presetObj.accent;
+      gradient = isDark ? presetObj.darkGradient : presetObj.lightGradient;
     }
 
     root.style.setProperty('--primary-color', accent);
@@ -111,6 +113,8 @@ export const PreferencesProvider = ({ children }) => {
       changeLayoutStyle,
       globalTheme,
       changeGlobalTheme,
+      colorTheme,
+      changeColorTheme,
       setActiveTabTheme,
       applyTabSpecificTheme
     }}>
