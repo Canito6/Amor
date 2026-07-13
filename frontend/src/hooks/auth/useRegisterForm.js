@@ -1,11 +1,10 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { authService } from '../../services/auth/authService';
 
 export default function useRegisterForm(navigate) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [codigoAdmin, setCodigoAdmin] = useState('');
   const [loginSecurityMethod, setLoginSecurityMethod] = useState('direct');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -35,7 +34,6 @@ export default function useRegisterForm(navigate) {
         username, 
         email, 
         password, 
-        codigoAdmin, 
         loginSecurityMethod, 
         phoneNumber, 
         inviteCode
@@ -55,8 +53,6 @@ export default function useRegisterForm(navigate) {
     setEmail,
     password,
     setPassword,
-    codigoAdmin,
-    setCodigoAdmin,
     loginSecurityMethod,
     setLoginSecurityMethod,
     phoneNumber,

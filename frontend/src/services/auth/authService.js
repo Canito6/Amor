@@ -1,10 +1,10 @@
 import { apiFetch } from '../common/api';
 
 export const authService = {
-  register: (username, email, password, codigoAdmin, loginSecurityMethod, phoneNumber, inviteCode) => {
+  register: (username, email, password, loginSecurityMethod, phoneNumber, inviteCode) => {
     return apiFetch('/api/auth/register', {
       method: 'POST',
-      body: { username, email, password, codigoAdmin, loginSecurityMethod, phoneNumber, inviteCode }
+      body: { username, email, password, loginSecurityMethod, phoneNumber, inviteCode }
     });
   },
 

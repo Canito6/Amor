@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AuthInput from '../../components/auth/AuthInput';
 import SecurityMethodSelector from '../../components/auth/SecurityMethodSelector';
 import useRegisterForm from '../../hooks/auth/useRegisterForm';
@@ -13,8 +13,6 @@ export default function Registar() {
     setEmail,
     password,
     setPassword,
-    codigoAdmin,
-    setCodigoAdmin,
     loginSecurityMethod,
     setLoginSecurityMethod,
     phoneNumber,
@@ -97,16 +95,6 @@ export default function Registar() {
               *Introduz o código que o teu parceiro partilhou para se ligarem imediatamente!
             </span>
           </div>
-          
-          <AuthInput
-            id="codigoAdmin"
-            label="Código Admin (Opcional)"
-            type="password"
-            placeholder="Código Admin"
-            value={codigoAdmin}
-            onChange={(e) => setCodigoAdmin(e.target.value)}
-            style={{ borderStyle: 'dashed', borderColor: 'rgba(0,0,0,0.1)' }}
-          />
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>
             Registar Conta ✨
