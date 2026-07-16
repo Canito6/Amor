@@ -1,8 +1,14 @@
 import React from 'react';
 
 const PASTEL_COLORS = [
-  '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', 
-  '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'
+  '#FF6B9D', // Primária
+  '#C589E8', // Secundária
+  '#FF8EAD', // Soft pink
+  '#D6A6F5', // Soft lavender
+  '#FFB4A2', // Soft coral
+  '#B5EAD7', // Pale mint
+  '#A0C4FF', // Soft sky blue
+  '#FFC6FF'  // Soft magenta
 ];
 
 // Funções geométricas para gerar o círculo SVG dividido em fatias
@@ -48,7 +54,7 @@ export default function WheelSpinner({
           viewBox="0 0 300 300"
           style={{
             transform: `rotate(${rotation}deg)`,
-            transition: isSpinning ? 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)' : 'none'
+            transition: isSpinning ? 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)' : 'none'
           }}
         >
           <g className="wheel-svg-group">

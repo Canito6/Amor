@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .skeleton {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 25%, rgba(0, 0, 0, 0.12) 37%, rgba(0, 0, 0, 0.06) 63%);
+  background: linear-gradient(90deg, rgba(255, 107, 157, 0.06) 25%, rgba(197, 137, 232, 0.12) 37%, rgba(255, 107, 157, 0.06) 63%);
   background-size: 400% 100%;
   animation: skeleton-pulse 1.4s ease infinite;
   display: inline-block;
@@ -13,7 +13,7 @@
 
 /* Dark Theme overrides */
 .theme-dark .skeleton {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 37%, rgba(255, 255, 255, 0.05) 63%);
+  background: linear-gradient(90deg, rgba(255, 107, 157, 0.04) 25%, rgba(197, 137, 232, 0.08) 37%, rgba(255, 107, 157, 0.04) 63%);
   background-size: 400% 100%;
 }
 

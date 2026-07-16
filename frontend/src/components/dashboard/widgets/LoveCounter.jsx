@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AnimatedNumber from '../../shared/AnimatedNumber';
 
 export default function LoveCounter({ relationshipDate, language, t }) {
   const [timeTogether, setTimeTogether] = useState({
@@ -7,6 +8,15 @@ export default function LoveCounter({ relationshipDate, language, t }) {
     minutes: 0,
     seconds: 0
   });
+  
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsFirstLoad(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!relationshipDate) return;
@@ -55,19 +65,27 @@ export default function LoveCounter({ relationshipDate, language, t }) {
       </h2>
       <div className="counter-grid">
         <div className="counter-item">
-          <span className="counter-value">{timeTogether.days}</span>
+          <span className="counter-value">
+            <AnimatedNumber value={timeTogether.days} isFirstLoad={isFirstLoad} />
+          </span>
           <span className="counter-label">{language === 'en' ? 'Days' : 'Dias'}</span>
         </div>
         <div className="counter-item">
-          <span className="counter-value">{String(timeTogether.hours).padStart(2, '0')}</span>
+          <span className="counter-value">
+            <AnimatedNumber value={String(timeTogether.hours).padStart(2, '0')} isFirstLoad={isFirstLoad} />
+          </span>
           <span className="counter-label">{language === 'en' ? 'Hours' : 'Horas'}</span>
         </div>
         <div className="counter-item">
-          <span className="counter-value">{String(timeTogether.minutes).padStart(2, '0')}</span>
+          <span className="counter-value">
+            <AnimatedNumber value={String(timeTogether.minutes).padStart(2, '0')} isFirstLoad={isFirstLoad} />
+          </span>
           <span className="counter-label">{language === 'en' ? 'Mins' : 'Minutos'}</span>
         </div>
         <div className="counter-item">
-          <span className="counter-value">{String(timeTogether.seconds).padStart(2, '0')}</span>
+          <span className="counter-value">
+            <AnimatedNumber value={String(timeTogether.seconds).padStart(2, '0')} isFirstLoad={isFirstLoad} />
+          </span>
           <span className="counter-label">{language === 'en' ? 'Secs' : 'Segundos'}</span>
         </div>
       </div>
@@ -84,3 +102,4 @@ export default function LoveCounter({ relationshipDate, language, t }) {
     </div>
   );
 }
+

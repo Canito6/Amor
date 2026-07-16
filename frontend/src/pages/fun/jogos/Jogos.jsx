@@ -121,7 +121,7 @@ export default function Jogos() {
       title: t.games_card_raspadinhas || 'Raspadinhas do Amor',
       desc: t.games_card_raspadinhas_desc || 'Oferece ou raspa mimos e surpresas especiais.',
       icon: '🎫',
-      accentColor: '#ff4d6d',
+      accentColor: '#FF6B9D',
       count: scratchCardsCount,
       countLabel: language === 'pt' ? `${scratchCardsCount} por raspar` : `${scratchCardsCount} to scratch`
     },
@@ -130,7 +130,7 @@ export default function Jogos() {
       title: t.games_card_roleta || 'Roleta de Decisões',
       desc: t.games_card_roleta_desc || 'Roda a roleta para decidir qualquer coisa em casal.',
       icon: '🎡',
-      accentColor: '#ff9f1c',
+      accentColor: '#FFB4A2',
       count: 0,
       countLabel: ''
     },
@@ -139,7 +139,7 @@ export default function Jogos() {
       title: language === 'pt' ? 'Quadro de Desenho' : 'Drawing Board',
       desc: language === 'pt' ? 'Desenhem e rabisquem juntos em tempo real.' : 'Draw and doodle together in real-time.',
       icon: '✍️',
-      accentColor: '#f72585',
+      accentColor: '#FF8EAD',
       count: 0,
       countLabel: ''
     }
@@ -151,7 +151,7 @@ export default function Jogos() {
       title: t.games_card_vales || 'Vales de Amor',
       desc: t.games_card_vales_desc || 'Oferece ou resgata vales e mimos virtuais especiais.',
       icon: '🎟️',
-      accentColor: '#ff4d6d',
+      accentColor: '#FF6B9D',
       count: couponsCount,
       countLabel: language === 'pt' ? `${couponsCount} disponível(eis)` : `${couponsCount} available`
     },
@@ -160,7 +160,7 @@ export default function Jogos() {
       title: t.games_card_cartas || "Cartas 'Abrir Quando...'",
       desc: t.games_card_cartas_desc || 'Escreve cartas fofas para abrir em momentos de necessidade.',
       icon: '✉️',
-      accentColor: '#7209b7',
+      accentColor: '#C589E8',
       count: lettersCount,
       countLabel: language === 'pt' ? `${lettersCount} por abrir` : `${lettersCount} to open`
     },
@@ -169,7 +169,7 @@ export default function Jogos() {
       title: t.games_card_frasco || 'Frasco dos Mimos',
       desc: t.games_card_frasco_desc || 'Guarda elogios e piadas e tira um bilhete aleatório.',
       icon: '🏺',
-      accentColor: '#4cc9f0',
+      accentColor: '#88D4F7',
       count: jarCount,
       countLabel: language === 'pt' ? `${jarCount} papelinho(s)` : `${jarCount} note(s)`
     },
@@ -178,7 +178,7 @@ export default function Jogos() {
       title: t.games_card_bucket || 'Lista de Desejos',
       desc: t.games_card_bucket_desc || 'Metas românticas para realizar em casal.',
       icon: '📝',
-      accentColor: '#f72585',
+      accentColor: '#FF6B9D',
       count: bucketCount,
       countLabel: language === 'pt' ? `${bucketCount} pendente(s)` : `${bucketCount} pending`
     }

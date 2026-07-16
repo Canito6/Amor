@@ -50,13 +50,11 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
     setIsEmojiPanelOpen(false);
   };
 
+  const enviaPorMim = msg.sender === meuNome;
+
   return (
     <div 
-      className="post-it"
-      style={{ 
-        background: cores.bg, 
-        borderColor: cores.border 
-      }}
+      className={`post-it message-bubble ${enviaPorMim ? 'message-sent' : 'message-received'} ${msg.isOffline ? 'offline-pending' : ''}`}
     >
       {/* Conteúdo ou Campo de Edição */}
       {isEditing ? (

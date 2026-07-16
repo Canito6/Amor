@@ -1,10 +1,10 @@
 /* ==========================================================================
-   BENTO GRID WIDGET LAYOUT
+   BENTO GRID WIDGET LAYOUT - REDESIGN 2-COLUNAS
    ========================================================================== */
 .widget-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   width: 100%;
   margin: 0 auto;
 }
@@ -13,44 +13,88 @@
   width: 100%;
   position: relative;
   transition: var(--transition-spring);
-  border-radius: 24px;
+  border-radius: var(--radius-lg, 24px);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 
 .widget-slot:hover {
-  transform: translateY(-6px) scale(1.008);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(255, 107, 157, 0.25);
 }
 
-/* Bento slot span rules */
+/* Bento slot layout priority & sizes (2-column layout mapping) */
+.widget-slot-welcome {
+  grid-column: span 2;
+}
+
+.widget-slot-love {
+  grid-column: span 1;
+}
+
+.widget-slot-countdown {
+  grid-column: span 1;
+}
+
+.widget-slot-mood {
+  grid-column: span 1;
+}
+
+/* Size classes fallback mapping (Customizer) */
 .widget-size-normal {
-  grid-column: span 4;
+  grid-column: span 1;
 }
 
 .widget-size-wide {
-  grid-column: span 8;
+  grid-column: span 2;
 }
 
 .widget-size-stretched {
-  grid-column: span 12;
+  grid-column: span 2;
 }
 
-/* Responsive overrides */
-@media (max-width: 1024px) {
-  .widget-slot-love,
-  .widget-slot-mood,
-  .widget-slot-checkin,
-  .widget-slot-countdown,
-  .widget-slot-spotify,
-  .widget-slot-navigation {
-    grid-column: span 12;
-  }
-}
-
+/* Responsive overrides (Mobile layout 1-column) */
 @media (max-width: 768px) {
   .widget-grid {
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 20px;
   }
-  .widget-slot {
-    grid-column: span 12 !important;
+  
+  .widget-slot,
+  .widget-slot-welcome,
+  .widget-slot-love,
+  .widget-slot-countdown,
+  .widget-slot-mood,
+  .widget-size-normal,
+  .widget-size-wide,
+  .widget-size-stretched {
+    grid-column: span 1 !important;
   }
 }
+
+/* Countdown Badge accessibility styling */
+.countdown-badge {
+  font-family: var(--font-title);
+  font-size: 12px;
+  font-weight: 700;
+  color: #7b2cbf;
+  background: #f2e9fc;
+  border: 1px solid rgba(123, 44, 191, 0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:global(.theme-dark) .countdown-badge {
+  color: var(--secondary-color);
+  background: rgba(197, 137, 232, 0.1);
+  border-color: rgba(197, 137, 232, 0.15);
+}
+

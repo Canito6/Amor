@@ -1,31 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Cores Principais - Paleta Romântica e Moderna */
-  --primary-color: #ff4d6d;
-  --primary-hover: #ff758f;
-  --primary-light: #fff0f3;
-  --secondary-color: #7209b7;
-  --secondary-hover: #560bad;
-  --bg-gradient: linear-gradient(-45deg, #ffccd5, #ffcad4, #b5e2fa, #ffe5ec);
-  --card-bg: rgba(255, 255, 255, 0.7);
+  --primary-color: #FF6B9D;
+  --primary-hover: #ff528d;
+  --primary-light: #fff0f5;
+  --secondary-color: #C589E8;
+  --secondary-hover: #b470e3;
+  --main-gradient: linear-gradient(135deg, #FF6B9D 0%, #C589E8 100%);
+  --bg-gradient: linear-gradient(-45deg, #FFF8FB, #ffeaf2, #f5e4fc, #FFF8FB);
+  --card-bg: rgba(255, 255, 255, 0.75);
   --card-border: rgba(255, 255, 255, 0.6);
-  --text-main: #2b2d42;
-  --text-muted: #6c757d;
+  --text-main: #2D1B2E;
+  --text-muted: #6b586e;
   --success-color: #2a9d8f;
   --danger-color: #e63946;
   
   /* Fontes */
-  --font-title: 'Comfortaa', 'Outfit', sans-serif;
+  --font-title: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Transições e Sombras */
+  /* Escala de Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  /* Transições e Sombras Suaves */
   --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-spring: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 22px 48px rgba(255, 77, 109, 0.12);
-  --shadow-hover: 0 28px 56px rgba(255, 77, 109, 0.22);
+  --shadow-sm: 0 4px 12px rgba(255, 107, 157, 0.08);
+  --shadow-md: 0 8px 24px rgba(255, 107, 157, 0.15);
+  --shadow-lg: 0 16px 48px rgba(255, 107, 157, 0.25);
+  --shadow-hover: 0 20px 48px rgba(255, 107, 157, 0.3);
 }
 
 /* Reset Geral */
@@ -266,11 +272,11 @@ body {
 }
 
 .theme-dark {
-  --card-bg: rgba(26, 27, 41, 0.75);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-main: #f8f9fa;
-  --text-muted: #adb5bd;
-  --bg-gradient: linear-gradient(-45deg, #2d0015, #15002b, #001724, #12121e);
+  --card-bg: rgba(30, 22, 38, 0.75);
+  --card-border: rgba(255, 255, 255, 0.05);
+  --text-main: #FFF8FB;
+  --text-muted: #bdaebf;
+  --bg-gradient: linear-gradient(-45deg, #1E1626, #2d1838, #120d18, #1E1626);
 }
 
 .theme-dark body {
@@ -737,6 +743,18 @@ body {
   .btn {
     width: 100% !important;
     padding: 12px 20px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }
 

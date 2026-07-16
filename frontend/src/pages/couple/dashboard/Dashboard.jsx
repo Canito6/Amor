@@ -60,7 +60,7 @@ export default function Dashboard() {
   const renderWidget = (widgetId) => {
     switch (widgetId) {
       case 'welcome':
-        return <WelcomeBanner nome={nome} t={t} />;
+        return <WelcomeBanner nome={nome} relationshipDate={coupleInfo.relationshipDate} language={language} t={t} />;
       case 'mood':
         return <MoodTracker coupleInfo={coupleInfo} loadCoupleInfo={loadCoupleInfo} t={t} language={language} />;
       case 'checkin':

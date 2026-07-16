@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { decisionWheelService } from '../../services/fun/decisionWheelService';
-import { playClickSound } from '../../utils/media/audioHelper';
+import { playClickSound, triggerHaptic } from '../../utils/media/audioHelper';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
 
@@ -126,6 +126,18 @@ export default function useRoleta(t) {
     const spinsCount = 6;
     const totalRotation = 360 * spinsCount + targetAngle;
     
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+    if (prefersReducedMotion) {
+      setRotation(targetAngle);
+      setTimeout(() => {
+        setIsSpinning(false);
+        setResult(options[selectedIndex]);
+        triggerHaptic(100);
+      }, 100);
+      return;
+    }
+
     setRotation(totalRotation);
 
     // Efeito sonoro dinâmico durante a desaceleração da roleta
@@ -157,6 +169,7 @@ export default function useRoleta(t) {
     setTimeout(() => {
       setIsSpinning(false);
       setResult(options[selectedIndex]);
+      triggerHaptic(100); // Vibração de parada/sucesso!
     }, duration);
   };
 

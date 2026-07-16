@@ -14,52 +14,119 @@
 }
 
 .notes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 28px;
-  margin-top: 40px;
-}
-
-.post-it {
-  padding: 26px;
-  min-height: 230px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  position: relative;
+  gap: 16px;
+  margin-top: 30px;
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.message-bubble {
+  padding: 18px 22px;
+  min-height: auto;
+  border-radius: var(--radius-md, 16px);
+  max-width: 75%;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
   transition: var(--transition-smooth);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  transform: rotate(calc(var(--rotation, 0) * 1deg));
 }
 
-/* Rotações ligeiras aleatórias a cada post-it para aspeto natural */
-.post-it:nth-child(2n) { --rotation: 1.2; }
-.post-it:nth-child(3n) { --rotation: -1.5; }
-.post-it:nth-child(4n) { --rotation: 0.8; }
-.post-it:nth-child(5n) { --rotation: -1; }
-
-.post-it:hover {
-  transform: rotate(0deg) translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  z-index: 5;
+.message-sent {
+  align-self: flex-end;
+  background: var(--main-gradient);
+  color: #ffffff;
+  border-radius: 18px 18px 4px 18px;
+  text-shadow: 0 1px 1px rgba(45, 27, 46, 0.12);
 }
 
-/* Decoração de Fita Adesiva Translúcida */
-.post-it::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-2deg);
-  width: 90px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(2px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  border-left: 1px dashed rgba(0,0,0,0.08);
-  border-right: 1px dashed rgba(0,0,0,0.08);
+.message-sent .post-it-content {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.message-sent .post-it-author {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.message-sent .post-it-footer {
+  border-top-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.message-sent .post-it-action-btn {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.message-sent .post-it-action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.message-sent .reaction-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.message-sent .reaction-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.message-sent .reaction-btn.reacted {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffffff;
+}
+
+.message-received {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--card-border);
+  color: var(--text-main);
+  border-radius: 18px 18px 18px 4px;
+}
+
+.message-received .post-it-content {
+  color: var(--text-main);
+}
+
+.message-received .post-it-author {
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+.message-received .post-it-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+}
+
+.message-received .post-it-action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.theme-dark .message-received {
+  background: rgba(30, 22, 38, 0.6);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+}
+
+.theme-dark .message-received .post-it-content {
+  color: var(--text-main);
+}
+
+.theme-dark .message-received .post-it-footer {
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.message-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .post-it-content {

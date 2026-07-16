@@ -34,32 +34,44 @@ export default function ScratchLightbox({ card, onClose, onScratchComplete, t })
       return;
     }
 
-    // Desenhar a camada protetora cinzenta/gradiente
+    // Desenhar a camada protetora metálica Rose Gold
     const grad = ctx.createLinearGradient(0, 0, width, height);
-    grad.addColorStop(0, '#ccc');
-    grad.addColorStop(0.5, '#e0e0e0');
-    grad.addColorStop(1, '#aaaaaa');
+    grad.addColorStop(0, '#ecb8b8'); // Rose Gold brilhante
+    grad.addColorStop(0.25, '#ffd9d9');
+    grad.addColorStop(0.5, '#d49ea7'); // Tom médio metálico
+    grad.addColorStop(0.75, '#ffd9d9');
+    grad.addColorStop(1, '#ecb8b8');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, width, height);
 
+    // Adicionar padrão metálico diagonal de brilho
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1.5;
+    for (let i = -height; i < width; i += 30) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i + height, height);
+      ctx.stroke();
+    }
+
     // Adicionar texto decorativo sobre a raspadinha
-    ctx.font = 'bold 16px "Comfortaa", "Outfit", sans-serif';
-    ctx.fillStyle = '#ff4d6d';
+    ctx.font = 'bold 16px "Poppins", sans-serif';
+    ctx.fillStyle = '#2D1B2E';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('Raspa Aqui ❤️', width / 2, height / 2 - 10);
 
     ctx.font = '12px "Inter", sans-serif';
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = '#6b586e';
     ctx.fillText(t.scratch_canvas_instruction.split('!')[0] + '!', width / 2, height / 2 + 15);
 
-    // Desenhar textura de confetes ou pequenos corações sobre a cartolina cinzenta
-    ctx.fillStyle = 'rgba(255, 77, 109, 0.15)';
-    for (let i = 0; i < 15; i++) {
+    // Desenhar pequenos sparkles/corações sobre a raspadinha
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    for (let i = 0; i < 20; i++) {
       const rx = Math.random() * width;
       const ry = Math.random() * height;
       ctx.beginPath();
-      ctx.arc(rx, ry, 3 + Math.random() * 5, 0, Math.PI * 2);
+      ctx.arc(rx, ry, 2 + Math.random() * 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }, [card.isScratched, isRevealed, t.scratch_canvas_instruction]);
@@ -80,26 +92,28 @@ export default function ScratchLightbox({ card, onClose, onScratchComplete, t })
     const width = canvas.width;
     const height = canvas.height;
 
-    // Cores premium de confetes
+    // Cores premium e românticas
     const colors = [
-      '#ff4d6d', '#ff758f', '#ff8fa3', '#ffd166', 
-      '#06d6a0', '#118ab2', '#7209b7', '#f72585'
+      '#FF6B9D', '#C589E8', '#FF8EAD', '#ffd166', 
+      '#06d6a0', '#118ab2', '#ffccd5', '#f72585'
     ];
+    const shapes = ['rect', 'circle', 'heart'];
     
     const particles = [];
-    // Spawnar 120 partículas a partir do centro
-    for (let i = 0; i < 120; i++) {
+    // Spawnar 140 partículas a partir do centro
+    for (let i = 0; i < 140; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 7;
+      const speed = 3 + Math.random() * 8;
       particles.push({
         x: width / 2,
         y: height / 2,
-        size: 5 + Math.random() * 7,
+        size: 5 + Math.random() * 8,
         color: colors[Math.floor(Math.random() * colors.length)],
+        shape: shapes[Math.floor(Math.random() * shapes.length)],
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 3, // Força a explosão ligeiramente para cima
+        vy: Math.sin(angle) * speed - 4, // Explosão ligeiramente para cima
         rotation: Math.random() * 360,
-        rotationSpeed: -8 + Math.random() * 16,
+        rotationSpeed: -10 + Math.random() * 20,
         opacity: 1
       });
     }
@@ -115,18 +129,32 @@ export default function ScratchLightbox({ card, onClose, onScratchComplete, t })
         p.x += p.vx;
         p.y += p.vy;
         p.rotation += p.rotationSpeed;
-        p.vy += 0.15; // Gravidade
-        p.vx *= 0.98; // Resistência do ar
-
-        // Desenhar partícula individual com rotação
+        p.vy += 0.16; // Gravidade
+        p.vx *= 0.98; // Atrito
+        
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
         ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size / 2);
+        
+        if (p.shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.shape === 'heart') {
+          ctx.beginPath();
+          const size = p.size;
+          ctx.moveTo(0, -size / 4);
+          ctx.bezierCurveTo(size / 2, -size / 2, size, 0, 0, size);
+          ctx.bezierCurveTo(-size, 0, -size / 2, -size / 2, 0, -size / 4);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size / 2);
+        }
+        
         ctx.restore();
 
-        // Continua ativo se as partículas estiverem no ecrã
+        // Continua ativo se as partículas ainda estiverem no ecrã
         if (p.y < height + 20) {
           active = true;
         }
