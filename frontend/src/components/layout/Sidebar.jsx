@@ -12,7 +12,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
         return JSON.parse(saved);
       } catch (err) {}
     }
-    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/timeline', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
+    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/timeline', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
 
   React.useEffect(() => {
@@ -40,6 +40,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
+    { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
   ];
 
   const filteredNavItems = defaultNavItems.filter(item => {

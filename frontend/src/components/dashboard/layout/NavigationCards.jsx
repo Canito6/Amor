@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { themePresets } from '../../../context/PreferencesContext';
 
@@ -12,7 +12,7 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
         return JSON.parse(saved);
       } catch (err) {}
     }
-    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
+    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
 
   useEffect(() => {
@@ -43,6 +43,7 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝', desc: language === 'pt' ? 'A vossa lista de desejos e metas românticas com fotos' : 'Your bucket list and romantic goals with photos', preset: 'lavender' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️', desc: language === 'pt' ? 'Mensagens surpresa para ler em momentos específicos' : 'Surprise messages to read in specific moments', preset: 'romance' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺', desc: language === 'pt' ? 'Tira um papelinho aleatório para alegrar o teu dia' : 'Draw a random note to brighten your day', preset: 'sunset' },
+    { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊', desc: language === 'pt' ? 'Vê as estatísticas de conversa, humores e conquistas da vossa relação' : 'View chat statistics, moods, and achievements of your relationship', preset: 'ocean' },
   ];
 
   const filteredCards = defaultCards.filter(card => visibleItems.includes(card.path));

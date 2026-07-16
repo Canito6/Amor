@@ -26,5 +26,8 @@ const upload = multer({
 
 router.post('/mood', verificarToken, userController.updateMood);
 router.post('/profile-avatar', verificarToken, upload.single('image'), imageProcessor, userController.uploadAvatar);
+router.post('/push-subscribe', verificarToken, userController.subscribePush);
+router.post('/push-unsubscribe', verificarToken, userController.unsubscribePush);
+router.get('/vapid-public-key', verificarToken, userController.getVapidPublicKey);
 
 module.exports = router;

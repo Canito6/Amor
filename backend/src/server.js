@@ -59,6 +59,10 @@ io.use((socket, next) => {
 const { initNotificationListener } = require('./listeners/notificationListener');
 initNotificationListener(io);
 
+// Configurar web-push
+const { configureWebPush } = require('./services/common/pushService');
+configureWebPush();
+
 io.on('connection', (socket) => {
   socket.on('join-couple', (coupleId) => {
     // [SEGURANÇA - VULN-009] Autorização de sala: apenas permite juntar-se à própria sala do casal ou se for administrador

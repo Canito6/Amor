@@ -83,6 +83,26 @@ export const authService = {
     });
   },
 
+  subscribePush: (subscription) => {
+    return apiFetch('/api/auth/push-subscribe', {
+      method: 'POST',
+      body: subscription
+    });
+  },
+
+  unsubscribePush: (endpoint) => {
+    return apiFetch('/api/auth/push-unsubscribe', {
+      method: 'POST',
+      body: { endpoint }
+    });
+  },
+
+  getVapidPublicKey: () => {
+    return apiFetch('/api/auth/vapid-public-key', {
+      method: 'GET'
+    });
+  },
+
   logout: () => {
     return apiFetch('/api/auth/logout', {
       method: 'POST'

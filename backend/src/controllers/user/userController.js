@@ -73,3 +73,49 @@ exports.uploadAvatar = async (req, res, next) => {
     next(error);
   }
 };
+
+const PushSubscription = require('../../models/auth/pushSubscriptionModel');
+
+exports.subscribePush = async (req, res, next) => {
+  try {
+    const { endpoint, keys } = req.body;
+    if (!endpoint || !keys || !keys.p256dh || !keys.auth) {
+      throw new ApiError(400, 'Subscrição push inválida.');
+    }
+
+    // Correção 1: Usar findOneAndUpdate com upsert para idempotência
+    await PushSubscription.findOneAndUpdate(
+      { endpoint },
+      { userId: req.user.id || req.user._id, endpoint, keys },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.status(200).json({ message: 'Subscrição registada com sucesso!' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.unsubscribePush = async (req, res, next) => {
+  try {
+    const { endpoint } = req.body;
+    if (!endpoint) {
+      throw new ApiError(400, 'Endpoint de subscrição em falta.');
+    }
+
+    await PushSubscription.deleteOne({ endpoint, userId: req.user.id || req.user._id });
+
+    res.status(200).json({ message: 'Subscrição removida com sucesso!' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getVapidPublicKey = async (req, res, next) => {
+  try {
+    const publicKey = process.env.VAPID_PUBLIC_KEY || '';
+    res.json({ publicKey });
+  } catch (error) {
+    next(error);
+  }
+};

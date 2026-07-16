@@ -28,6 +28,7 @@ const PerfilCasal = lazy(() => import('../pages/couple/perfil/PerfilCasal'));
 const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
 const Timeline = lazy(() => import('../pages/couple/timeline/Timeline'));
 const DateNight = lazy(() => import('../pages/fun/date-night/DateNight'));
+const RelationshipStats = lazy(() => import('../pages/couple/stats/RelationshipStats'));
 
 // Fallback loader component
 function LoadingFallback() {
@@ -68,6 +69,7 @@ export default function AppRoutes() {
             <Route path="/date-night" element={<DateNight />} />
             <Route path="/perfil-casal" element={<PerfilCasal />} />
             <Route path="/desenho" element={<Desenho />} />
+            <Route path="/estatisticas" element={<RelationshipStats />} />
             <Route path="/tab/:tabId" element={<CustomTabViewer />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Route>

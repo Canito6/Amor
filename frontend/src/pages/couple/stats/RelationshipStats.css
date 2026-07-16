@@ -1,0 +1,356 @@
+.stats-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  color: var(--text-color, #2b2b2b);
+}
+
+.stats-header {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.stats-main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff4d6d 0%, #ff85a1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.stats-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted, #666);
+}
+
+.love-counter-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.08);
+}
+
+.love-counter-icon {
+  font-size: 2.5rem;
+  animation: heartbeat 1.4s infinite ease-in-out;
+}
+
+.love-counter-details h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--primary-color, #ff4d6d);
+}
+
+.love-counter-details p {
+  font-size: 0.95rem;
+  margin: 0;
+  color: var(--text-muted, #777);
+}
+
+.stats-streak-badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FF9F43 0%, #FF5252 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255, 82, 82, 0.25);
+}
+
+/* Bento Grid */
+.stats-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+.bento-card {
+  padding: 22px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.bento-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+  color: var(--text-color, #333);
+}
+
+/* Specific Card Layouts */
+.mood-match-card {
+  grid-column: span 5;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.mood-gauge-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.05);
+  stroke-width: 8px;
+}
+
+.gauge-progress {
+  fill: none;
+  stroke: var(--primary-color, #ff4d6d);
+  stroke-width: 8px;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50px 50px;
+  transition: stroke-dashoffset 1s ease-out;
+}
+
+.gauge-text {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  fill: var(--text-color, #333);
+  text-anchor: middle;
+}
+
+.mood-match-description {
+  font-size: 0.85rem;
+  color: var(--text-muted, #777);
+  margin: 12px 0 0 0;
+  max-width: 180px;
+  line-height: 1.35;
+}
+
+.numeric-totals-card {
+  grid-column: span 7;
+}
+
+.totals-subgrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  height: 100%;
+}
+
+.total-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.total-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.total-icon {
+  font-size: 1.8rem;
+}
+
+.total-item h4 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-color, #2b2b2b);
+}
+
+.total-item p {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--text-muted, #777);
+}
+
+/* Detailed activities card */
+.detailed-activities-card {
+  grid-column: span 6;
+  gap: 15px;
+}
+
+.activity-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.activity-info span {
+  font-weight: 600;
+}
+
+.activity-info p {
+  margin: 0;
+  color: var(--text-muted, #666);
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+/* Chart card */
+.chart-card-large {
+  grid-column: span 6;
+}
+
+.custom-chart-wrapper {
+  margin-top: 10px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.custom-bars-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 25px;
+}
+
+.chart-bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50px;
+  position: relative;
+}
+
+.chart-bar-value-bubble {
+  position: absolute;
+  top: -24px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+.chart-bar-column:hover .chart-bar-value-bubble {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chart-bar-outer {
+  width: 14px;
+  height: 110px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.chart-bar-inner {
+  width: 100%;
+  border-radius: 8px;
+  transition: height 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.chart-bar-label {
+  font-size: 0.72rem;
+  margin-top: 8px;
+  white-space: nowrap;
+  color: var(--text-muted, #777);
+  font-weight: 500;
+}
+
+/* No data states */
+.no-data-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted, #888);
+  height: 100%;
+  flex-grow: 1;
+}
+
+.placeholder-icon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  opacity: 0.6;
+}
+
+.no-data-main {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-color, #444);
+}
+
+.no-data-sub {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  max-width: 250px;
+}
+
+/* Heartbeat animation */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.12); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.12); }
+  70% { transform: scale(1); }
+}
+
+/* Responsive bento grid */
+@media (max-width: 768px) {
+  .stats-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mood-match-card, 
+  .numeric-totals-card, 
+  .detailed-activities-card, 
+  .chart-card-large {
+    grid-column: span 12;
+  }
+  
+  .totals-subgrid {
+    grid-template-columns: 1fr;
+  }
+}
