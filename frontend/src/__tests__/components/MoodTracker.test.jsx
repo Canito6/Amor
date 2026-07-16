@@ -112,4 +112,61 @@ describe('MoodTracker widget', () => {
     // Freq matches = 2 / 3 * 100 = 67%
     expect(screen.getByText('67% Match')).toBeInTheDocument();
   });
+
+  it('respects the 95% cap on historical match rate when moods differ today', () => {
+    const todayStr = new Date().toISOString();
+    const coupleInfo = {
+      partners: [
+        {
+          username: 'Alice',
+          moodEmoji: '🥰',
+          moodUpdatedAt: todayStr,
+          // History contains 100% overlap
+          moodHistory: [
+            { emoji: '🥰', updatedAt: todayStr },
+            { emoji: '😊', updatedAt: todayStr }
+          ]
+        },
+        {
+          username: 'Bob',
+          moodEmoji: '😊', // Differs today (🥰 vs 😊)
+          moodUpdatedAt: todayStr,
+          moodHistory: [
+            { emoji: '🥰', updatedAt: todayStr },
+            { emoji: '😊', updatedAt: todayStr }
+          ]
+        }
+      ]
+    };
+
+    render(<MoodTracker coupleInfo={coupleInfo} loadCoupleInfo={vi.fn()} t={t} language="pt" />);
+    
+    // Even with 100% overlap in history, because today's moods differ (🥰 vs 😊), the score must be capped at 95%
+    expect(screen.getByText('95% Match')).toBeInTheDocument();
+  });
+
+  it('handles empty histories gracefully (new couple)', () => {
+    const todayStr = new Date().toISOString();
+    const coupleInfo = {
+      partners: [
+        {
+          username: 'Alice',
+          moodEmoji: '🥰',
+          moodUpdatedAt: todayStr,
+          moodHistory: []
+        },
+        {
+          username: 'Bob',
+          moodEmoji: '😊',
+          moodUpdatedAt: todayStr,
+          moodHistory: []
+        }
+      ]
+    };
+
+    render(<MoodTracker coupleInfo={coupleInfo} loadCoupleInfo={vi.fn()} t={t} language="pt" />);
+    
+    // Overlap: empty histories = 0 matches, max history length is 1 fallback = 0%
+    expect(screen.getByText('0% Match')).toBeInTheDocument();
+  });
 });

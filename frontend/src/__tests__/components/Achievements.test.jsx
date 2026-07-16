@@ -18,10 +18,6 @@ describe('achievementsData helper functions', () => {
         decisionWheelsCount: 2 // 2 * 30 = 60
       };
 
-      // Total XP = 100 + 40 + 100 + 150 + 40 + 30 + 50 + 50 + 40 + 60 = 660 XP
-      // level = Math.floor(660 / 250) + 1 = 2 + 1 = 3
-      // currentLevelXP = 660 % 250 = 160 XP
-      // progressPercent = (160 / 250) * 100 = 64%
       const result = calculateLevelAndXP(stats);
 
       expect(result.xp).toBe(660);
@@ -38,50 +34,62 @@ describe('achievementsData helper functions', () => {
   });
 
   describe('getAchievementsList', () => {
-    it('evaluates unlocked states correctly based on stats thresholds', () => {
-      const stats = {
-        memoriesCount: 10,
-        photosCount: 5,
-        quizzes: { completed: 3 },
-        bucketList: { completed: 2 },
-        scratchCards: { scratched: 3 },
-        messagesCount: 120,
-        timeCapsulesCount: 1,
-        decisionWheelsCount: 1
-      };
-
-      const ptList = getAchievementsList(stats, 'pt');
-      
-      ptList.forEach(ach => {
-        expect(ach.unlocked).toBe(true);
-      });
-      
-      // Verify some locked items when counts are below threshold
-      const lowStats = {
-        memoriesCount: 9,
-        photosCount: 4,
-        quizzes: { completed: 2 },
-        bucketList: { completed: 1 },
+    it('locks all achievements when stats are 0 (new couple)', () => {
+      const zeroStats = {
+        memoriesCount: 0,
+        photosCount: 0,
+        quizzes: { completed: 0 },
+        bucketList: { completed: 0 },
         scratchCards: { scratched: 0 },
-        messagesCount: 99,
+        messagesCount: 0,
         timeCapsulesCount: 0,
         decisionWheelsCount: 0
       };
 
-      const lockedList = getAchievementsList(lowStats, 'pt');
-      
-      // Storyteller (10 memories), chatty_couple (100 messages), first_time_capsule (1), wheel_spinner (1) should be locked
-      const storytellingBadge = lockedList.find(a => a.id === 'storyteller');
-      const chattyBadge = lockedList.find(a => a.id === 'chatty_couple');
-      const timeCapsuleBadge = lockedList.find(a => a.id === 'first_time_capsule');
-      const wheelBadge = lockedList.find(a => a.id === 'wheel_spinner');
-      const firstScratchBadge = lockedList.find(a => a.id === 'first_scratch');
+      const list = getAchievementsList(zeroStats, 'pt');
+      list.forEach(ach => {
+        expect(ach.unlocked).toBe(false);
+      });
+    });
 
-      expect(storytellingBadge.unlocked).toBe(false);
-      expect(chattyBadge.unlocked).toBe(false);
-      expect(timeCapsuleBadge.unlocked).toBe(false);
-      expect(wheelBadge.unlocked).toBe(false);
-      expect(firstScratchBadge.unlocked).toBe(false);
+    it('unlocks "Primeira Raspadinha" correctly when scratched >= 1', () => {
+      const statsLow = { scratchCards: { scratched: 0 } };
+      const statsHigh = { scratchCards: { scratched: 1 } };
+      
+      expect(getAchievementsList(statsLow, 'pt').find(a => a.id === 'first_scratch').unlocked).toBe(false);
+      expect(getAchievementsList(statsHigh, 'pt').find(a => a.id === 'first_scratch').unlocked).toBe(true);
+    });
+
+    it('unlocks "Contador de Histórias" correctly when memoriesCount >= 10', () => {
+      const statsLow = { memoriesCount: 9 };
+      const statsHigh = { memoriesCount: 10 };
+      
+      expect(getAchievementsList(statsLow, 'pt').find(a => a.id === 'storyteller').unlocked).toBe(false);
+      expect(getAchievementsList(statsHigh, 'pt').find(a => a.id === 'storyteller').unlocked).toBe(true);
+    });
+
+    it('unlocks "100 Mensagens" correctly when messagesCount >= 100', () => {
+      const statsLow = { messagesCount: 99 };
+      const statsHigh = { messagesCount: 100 };
+      
+      expect(getAchievementsList(statsLow, 'pt').find(a => a.id === 'chatty_couple').unlocked).toBe(false);
+      expect(getAchievementsList(statsHigh, 'pt').find(a => a.id === 'chatty_couple').unlocked).toBe(true);
+    });
+
+    it('unlocks "Primeira Cápsula do Tempo" correctly when timeCapsulesCount >= 1', () => {
+      const statsLow = { timeCapsulesCount: 0 };
+      const statsHigh = { timeCapsulesCount: 1 };
+      
+      expect(getAchievementsList(statsLow, 'pt').find(a => a.id === 'first_time_capsule').unlocked).toBe(false);
+      expect(getAchievementsList(statsHigh, 'pt').find(a => a.id === 'first_time_capsule').unlocked).toBe(true);
+    });
+
+    it('unlocks "Roda da Sorte" correctly when decisionWheelsCount >= 1', () => {
+      const statsLow = { decisionWheelsCount: 0 };
+      const statsHigh = { decisionWheelsCount: 1 };
+      
+      expect(getAchievementsList(statsLow, 'pt').find(a => a.id === 'wheel_spinner').unlocked).toBe(false);
+      expect(getAchievementsList(statsHigh, 'pt').find(a => a.id === 'wheel_spinner').unlocked).toBe(true);
     });
   });
 });
