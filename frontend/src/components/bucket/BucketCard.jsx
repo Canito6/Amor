@@ -26,7 +26,7 @@ export default function BucketCard({
       {/* Polaroid Photo Frame if completed with photo */}
       {item.completed && item.imageUrl && (
         <div className="bucket-polaroid-frame">
-          <img src={item.imageUrl} alt={item.title} className="bucket-polaroid-image" />
+          <img src={item.imageUrl} alt={item.title} className="bucket-polaroid-image" loading="lazy" />
           <div className="polaroid-pin">📌</div>
         </div>
       )}

@@ -9,6 +9,7 @@ import SettingsModal from '../shared/SettingsModal';
 import LinkCoupleModal from '../shared/LinkCoupleModal';
 import Header from './Header';
 import FloatingHeartsBackground from '../shared/FloatingHeartsBackground';
+import { motion, AnimatePresence } from 'framer-motion';
 import './MainLayout.css';
 import '../../pages/couple/dashboard/Dashboard.css';
 
@@ -190,8 +191,19 @@ export default function MainLayout() {
             </button>
           </div>
         )}
-        <div className="content-outlet">
-          <Outlet />
+        <div className="content-outlet" style={{ position: 'relative' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 0 : 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 0 : -12 }}
+              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              style={{ width: '100%' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 

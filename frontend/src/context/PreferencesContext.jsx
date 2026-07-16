@@ -8,9 +8,19 @@ const PreferencesContext = createContext();
 export const PreferencesProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'pt');
   const [layoutStyle, setLayoutStyle] = useState(() => localStorage.getItem('layoutStyle') || 'sidebar');
-  const [globalTheme, setTheme] = useState(() => localStorage.getItem('globalTheme') || 'system');
+  const [globalTheme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('globalTheme');
+    if (saved) return saved;
+    // Deteção automática por horário (20h - 7h) na primeira visita
+    const hour = new Date().getHours();
+    return (hour >= 20 || hour < 7) ? 'dark' : 'light';
+  });
   const [colorTheme, setColorTheme] = useState(() => localStorage.getItem('colorTheme') || 'dynamic');
   const [activeTabTheme, setActiveTabTheme] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('soundEnabled');
+    return saved !== null ? saved === 'true' : true;
+  });
 
   // Guardar preferências locais
   const changeLanguage = (lang) => {
@@ -31,6 +41,11 @@ export const PreferencesProvider = ({ children }) => {
   const changeColorTheme = (theme) => {
     setColorTheme(theme);
     localStorage.setItem('colorTheme', theme);
+  };
+
+  const toggleSound = (enabled) => {
+    setSoundEnabled(enabled);
+    localStorage.setItem('soundEnabled', String(enabled));
   };
 
   // Monitorizar preferências de tema do sistema e aplicar classes
@@ -115,6 +130,8 @@ export const PreferencesProvider = ({ children }) => {
       changeGlobalTheme,
       colorTheme,
       changeColorTheme,
+      soundEnabled,
+      toggleSound,
       setActiveTabTheme,
       applyTabSpecificTheme
     }}>

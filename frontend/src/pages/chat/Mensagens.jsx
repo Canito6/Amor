@@ -10,6 +10,7 @@ import MessageForm from '../../components/messages/MessageForm';
 import TypingIndicator from '../../components/messages/TypingIndicator';
 import MessageList from '../../components/messages/MessageList';
 import useSocketUpdate from '../../hooks/shared/useSocketUpdate';
+import { sounds } from '../../utils/ui/soundEffects';
 import './Mensagens.css';
 
 export default function Mensagens() {
@@ -30,6 +31,15 @@ export default function Mensagens() {
   const t = translations[language];
   const socket = useSocket();
 
+  const simulatePartnerTyping = () => {
+    setPartnerNameTyping(language === 'pt' ? 'O teu par' : 'Your partner');
+    setPartnerTyping(true);
+    const timer = setTimeout(() => {
+      setPartnerTyping(false);
+    }, 3000);
+    return timer;
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -38,6 +48,11 @@ export default function Mensagens() {
     }
 
     carregarMensagens();
+
+    // Simulação decorativa ao entrar na página
+    const initialTypingTimeout = setTimeout(() => {
+      simulatePartnerTyping();
+    }, 1500);
 
     if (socket) {
       socket.on('partner-typing', (data) => {
@@ -50,12 +65,13 @@ export default function Mensagens() {
     }
 
     return () => {
+      clearTimeout(initialTypingTimeout);
       if (socket) {
         socket.off('partner-typing');
         socket.off('partner-stop-typing');
       }
     };
-  }, [navigate, socket]);
+  }, [navigate, socket, language]);
 
   useSocketUpdate(() => {
     carregarMensagens();
@@ -123,6 +139,7 @@ export default function Mensagens() {
       localStorage.setItem('messages_offline_queue', JSON.stringify(queue));
       
       setMessages([...messages, tempMsg]);
+      sounds.playPop();
       showToast(
         language === 'pt'
           ? 'Sem ligação de rede! A nota foi guardada localmente e será enviada quando estiveres online. ⏳'
@@ -135,6 +152,11 @@ export default function Mensagens() {
     try {
       const novaMsg = await messageService.createMessage(content);
       setMessages([...messages, novaMsg]);
+      sounds.playPop();
+      // Simulação decorativa após utilizador enviar mensagem
+      setTimeout(() => {
+        simulatePartnerTyping();
+      }, 1000);
     } catch (err) {
       setError(t.messages_error_send || 'Erro ao enviar nota.');
       throw err;

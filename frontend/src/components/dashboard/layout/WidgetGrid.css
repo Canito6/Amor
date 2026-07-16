@@ -82,19 +82,76 @@
   font-family: var(--font-title);
   font-size: 12px;
   font-weight: 700;
-  color: #7b2cbf;
-  background: #f2e9fc;
-  border: 1px solid rgba(123, 44, 191, 0.2);
   padding: 6px 14px;
   border-radius: 20px;
   margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  display: inline-block;
 }
 
-:global(.theme-dark) .countdown-badge {
+/* Category: Outro / Default */
+.badge-outro {
+  color: #7b2cbf;
+  background: #f2e9fc;
+  border-color: rgba(123, 44, 191, 0.2);
+}
+:global(.theme-dark) .badge-outro {
   color: var(--secondary-color);
   background: rgba(197, 137, 232, 0.1);
   border-color: rgba(197, 137, 232, 0.15);
+}
+
+/* Category: Aniversário */
+.badge-aniversario {
+  color: #c93b6e;
+  background: #ffe3ec;
+  border-color: rgba(255, 107, 157, 0.25);
+}
+:global(.theme-dark) .badge-aniversario {
+  color: var(--primary-color);
+  background: rgba(255, 107, 157, 0.12);
+  border-color: rgba(255, 107, 157, 0.18);
+}
+
+/* Category: Viagem */
+.badge-viagem {
+  color: #0b75a1;
+  background: #e1f5fe;
+  border-color: rgba(136, 212, 247, 0.3);
+}
+:global(.theme-dark) .badge-viagem {
+  color: #88D4F7;
+  background: rgba(136, 212, 247, 0.12);
+  border-color: rgba(136, 212, 247, 0.18);
+}
+
+/* Category: Data Especial */
+.badge-data-especial {
+  color: #7b2cbf;
+  background: #f2e9fc;
+  border-color: rgba(123, 44, 191, 0.2);
+}
+:global(.theme-dark) .badge-data-especial {
+  color: var(--secondary-color);
+  background: rgba(197, 137, 232, 0.1);
+  border-color: rgba(197, 137, 232, 0.15);
+}
+
+/* Event Progress Loader style */
+.event-progress-container {
+  width: 100%;
+  max-width: 220px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  margin-top: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+:global(.theme-dark) .event-progress-container {
+  background: rgba(255, 255, 255, 0.08);
 }
 

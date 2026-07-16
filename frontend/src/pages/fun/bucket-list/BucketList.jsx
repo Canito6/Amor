@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -7,6 +7,7 @@ import BucketCompletionModal from '../../../components/bucket/BucketCompletionMo
 import BucketCard from '../../../components/bucket/BucketCard';
 import BucketFilters from '../../../components/bucket/BucketFilters';
 import useBucketList from '../../../hooks/fun/useBucketList';
+import EmptyState from '../../../components/shared/EmptyState';
 import './BucketList.css';
 
 export default function BucketList() {
@@ -119,9 +120,11 @@ export default function BucketList() {
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="glass-panel empty-bucket-state">
-          <p>{t.bucket_empty_state || 'Nenhum desejo na lista!'}</p>
-        </div>
+        <EmptyState
+          icon="📝"
+          title={t.bucket_empty_state || 'Nenhum desejo na lista!'}
+          description={language === 'pt' ? 'Criem o vosso primeiro desejo para começarem a planear metas românticas juntos.' : 'Create your first wish to start planning romantic goals together.'}
+        />
       ) : (
         <>
           <div className="bucket-grid fade-in">

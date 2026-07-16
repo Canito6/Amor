@@ -1,5 +1,6 @@
 import React from 'react';
 import PostItCard from './PostItCard';
+import EmptyState from '../shared/EmptyState';
 
 export default function MessageList({
   loading,
@@ -22,9 +23,11 @@ export default function MessageList({
 
   if (messages.length === 0) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
-        <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>{t.messages_empty}</p>
-      </div>
+      <EmptyState
+        icon="💬"
+        title={t.messages_empty || "Sem notas ou mensagens"}
+        description={language === 'pt' ? "Deixa um recado romântico ou piada fofa para o teu par no formulário acima!" : "Leave a romantic note or cute joke for your partner in the form above!"}
+      />
     );
   }
 

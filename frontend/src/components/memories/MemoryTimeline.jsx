@@ -2,6 +2,8 @@ import React from 'react';
 import MemoryCard from './MemoryCard';
 import Skeleton from '../shared/Skeleton';
 
+import EmptyState from '../shared/EmptyState';
+
 export default function MemoryTimeline({
   t,
   loading,
@@ -29,9 +31,11 @@ export default function MemoryTimeline({
 
   if (memories.length === 0) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px' }}>
-        <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>{t.memories_empty}</p>
-      </div>
+      <EmptyState
+        icon="📖"
+        title={t.memories_empty || "Sem memórias ainda"}
+        description={t.language === 'en' ? "Add your first couple memory in the form above!" : "Adicionem a vossa primeira memória em casal no formulário acima!"}
+      />
     );
   }
 

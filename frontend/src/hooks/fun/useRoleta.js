@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { decisionWheelService } from '../../services/fun/decisionWheelService';
 import { playClickSound, triggerHaptic } from '../../utils/media/audioHelper';
+import { sounds } from '../../utils/ui/soundEffects';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
 
@@ -134,6 +135,7 @@ export default function useRoleta(t) {
         setIsSpinning(false);
         setResult(options[selectedIndex]);
         triggerHaptic(100);
+        sounds.playChime();
       }, 100);
       return;
     }
@@ -170,6 +172,7 @@ export default function useRoleta(t) {
       setIsSpinning(false);
       setResult(options[selectedIndex]);
       triggerHaptic(100); // Vibração de parada/sucesso!
+      sounds.playChime();
     }, duration);
   };
 

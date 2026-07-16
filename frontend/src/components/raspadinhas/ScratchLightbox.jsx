@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
 import { playScratchSound, triggerHaptic } from '../../utils/media/audioHelper';
+import { sounds } from '../../utils/ui/soundEffects';
 
 // Subcomponente para a animação interactiva de raspagem usando Canvas HTML5 com Confetes Premiados
 export default function ScratchLightbox({ card, onClose, onScratchComplete, t }) {
@@ -266,6 +267,7 @@ export default function ScratchLightbox({ card, onClose, onScratchComplete, t })
     onScratchComplete();
     startConfetti();
     triggerHaptic(150); // Vibração longa de sucesso!
+    sounds.playSparkle();
   };
 
   return (

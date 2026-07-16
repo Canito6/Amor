@@ -13,6 +13,20 @@ export default function EventCountdown({ nextEvent, daysRemaining, language, t }
     return t.days_remaining_many.replace('{count}', dias);
   };
 
+  // Cálculo da percentagem de tempo decorrido
+  const dateTarget = new Date(nextEvent.date);
+  dateTarget.setHours(0, 0, 0, 0);
+  const dateCreated = nextEvent.createdAt ? new Date(nextEvent.createdAt) : null;
+  const totalDays = dateCreated 
+    ? Math.max(Math.ceil((dateTarget.getTime() - dateCreated.getTime()) / (1000 * 60 * 60 * 24)), 1)
+    : 30;
+  const elapsedDays = Math.max(totalDays - daysRemaining, 0);
+  const percent = Math.min((elapsedDays / totalDays) * 100, 100);
+
+  // Mapeamento de categorias de eventos para classes CSS
+  const category = (nextEvent.category || nextEvent.type || 'outro').toLowerCase().replace(/\s+/g, '-');
+  const badgeClass = `countdown-badge badge-${category}`;
+
   return (
     <div 
       className="countdown-widget" 
@@ -45,9 +59,24 @@ export default function EventCountdown({ nextEvent, daysRemaining, language, t }
       }}>
         {formatarDataExtenso(nextEvent.date)}
       </p>
-      <span className="countdown-badge">
+      
+      <span className={badgeClass}>
         {formatarDiasRestantes(daysRemaining)}
       </span>
+
+      {/* Barra de Progresso do Evento */}
+      <div className="event-progress-container">
+        <div 
+          className="event-progress-bar"
+          style={{
+            width: `${percent}%`,
+            background: 'var(--main-gradient)',
+            height: '100%',
+            borderRadius: '10px',
+            transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        />
+      </div>
     </div>
   );
 }

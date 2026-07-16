@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 export default function GeneralSettings({
   t,
@@ -11,6 +12,7 @@ export default function GeneralSettings({
   colorTheme,
   changeColorTheme
 }) {
+  const { soundEnabled, toggleSound } = usePreferences();
   return (
     <section className="settings-section">
       <h3>🛠️ {language === 'pt' ? 'Geral' : 'General'}</h3>
@@ -72,6 +74,20 @@ export default function GeneralSettings({
           <option value="ocean">🌊 {language === 'pt' ? 'Oceano' : 'Ocean'}</option>
           <option value="cotton_candy">🍭 {language === 'pt' ? 'Algodão Doce' : 'Cotton Candy'}</option>
         </select>
+      </div>
+
+      {/* Sound Selection */}
+      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+        <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="sound-toggle-input">
+          🔊 {language === 'pt' ? 'Sons da Interface' : 'Interface Sounds'}
+        </label>
+        <input 
+          id="sound-toggle-input"
+          type="checkbox" 
+          checked={soundEnabled} 
+          onChange={(e) => toggleSound(e.target.checked)}
+          style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+        />
       </div>
     </section>
   );
