@@ -8,6 +8,11 @@ export function calculateLevelAndXP(stats) {
     xp += (stats.photosCount || 0) * 20;
     xp += (stats.couponsCount || 0) * 30;
     xp += (stats.likely?.matched || 0) * 25;
+    
+    // New XP weights
+    xp += (stats.messagesCount || 0) * 1;
+    xp += (stats.timeCapsulesCount || 0) * 40;
+    xp += (stats.decisionWheelsCount || 0) * 30;
   }
 
   const xpPerLevel = 250;
@@ -60,6 +65,41 @@ export function getAchievementsList(stats, language) {
       desc: language === 'pt' ? 'Rasparam pelo menos 3 raspadinhas' : 'Scratched at least 3 scratch cards',
       unlocked: (stats?.scratchCards?.scratched || 0) >= 3,
       icon: '🎰'
+    },
+    {
+      id: 'first_scratch',
+      title: language === 'pt' ? 'Primeira Raspadinha' : 'First Scratch',
+      desc: language === 'pt' ? 'Revelaram a vossa primeira raspadinha do amor' : 'Revealed your first love scratch card',
+      unlocked: (stats?.scratchCards?.scratched || 0) >= 1,
+      icon: '🎫'
+    },
+    {
+      id: 'storyteller',
+      title: language === 'pt' ? 'Contador de Histórias' : 'Storyteller',
+      desc: language === 'pt' ? 'Atingiram 10 memórias felizes guardadas' : 'Reached 10 happy memories saved',
+      unlocked: (stats?.memoriesCount || 0) >= 10,
+      icon: '📖'
+    },
+    {
+      id: 'chatty_couple',
+      title: language === 'pt' ? '100 Mensagens' : '100 Messages',
+      desc: language === 'pt' ? 'Trocaram pelo menos 100 mensagens no chat' : 'Exchanged at least 100 messages in chat',
+      unlocked: (stats?.messagesCount || 0) >= 100,
+      icon: '💬'
+    },
+    {
+      id: 'first_time_capsule',
+      title: language === 'pt' ? 'Primeira Cápsula do Tempo' : 'First Time Capsule',
+      desc: language === 'pt' ? 'Criaram a vossa primeira memória trancada' : 'Created your first locked time capsule',
+      unlocked: (stats?.timeCapsulesCount || 0) >= 1,
+      icon: '🔒'
+    },
+    {
+      id: 'wheel_spinner',
+      title: language === 'pt' ? 'Roda da Sorte' : 'Wheel Spinner',
+      desc: language === 'pt' ? 'Criaram a vossa primeira roda de decisões' : 'Created your first decision wheel',
+      unlocked: (stats?.decisionWheelsCount || 0) >= 1,
+      icon: '🎡'
     }
   ];
 }

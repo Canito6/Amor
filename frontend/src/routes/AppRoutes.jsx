@@ -27,6 +27,7 @@ const Jogos = lazy(() => import('../pages/fun/jogos/Jogos'));
 const PerfilCasal = lazy(() => import('../pages/couple/perfil/PerfilCasal'));
 const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
 const Timeline = lazy(() => import('../pages/couple/timeline/Timeline'));
+const DateNight = lazy(() => import('../pages/fun/date-night/DateNight'));
 
 // Fallback loader component
 function LoadingFallback() {
@@ -64,6 +65,7 @@ export default function AppRoutes() {
             <Route path="/frasco" element={<Frasco />} />
             <Route path="/likely" element={<Likely />} />
              <Route path="/jogos" element={<Jogos />} />
+            <Route path="/date-night" element={<DateNight />} />
             <Route path="/perfil-casal" element={<PerfilCasal />} />
             <Route path="/desenho" element={<Desenho />} />
             <Route path="/tab/:tabId" element={<CustomTabViewer />} />

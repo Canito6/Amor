@@ -181,6 +181,15 @@ export default function Jogos() {
       accentColor: '#FF6B9D',
       count: bucketCount,
       countLabel: language === 'pt' ? `${bucketCount} pendente(s)` : `${bucketCount} pending`
+    },
+    {
+      path: '/date-night',
+      title: 'Date Night 🥂',
+      desc: language === 'pt' ? 'Sorteiem planos surpresa combinando desejos e atividades para a vossa noite!' : 'Draw surprise plans combining wishes and activities for your date night!',
+      icon: '🥂',
+      accentColor: '#FF6B9D',
+      count: 0,
+      countLabel: ''
     }
   ];
 

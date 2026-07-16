@@ -77,7 +77,7 @@ export default function Dashboard() {
       case 'checkin':
         return <DailyCheckIn t={t} language={language} />;
       case 'love':
-        return <LoveCounter relationshipDate={coupleInfo.relationshipDate} language={language} t={t} />;
+        return <LoveCounter relationshipDate={coupleInfo.relationshipDate} language={language} t={t} streak={stats?.currentStreak || 0} />;
       case 'countdown':
         return <EventCountdown nextEvent={nextEvent} daysRemaining={daysRemaining} language={language} t={t} />;
       case 'navigation':

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AnimatedNumber from '../../shared/AnimatedNumber';
 
-export default function LoveCounter({ relationshipDate, language, t }) {
+export default function LoveCounter({ relationshipDate, language, t, streak = 0 }) {
   const [timeTogether, setTimeTogether] = useState({
     days: 0,
     hours: 0,
@@ -60,6 +60,29 @@ export default function LoveCounter({ relationshipDate, language, t }) {
       <div className="pulsing-heart-wrapper">
         <span className="pulsing-heart">❤️</span>
       </div>
+      
+      {streak > 0 && (
+        <div 
+          className="streak-badge"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'linear-gradient(135deg, #FF9F43 0%, #FF5252 100%)',
+            color: 'white',
+            padding: '5px 12px',
+            borderRadius: '20px',
+            fontSize: '13px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 10px rgba(255, 82, 82, 0.3)',
+            marginBottom: '15px'
+          }}
+        >
+          <span>🔥</span>
+          <span>{streak} {language === 'en' ? 'days streak' : 'dias seguidos'}</span>
+        </div>
+      )}
+
       <h2 className="counter-title">
         {t.memories_counter_title || 'Contador do Amor'}
       </h2>
