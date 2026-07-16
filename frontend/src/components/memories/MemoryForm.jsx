@@ -14,6 +14,8 @@ export default function MemoryForm({
   setIsTimeCapsule,
   unlockDate,
   setUnlockDate,
+  imageUrl,
+  setImageUrl,
   erro
 }) {
   return (
@@ -43,17 +45,32 @@ export default function MemoryForm({
             />
           </div>
         </div>
-        <div className="form-group">
-          <label className="input-label">{t.memories_input_desc}</label>
-          <textarea
-            placeholder={t.memories_desc_placeholder}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="3"
-            className="input-control"
-            style={{ resize: 'vertical' }}
-            disabled={isTimeCapsule}
-          />
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+          <div className="form-group">
+            <label className="input-label">{t.memories_input_desc}</label>
+            <textarea
+              placeholder={t.memories_desc_placeholder}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows="3"
+              className="input-control"
+              style={{ resize: 'vertical' }}
+              disabled={isTimeCapsule}
+            />
+          </div>
+          <div className="form-group">
+            <label className="input-label">Foto URL (Opcional)</label>
+            <input
+              type="text"
+              placeholder={language === 'pt' ? 'Ex: https://exemplo.com/foto.jpg' : 'E.g., https://example.com/photo.jpg'}
+              value={imageUrl || ''}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className="input-control"
+              style={{ padding: '8px 12px', height: 'fit-content' }}
+              disabled={isTimeCapsule}
+            />
+          </div>
         </div>
 
         {/* Opções de Cápsula do Tempo */}

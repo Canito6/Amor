@@ -18,10 +18,11 @@ export default function useMemories(t, language) {
   const [primeiraData, setPrimeiraData] = useState(null);
   const [isTimeCapsule, setIsTimeCapsule] = useState(false);
   const [unlockDate, setUnlockDate] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   // Estados para edição inline de memórias
   const [editingMemId, setEditingMemId] = useState(null);
-  const [editMem, setEditMem] = useState({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '' });
+  const [editMem, setEditMem] = useState({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '', imageUrl: '' });
 
   useEffect(() => {
     carregarMemoras();
@@ -79,7 +80,7 @@ export default function useMemories(t, language) {
 
     try {
       setErro('');
-      const novaMem = await memoryService.createMemory({ title, description, date, isTimeCapsule, unlockDate });
+      const novaMem = await memoryService.createMemory({ title, description, date, isTimeCapsule, unlockDate, imageUrl });
 
       // Insere na lista ordenada por data
       const novasMems = [...memories, novaMem].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -94,6 +95,7 @@ export default function useMemories(t, language) {
       setDate('');
       setIsTimeCapsule(false);
       setUnlockDate('');
+      setImageUrl('');
       showToast(isTimeCapsule ? t.memories_success_lock : t.memories_success_normal, 'success');
     } catch (err) {
       setErro(t.memories_error_save || err.message);
@@ -133,13 +135,14 @@ export default function useMemories(t, language) {
       description: mem.description || '',
       date: mem.date ? new Date(mem.date).toISOString().split('T')[0] : '',
       isTimeCapsule: mem.isTimeCapsule || false,
-      unlockDate: mem.unlockDate ? new Date(mem.unlockDate).toISOString().split('T')[0] : ''
+      unlockDate: mem.unlockDate ? new Date(mem.unlockDate).toISOString().split('T')[0] : '',
+      imageUrl: mem.imageUrl || ''
     });
   };
 
   const cancelarEdicaoMemoria = () => {
     setEditingMemId(null);
-    setEditMem({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '' });
+    setEditMem({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '', imageUrl: '' });
   };
 
   const guardarEdicaoMemoria = async (id) => {
@@ -182,6 +185,8 @@ export default function useMemories(t, language) {
     setIsTimeCapsule,
     unlockDate,
     setUnlockDate,
+    imageUrl,
+    setImageUrl,
     editingMemId,
     editMem,
     setEditMem,

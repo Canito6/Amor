@@ -33,27 +33,7 @@
 }
 
 .timeline-item::after {
-  content: '❤️';
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  right: -18px;
-  background-color: white;
-  border: 3px solid var(--primary-color);
-  top: 20px;
-  border-radius: 50%;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-smooth);
-}
-
-.timeline-item:hover::after {
-  transform: scale(1.2);
-  background-color: var(--primary-light);
+  display: none !important;
 }
 
 .timeline-left {
@@ -248,3 +228,85 @@
     font-size: 11pt !important;
   }
 }
+
+/* Timeline Grouping & Dot styles */
+.timeline-group {
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.timeline-group-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 5;
+}
+
+.timeline-group-badge {
+  background: var(--main-gradient);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-family: var(--font-title);
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+  letter-spacing: 0.2px;
+}
+
+.timeline-connector-dot {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  right: -17px;
+  background: var(--main-gradient);
+  border: 3px solid white;
+  top: 22px;
+  border-radius: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-right .timeline-connector-dot {
+  left: -17px;
+  right: auto;
+}
+
+.timeline-item:hover .timeline-connector-dot {
+  transform: scale(1.18);
+  box-shadow: 0 6px 16px rgba(255, 107, 157, 0.4);
+}
+
+/* Responsive collapse of timeline markers */
+@media (max-width: 768px) {
+  .timeline-group-header {
+    justify-content: flex-start;
+    padding-left: 70px;
+  }
+  
+  .timeline-connector-dot {
+    left: 14px !important;
+    right: auto !important;
+  }
+}
+
+/* Memory Grid Layout */
+.memory-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+  padding: 10px 0;
+  margin-top: 20px;
+}
+
+.memory-grid-card-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+

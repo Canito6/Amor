@@ -33,6 +33,10 @@ const memorySchema = new mongoose.Schema({
   unlockDate: {
     type: Date
   },
+  imageUrl: {
+    type: String,
+    default: ''
+  },
   notified: {
     type: Boolean,
     default: false

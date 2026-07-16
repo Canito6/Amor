@@ -37,6 +37,7 @@ class MemoryService {
       date: new Date(data.date),
       isTimeCapsule: !!data.isTimeCapsule,
       unlockDate: data.isTimeCapsule ? new Date(data.unlockDate) : null,
+      imageUrl: data.imageUrl ? data.imageUrl.trim() : '',
       coupleId: coupleId,
       createdBy: username
     };
@@ -73,6 +74,7 @@ class MemoryService {
     memory.date = new Date(data.date);
     memory.isTimeCapsule = !!data.isTimeCapsule;
     memory.unlockDate = data.isTimeCapsule ? new Date(data.unlockDate) : null;
+    memory.imageUrl = data.imageUrl ? data.imageUrl.trim() : '';
     
     if (data.isTimeCapsule && memory.unlockDate > new Date()) {
       memory.notified = false;

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { useTabs } from '../../../context/TabContext';
 import { translations } from '../../../services/common/translations';
@@ -13,6 +14,8 @@ import AchievementsWidget from '../../../components/dashboard/widgets/Achievemen
 import CoupleEditModal from '../../../components/dashboard/modals/CoupleEditModal';
 import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBar';
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
+import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
+import { memoryService } from '../../../services/fun/memoryService';
 import './Dashboard.css';
 
 // Helper: friendly name for widget ids
@@ -55,6 +58,14 @@ export default function Dashboard() {
     handleResetLayout,
     loadCoupleInfo,
   } = useDashboard();
+
+  const [memories, setMemories] = useState([]);
+
+  useEffect(() => {
+    memoryService.getMemories()
+      .then(data => setMemories(data))
+      .catch(err => console.error('Erro ao carregar memórias para OnThisDay:', err));
+  }, []);
 
   // Render a widget by its id
   const renderWidget = (widgetId) => {
@@ -114,6 +125,9 @@ export default function Dashboard() {
           ✏️ {t.edit_couple_info || 'Editar Casal'}
         </button>
       </div>
+
+      {/* On This Day Widget */}
+      <OnThisDay memories={memories} language={language} t={t} />
 
       {/* Widget Bento Grid */}
       <div className={`widget-grid ${isEditingLayout ? 'editing-layout-active' : ''}`}>

@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -15,6 +15,13 @@ export default function Memorias() {
 
   const { language } = usePreferences();
   const t = translations[language];
+
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('memory_view_mode') || 'timeline');
+
+  const handleToggleView = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('memory_view_mode', mode);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,6 +46,8 @@ export default function Memorias() {
     setIsTimeCapsule,
     unlockDate,
     setUnlockDate,
+    imageUrl,
+    setImageUrl,
     editingMemId,
     editMem,
     setEditMem,
@@ -70,6 +79,24 @@ export default function Memorias() {
         formatarDataExtenso={formatarDataExtenso}
       />
 
+      {/* Alternador de Vista (Grid vs Timeline) */}
+      <div className="view-mode-toggle-container" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '25px' }}>
+        <button 
+          className={`btn ${viewMode === 'timeline' ? 'btn-primary' : 'btn-dark'}`}
+          onClick={() => handleToggleView('timeline')}
+          style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px' }}
+        >
+          📅 {language === 'pt' ? 'Linha do Tempo' : 'Timeline'}
+        </button>
+        <button 
+          className={`btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-dark'}`}
+          onClick={() => handleToggleView('grid')}
+          style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px' }}
+        >
+          🖼️ Grid
+        </button>
+      </div>
+
       {/* Formulário para Adicionar Memória */}
       <MemoryForm
         t={t}
@@ -85,6 +112,8 @@ export default function Memorias() {
         setIsTimeCapsule={setIsTimeCapsule}
         unlockDate={unlockDate}
         setUnlockDate={setUnlockDate}
+        imageUrl={imageUrl}
+        setImageUrl={setImageUrl}
         erro={erro}
       />
 
@@ -103,6 +132,7 @@ export default function Memorias() {
         formatarDataExtenso={formatarDataExtenso}
         iniciarEdicaoMemoria={iniciarEdicaoMemoria}
         apagarMemoria={apagarMemoria}
+        viewMode={viewMode}
       />
     </div>
   );
