@@ -43,10 +43,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
   ];
 
-  const filteredNavItems = defaultNavItems.filter(item => {
-    if (item.path === '/dashboard') return true;
-    return visibleItems.includes(item.path);
-  });
+  const filteredNavItems = defaultNavItems;
 
   const handleNavClick = (path) => {
     navigate(path);
@@ -120,9 +117,6 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       </nav>
 
       <div className="sidebar-footer">
-        <button className="sidebar-footer-btn" onClick={handleSettingsClick}>
-          ⚙️ {t.settings}
-        </button>
         <button className="sidebar-footer-btn btn-logout" onClick={handleLogoutClick}>
           🚪 {t.logout ? t.logout.replace(' 🚪', '') : 'Sair'}
         </button>

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 export default function WidgetSlot({
   widget,
@@ -7,39 +9,58 @@ export default function WidgetSlot({
   isEditingLayout,
   language,
   getWidgetFriendlyName,
-  onMoveWidget,
   onChangeWidgetSize,
   onToggleVisibility,
   children,
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: widget.id,
+    disabled: !isEditingLayout
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 1000 : 'auto',
+    opacity: isDragging ? 0.6 : 1,
+  };
+
   return (
     <div
-      className={`widget-slot widget-slot-${widget.id} widget-size-${widget.size} ${!widget.visible ? 'widget-hidden-in-editor' : ''}`}
+      ref={setNodeRef}
+      style={style}
+      className={`widget-slot widget-slot-${widget.id} widget-size-${widget.size} ${!widget.visible ? 'widget-hidden-in-editor' : ''} ${isDragging ? 'widget-dragging' : ''}`}
     >
       {isEditingLayout && (
         <div className="widget-editor-overlay">
+          <div 
+            className="widget-drag-handle" 
+            {...attributes} 
+            {...listeners}
+            style={{ 
+              cursor: 'grab', 
+              padding: '6px', 
+              fontSize: '20px', 
+              display: 'flex', 
+              alignItems: 'center',
+              userSelect: 'none',
+              touchAction: 'none'
+            }}
+            title={language === 'pt' ? 'Arrastar para reordenar' : 'Drag to reorder'}
+          >
+            ⣿
+          </div>
           <span className="widget-drag-label">
             {getWidgetFriendlyName(widget.id)}
           </span>
           <div className="widget-editor-controls">
-            <button
-              type="button"
-              disabled={index === 0}
-              onClick={() => onMoveWidget(index, -1)}
-              title={language === 'pt' ? 'Mover para cima' : 'Move up'}
-              className="edit-ctrl-btn"
-            >
-              ▲
-            </button>
-            <button
-              type="button"
-              disabled={index === totalWidgets - 1}
-              onClick={() => onMoveWidget(index, 1)}
-              title={language === 'pt' ? 'Mover para baixo' : 'Move down'}
-              className="edit-ctrl-btn"
-            >
-              ▼
-            </button>
             <select
               value={widget.size}
               onChange={(e) => onChangeWidgetSize(widget.id, e.target.value)}

@@ -7,7 +7,6 @@ const PreferencesContext = createContext();
 
 export const PreferencesProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'pt');
-  const [layoutStyle, setLayoutStyle] = useState(() => localStorage.getItem('layoutStyle') || 'sidebar');
   const [globalTheme, setTheme] = useState(() => {
     const saved = localStorage.getItem('globalTheme');
     if (saved) return saved;
@@ -26,11 +25,6 @@ export const PreferencesProvider = ({ children }) => {
   const changeLanguage = (lang) => {
     setLanguage(lang);
     localStorage.setItem('language', lang);
-  };
-
-  const changeLayoutStyle = (style) => {
-    setLayoutStyle(style);
-    localStorage.setItem('layoutStyle', style);
   };
 
   const changeGlobalTheme = (theme) => {
@@ -124,8 +118,6 @@ export const PreferencesProvider = ({ children }) => {
     <PreferencesContext.Provider value={{
       language,
       changeLanguage,
-      layoutStyle,
-      changeLayoutStyle,
       globalTheme,
       changeGlobalTheme,
       colorTheme,

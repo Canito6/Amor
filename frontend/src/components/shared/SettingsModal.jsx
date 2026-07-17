@@ -13,8 +13,6 @@ export default function SettingsModal({
   t,
   language,
   changeLanguage,
-  layoutStyle,
-  changeLayoutStyle,
   globalTheme,
   changeGlobalTheme,
   colorTheme,
@@ -151,8 +149,6 @@ export default function SettingsModal({
             t={t}
             language={language}
             changeLanguage={changeLanguage}
-            layoutStyle={layoutStyle}
-            changeLayoutStyle={changeLayoutStyle}
             globalTheme={globalTheme}
             changeGlobalTheme={changeGlobalTheme}
             colorTheme={colorTheme}

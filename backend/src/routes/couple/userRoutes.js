@@ -29,5 +29,7 @@ router.post('/profile-avatar', verificarToken, upload.single('image'), imageProc
 router.post('/push-subscribe', verificarToken, userController.subscribePush);
 router.post('/push-unsubscribe', verificarToken, userController.unsubscribePush);
 router.get('/vapid-public-key', verificarToken, userController.getVapidPublicKey);
+router.get('/dashboard-widgets', verificarToken, userController.getDashboardWidgets);
+router.post('/dashboard-widgets', verificarToken, userController.saveDashboardWidgets);
 
 module.exports = router;

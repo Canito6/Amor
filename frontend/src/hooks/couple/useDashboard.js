@@ -123,17 +123,43 @@ export function useDashboard() {
       loadStats();
       carregarProximoEvento();
 
-      const saved = localStorage.getItem('dashboard_widgets');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
-          setWidgets(parsed.length > 0 ? parsed : DEFAULT_WIDGETS);
-        } catch (err) {
-          setWidgets(DEFAULT_WIDGETS);
-        }
-      } else {
-        setWidgets(DEFAULT_WIDGETS);
-      }
+      authService.getDashboardWidgets()
+        .then(async (res) => {
+          if (res && Array.isArray(res.widgets) && res.widgets.length > 0) {
+            setWidgets(res.widgets);
+            localStorage.setItem('dashboard_widgets', JSON.stringify(res.widgets));
+          } else {
+            const saved = localStorage.getItem('dashboard_widgets');
+            if (saved) {
+              try {
+                const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
+                const widgetsToUse = parsed.length > 0 ? parsed : DEFAULT_WIDGETS;
+                setWidgets(widgetsToUse);
+                await authService.saveDashboardWidgets(widgetsToUse);
+              } catch (err) {
+                setWidgets(DEFAULT_WIDGETS);
+                await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
+              }
+            } else {
+              setWidgets(DEFAULT_WIDGETS);
+              await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('Erro ao carregar widgets do backend:', err);
+          const saved = localStorage.getItem('dashboard_widgets');
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
+              setWidgets(parsed.length > 0 ? parsed : DEFAULT_WIDGETS);
+            } catch (e) {
+              setWidgets(DEFAULT_WIDGETS);
+            }
+          } else {
+            setWidgets(DEFAULT_WIDGETS);
+          }
+        });
     }
 
     const handleRefresh = () => loadCoupleInfo();
@@ -176,14 +202,19 @@ export function useDashboard() {
     }
   };
 
-  const moveWidget = (index, direction) => {
-    const newWidgets = [...widgets];
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= newWidgets.length) return;
-    const temp = newWidgets[index];
-    newWidgets[index] = newWidgets[targetIndex];
-    newWidgets[targetIndex] = temp;
-    setWidgets(newWidgets);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setWidgets((items) => {
+        const oldIndex = items.findIndex((w) => w.id === active.id);
+        const newIndex = items.findIndex((w) => w.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return items;
+        const newItems = [...items];
+        const [moved] = newItems.splice(oldIndex, 1);
+        newItems.splice(newIndex, 0, moved);
+        return newItems;
+      });
+    }
   };
 
   const changeWidgetSize = (id, newSize) => {
@@ -208,12 +239,16 @@ export function useDashboard() {
     setSelectedSidebarItems(prev => prev.filter(p => !toRemove.includes(p)));
   };
 
-  const handleSaveLayout = (language) => {
+  const handleSaveLayout = async (language) => {
     localStorage.setItem('dashboard_widgets', JSON.stringify(widgets));
-    localStorage.setItem('sidebar_items', JSON.stringify(selectedSidebarItems));
+    try {
+      await authService.saveDashboardWidgets(widgets);
+    } catch (err) {
+      console.error('Erro ao guardar widgets no backend:', err);
+    }
     window.dispatchEvent(new Event('refreshSidebar'));
     setIsEditingLayout(false);
-    showToast(language === 'pt' ? 'Layout do painel e atalhos guardados! 🎉' : 'Dashboard layout and shortcuts saved! 🎉', 'success');
+    showToast(language === 'pt' ? 'Layout do painel guardado! 🎉' : 'Dashboard layout saved! 🎉', 'success');
   };
 
   const handleResetLayout = async (language) => {
@@ -225,10 +260,12 @@ export function useDashboard() {
     });
     if (!ok) return;
     setWidgets(DEFAULT_WIDGETS);
-    const defaultPaths = ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
-    setSelectedSidebarItems(defaultPaths);
     localStorage.removeItem('dashboard_widgets');
-    localStorage.removeItem('sidebar_items');
+    try {
+      await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
+    } catch (err) {
+      console.error('Erro ao repor widgets no backend:', err);
+    }
     window.dispatchEvent(new Event('refreshSidebar'));
     setIsEditingLayout(false);
   };
@@ -248,7 +285,7 @@ export function useDashboard() {
     // Handlers
     terminarSessao,
     handleUpdateCoupleInfo,
-    moveWidget,
+    handleDragEnd,
     changeWidgetSize,
     handleToggleVisibility,
     handleToggleSidebarItem,

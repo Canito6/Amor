@@ -103,6 +103,19 @@ export const authService = {
     });
   },
 
+  getDashboardWidgets: () => {
+    return apiFetch('/api/auth/dashboard-widgets', {
+      method: 'GET'
+    });
+  },
+
+  saveDashboardWidgets: (widgets) => {
+    return apiFetch('/api/auth/dashboard-widgets', {
+      method: 'POST',
+      body: { widgets }
+    });
+  },
+
   logout: () => {
     return apiFetch('/api/auth/logout', {
       method: 'POST'

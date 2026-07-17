@@ -17,8 +17,6 @@ export default function MainLayout() {
   const {
     language,
     changeLanguage,
-    layoutStyle,
-    changeLayoutStyle,
     globalTheme,
     changeGlobalTheme,
     colorTheme,
@@ -138,14 +136,13 @@ export default function MainLayout() {
   };
 
   return (
-    <div className={`layout-root layout-${layoutStyle} ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+    <div className={`layout-root layout-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <FloatingHeartsBackground />
       
       {/* Global Topbar Header */}
       <Header
         nome={nome}
         coupleInfo={coupleInfo}
-        layoutStyle={layoutStyle}
         isMobile={isMobile}
         onOpenLinkModal={() => setIsLinkModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -155,29 +152,27 @@ export default function MainLayout() {
         isDashboardPage={location.pathname === '/dashboard'}
       />
 
-      {/* Sidebar Navigation - PC Sidebar Style */}
-      {layoutStyle === 'sidebar' && (
-        <>
-          {isSidebarOpen && (
-            <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
-          )}
-          <Sidebar
-            nome={nome}
-            roleGuardado={roleGuardado}
-            customTabs={customTabs}
-            currentPath={location.pathname}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            onLogout={handleLogout}
-            t={t}
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-          />
-        </>
-      )}
+      {/* Sidebar Navigation */}
+      <>
+        {isSidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+        )}
+        <Sidebar
+          nome={nome}
+          roleGuardado={roleGuardado}
+          customTabs={customTabs}
+          currentPath={location.pathname}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onLogout={handleLogout}
+          t={t}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      </>
 
       {/* Main Content Area */}
       <main className="layout-content-wrapper">
-        {(layoutStyle === 'stacked' || isMobile) && location.pathname !== '/dashboard' && (
+        {isMobile && location.pathname !== '/dashboard' && (
           <div className="app-container" style={{ paddingBottom: '0', paddingTop: '10px' }}>
             <button 
               className="btn btn-dark" 
@@ -214,8 +209,6 @@ export default function MainLayout() {
         t={t}
         language={language}
         changeLanguage={changeLanguage}
-        layoutStyle={layoutStyle}
-        changeLayoutStyle={changeLayoutStyle}
         globalTheme={globalTheme}
         changeGlobalTheme={changeGlobalTheme}
         colorTheme={colorTheme}

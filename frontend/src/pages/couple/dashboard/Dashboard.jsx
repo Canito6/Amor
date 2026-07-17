@@ -5,7 +5,6 @@ import { translations } from '../../../services/common/translations';
 import { useDashboard } from '../../../hooks/couple/useDashboard';
 import WelcomeBanner from '../../../components/dashboard/widgets/WelcomeBanner';
 import EventCountdown from '../../../components/dashboard/widgets/EventCountdown';
-import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
 import SpotifyWidget from '../../../components/dashboard/widgets/SpotifyWidget';
 import MoodTracker from '../../../components/dashboard/widgets/MoodTracker';
 import DailyCheckIn from '../../../components/dashboard/widgets/daily-check-in/DailyCheckIn';
@@ -16,6 +15,8 @@ import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBa
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import { memoryService } from '../../../services/fun/memoryService';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import './Dashboard.css';
 
 // Helper: friendly name for widget ids
@@ -34,9 +35,17 @@ function getWidgetFriendlyName(id, language) {
 }
 
 export default function Dashboard() {
-  const { language, layoutStyle } = usePreferences();
+  const { language } = usePreferences();
   const { customTabs } = useTabs();
   const t = translations[language];
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const {
     nome, nextEvent, daysRemaining, coupleInfo, widgets, stats,
@@ -49,7 +58,7 @@ export default function Dashboard() {
     editError, editSuccess,
     terminarSessao,
     handleUpdateCoupleInfo,
-    moveWidget,
+    handleDragEnd,
     changeWidgetSize,
     handleToggleVisibility,
     handleToggleSidebarItem,
@@ -130,45 +139,37 @@ export default function Dashboard() {
       <OnThisDay memories={memories} language={language} t={t} />
 
       {/* Widget Bento Grid */}
-      <div className={`widget-grid ${isEditingLayout ? 'editing-layout-active' : ''}`}>
-        {widgets.map((widget, index) => {
-          if (!widget.visible && !isEditingLayout) return null;
-          return (
-            <WidgetSlot
-              key={widget.id}
-              widget={widget}
-              index={index}
-              totalWidgets={widgets.length}
-              isEditingLayout={isEditingLayout}
-              language={language}
-              getWidgetFriendlyName={(id) => getWidgetFriendlyName(id, language)}
-              onMoveWidget={moveWidget}
-              onChangeWidgetSize={changeWidgetSize}
-              onToggleVisibility={handleToggleVisibility}
-            >
-              {renderWidget(widget.id)}
-            </WidgetSlot>
-          );
-        })}
-      </div>
-
-      {/* Stacked layout: Navigation cards below widgets */}
-      {layoutStyle === 'stacked' && (
-        <NavigationCards layoutStyle={layoutStyle} customTabs={customTabs} t={t} language={language} />
-      )}
-
-      {/* Footer buttons */}
-      <div style={{ marginTop: '35px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
-        {layoutStyle === 'stacked' && (
-          <button
-            onClick={terminarSessao}
-            className="btn btn-dark"
-            style={{ padding: '10px 20px', fontSize: '14px' }}
-          >
-            {t.logout}
-          </button>
-        )}
-      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={widgets.map(w => w.id)}
+          strategy={rectSortingStrategy}
+        >
+          <div className={`widget-grid ${isEditingLayout ? 'editing-layout-active' : ''}`}>
+            {widgets.map((widget, index) => {
+              if (!widget.visible && !isEditingLayout) return null;
+              return (
+                <WidgetSlot
+                  key={widget.id}
+                  widget={widget}
+                  index={index}
+                  totalWidgets={widgets.length}
+                  isEditingLayout={isEditingLayout}
+                  language={language}
+                  getWidgetFriendlyName={(id) => getWidgetFriendlyName(id, language)}
+                  onChangeWidgetSize={changeWidgetSize}
+                  onToggleVisibility={handleToggleVisibility}
+                >
+                  {renderWidget(widget.id)}
+                </WidgetSlot>
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Edit Couple Info Modal */}
       <CoupleEditModal

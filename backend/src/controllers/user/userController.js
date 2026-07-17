@@ -119,3 +119,33 @@ exports.getVapidPublicKey = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getDashboardWidgets = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+    res.json({ widgets: user.dashboardWidgets });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.saveDashboardWidgets = async (req, res, next) => {
+  try {
+    const { widgets } = req.body;
+    if (!Array.isArray(widgets)) {
+      throw new ApiError(400, 'Widgets devem ser uma lista.');
+    }
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+    user.dashboardWidgets = widgets;
+    await user.save();
+    res.json({ message: 'Preferências do painel gravadas com sucesso!', widgets: user.dashboardWidgets });
+  } catch (error) {
+    next(error);
+  }
+};

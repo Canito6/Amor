@@ -7,8 +7,6 @@ export default function GeneralSettings({
   t,
   language,
   changeLanguage,
-  layoutStyle,
-  changeLayoutStyle,
   globalTheme,
   changeGlobalTheme,
   colorTheme,
@@ -197,19 +195,6 @@ export default function GeneralSettings({
             <option value="pt">Português 🇵🇹</option>
             <option value="en">English 🇬🇧</option>
             <option value="es">Español 🇪🇸</option>
-          </select>
-        </div>
-
-        {/* Layout Style Selection */}
-        <div className="form-group">
-          <label className="input-label">{t.layout_style}</label>
-          <select 
-            value={layoutStyle} 
-            onChange={(e) => changeLayoutStyle(e.target.value)}
-            className="input-control"
-          >
-            <option value="sidebar">{t.layout_sidebar}</option>
-            <option value="stacked">{t.layout_stacked}</option>
           </select>
         </div>
 

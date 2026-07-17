@@ -216,3 +216,19 @@
   cursor: pointer;
   margin: 0;
 }
+
+/* Drag and drop states */
+.widget-dragging {
+  opacity: 0.6;
+  z-index: 1000;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+.widget-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
