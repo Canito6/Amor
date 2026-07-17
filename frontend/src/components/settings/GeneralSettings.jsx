@@ -21,6 +21,91 @@ export default function GeneralSettings({
   const [pushEnabled, setPushEnabled] = React.useState(false);
   const [loadingPush, setLoadingPush] = React.useState(false);
 
+  const [exportingJSON, setExportingJSON] = React.useState(false);
+  const [exportingPDF, setExportingPDF] = React.useState(false);
+
+  const handleExportJSON = async () => {
+    if (exportingJSON) return;
+    setExportingJSON(true);
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' && window.location.port === '5173' ? 'http://localhost:5000' : '');
+      
+      const headers = {};
+      if (token && token !== 'session_active') {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${API_URL}/api/couple/export`, {
+        headers,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erro do servidor (${response.status})`);
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup_casal_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      showToast(language === 'pt' ? 'Dados exportados com sucesso!' : 'Data exported successfully!', 'success');
+    } catch (err) {
+      console.error('Erro ao exportar JSON:', err);
+      showToast(err.message || (language === 'pt' ? 'Erro ao exportar dados.' : 'Error exporting data.'), 'error');
+    } finally {
+      setExportingJSON(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (exportingPDF) return;
+    setExportingPDF(true);
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' && window.location.port === '5173' ? 'http://localhost:5000' : '');
+      
+      const headers = {};
+      if (token && token !== 'session_active') {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${API_URL}/api/couple/export/pdf`, {
+        headers,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erro do servidor (${response.status})`);
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `album_memorias_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      showToast(language === 'pt' ? 'Álbum de memórias exportado com sucesso!' : 'Memory album exported successfully!', 'success');
+    } catch (err) {
+      console.error('Erro ao exportar PDF:', err);
+      showToast(err.message || (language === 'pt' ? 'Erro ao exportar álbum de memórias.' : 'Error exporting memory album.'), 'error');
+    } finally {
+      setExportingPDF(false);
+    }
+  };
+
   // Helper function to convert base64 VAPID key to Uint8Array
   const urlBase64ToUint8Array = (base64String) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -97,98 +182,148 @@ export default function GeneralSettings({
   };
 
   return (
-    <section className="settings-section">
-      <h3>🛠️ {language === 'pt' ? 'Geral' : 'General'}</h3>
-      
-      {/* Language Selection */}
-      <div className="form-group">
-        <label className="input-label">{t.language}</label>
-        <select 
-          value={language} 
-          onChange={(e) => changeLanguage(e.target.value)}
-          className="input-control"
-        >
-          <option value="pt">Português 🇵🇹</option>
-          <option value="en">English 🇬🇧</option>
-          <option value="es">Español 🇪🇸</option>
-        </select>
-      </div>
+    <>
+      <section className="settings-section">
+        <h3>🛠️ {language === 'pt' ? 'Geral' : 'General'}</h3>
+        
+        {/* Language Selection */}
+        <div className="form-group">
+          <label className="input-label">{t.language}</label>
+          <select 
+            value={language} 
+            onChange={(e) => changeLanguage(e.target.value)}
+            className="input-control"
+          >
+            <option value="pt">Português 🇵🇹</option>
+            <option value="en">English 🇬🇧</option>
+            <option value="es">Español 🇪🇸</option>
+          </select>
+        </div>
 
-      {/* Layout Style Selection */}
-      <div className="form-group">
-        <label className="input-label">{t.layout_style}</label>
-        <select 
-          value={layoutStyle} 
-          onChange={(e) => changeLayoutStyle(e.target.value)}
-          className="input-control"
-        >
-          <option value="sidebar">{t.layout_sidebar}</option>
-          <option value="stacked">{t.layout_stacked}</option>
-        </select>
-      </div>
+        {/* Layout Style Selection */}
+        <div className="form-group">
+          <label className="input-label">{t.layout_style}</label>
+          <select 
+            value={layoutStyle} 
+            onChange={(e) => changeLayoutStyle(e.target.value)}
+            className="input-control"
+          >
+            <option value="sidebar">{t.layout_sidebar}</option>
+            <option value="stacked">{t.layout_stacked}</option>
+          </select>
+        </div>
 
-      {/* Global Theme Selection */}
-      <div className="form-group">
-        <label className="input-label">{t.global_theme}</label>
-        <select 
-          value={globalTheme} 
-          onChange={(e) => changeGlobalTheme(e.target.value)}
-          className="input-control"
-        >
-          <option value="light">☀️ {t.theme_light}</option>
-          <option value="dark">🌙 {t.theme_dark}</option>
-          <option value="system">💻 {t.theme_system}</option>
-        </select>
-      </div>
+        {/* Global Theme Selection */}
+        <div className="form-group">
+          <label className="input-label">{t.global_theme}</label>
+          <select 
+            value={globalTheme} 
+            onChange={(e) => changeGlobalTheme(e.target.value)}
+            className="input-control"
+          >
+            <option value="light">☀️ {t.theme_light}</option>
+            <option value="dark">🌙 {t.theme_dark}</option>
+            <option value="system">💻 {t.theme_system}</option>
+          </select>
+        </div>
 
-      {/* Global Color Theme Selection */}
-      <div className="form-group">
-        <label className="input-label">{language === 'pt' ? 'Tema de Cores Global' : 'Global Color Theme'}</label>
-        <select 
-          value={colorTheme} 
-          onChange={(e) => changeColorTheme(e.target.value)}
-          className="input-control"
-        >
-          <option value="dynamic">✨ {language === 'pt' ? 'Dinâmico (por Página)' : 'Dynamic (per Page)'}</option>
-          <option value="romance">💖 {language === 'pt' ? 'Romance' : 'Romance'}</option>
-          <option value="sunset">🌅 {language === 'pt' ? 'Pôr do Sol' : 'Sunset'}</option>
-          <option value="lavender">🔮 {language === 'pt' ? 'Lavanda' : 'Lavender'}</option>
-          <option value="mint">🍃 {language === 'pt' ? 'Menta' : 'Mint'}</option>
-          <option value="ocean">🌊 {language === 'pt' ? 'Oceano' : 'Ocean'}</option>
-          <option value="cotton_candy">🍭 {language === 'pt' ? 'Algodão Doce' : 'Cotton Candy'}</option>
-        </select>
-      </div>
+        {/* Global Color Theme Selection */}
+        <div className="form-group">
+          <label className="input-label">{language === 'pt' ? 'Tema de Cores Global' : 'Global Color Theme'}</label>
+          <select 
+            value={colorTheme} 
+            onChange={(e) => changeColorTheme(e.target.value)}
+            className="input-control"
+          >
+            <option value="dynamic">✨ {language === 'pt' ? 'Dinâmico (por Página)' : 'Dynamic (per Page)'}</option>
+            <option value="romance">💖 {language === 'pt' ? 'Romance' : 'Romance'}</option>
+            <option value="sunset">🌅 {language === 'pt' ? 'Pôr do Sol' : 'Sunset'}</option>
+            <option value="lavender">🔮 {language === 'pt' ? 'Lavanda' : 'Lavender'}</option>
+            <option value="mint">🍃 {language === 'pt' ? 'Menta' : 'Mint'}</option>
+            <option value="ocean">🌊 {language === 'pt' ? 'Oceano' : 'Ocean'}</option>
+            <option value="cotton_candy">🍭 {language === 'pt' ? 'Algodão Doce' : 'Cotton Candy'}</option>
+          </select>
+        </div>
 
-      {/* Sound Selection */}
-      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
-        <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="sound-toggle-input">
-          🔊 {language === 'pt' ? 'Sons da Interface' : 'Interface Sounds'}
-        </label>
-        <input 
-          id="sound-toggle-input"
-          type="checkbox" 
-          checked={soundEnabled} 
-          onChange={(e) => toggleSound(e.target.checked)}
-          style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
-        />
-      </div>
-
-      {/* Push Notifications Toggle */}
-      {pushSupported && (
-        <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
-          <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="push-toggle-input">
-            🔔 {language === 'pt' ? 'Notificações Push' : 'Push Notifications'}
+        {/* Sound Selection */}
+        <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifySpaceBetween: 'space-between', justifyContent: 'space-between', marginTop: '20px' }}>
+          <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="sound-toggle-input">
+            🔊 {language === 'pt' ? 'Sons da Interface' : 'Interface Sounds'}
           </label>
           <input 
-            id="push-toggle-input"
+            id="sound-toggle-input"
             type="checkbox" 
-            checked={pushEnabled} 
-            disabled={loadingPush}
-            onChange={(e) => handleTogglePush(e.target.checked)}
+            checked={soundEnabled} 
+            onChange={(e) => toggleSound(e.target.checked)}
             style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
           />
         </div>
-      )}
-    </section>
+
+        {/* Push Notifications Toggle */}
+        {pushSupported && (
+          <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+            <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="push-toggle-input">
+              🔔 {language === 'pt' ? 'Notificações Push' : 'Push Notifications'}
+            </label>
+            <input 
+              id="push-toggle-input"
+              type="checkbox" 
+              checked={pushEnabled} 
+              disabled={loadingPush}
+              onChange={(e) => handleTogglePush(e.target.checked)}
+              style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* Secção de Cópia de Segurança e Exportação de Dados do Casal */}
+      <section className="settings-section" style={{ marginTop: '30px' }}>
+        <h3>🔒 {language === 'pt' ? 'Cópia de Segurança e Exportação' : 'Backup and Data Export'}</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.5' }}>
+          {language === 'pt' 
+            ? 'Descarrega uma cópia completa dos dados partilhados do teu casal. Podes exportar em formato JSON (contém todas as memórias, mensagens, desejos e conquistas de forma estruturada) ou gerar um Álbum de Memórias em formato PDF.' 
+            : 'Download a complete copy of your shared couple data. You can export in JSON format (contains all memories, messages, wishes, and achievements structured) or generate a PDF Memory Album.'}
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div>
+            <button 
+              onClick={handleExportJSON}
+              disabled={exportingJSON}
+              className="btn btn-primary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 16px', borderRadius: '8px', cursor: exportingJSON ? 'not-allowed' : 'pointer', opacity: exportingJSON ? 0.7 : 1 }}
+            >
+              📥 {exportingJSON 
+                ? (language === 'pt' ? 'A exportar...' : 'Exporting...') 
+                : (language === 'pt' ? 'Exportar os meus dados (JSON)' : 'Export My Data (JSON)')}
+            </button>
+            <small style={{ display: 'block', marginTop: '5px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              {language === 'pt' 
+                ? 'Ideal para salvaguarda, backups locais ou importar noutras plataformas.' 
+                : 'Ideal for local backup or importing into other platforms.'}
+            </small>
+          </div>
+
+          <div style={{ marginTop: '10px' }}>
+            <button 
+              onClick={handleExportPDF}
+              disabled={exportingPDF}
+              className="btn btn-secondary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 16px', borderRadius: '8px', cursor: exportingPDF ? 'not-allowed' : 'pointer', opacity: exportingPDF ? 0.7 : 1, backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              📄 {exportingPDF 
+                ? (language === 'pt' ? 'A gerar álbum PDF...' : 'Generating PDF album...') 
+                : (language === 'pt' ? 'Exportar álbum de memórias (PDF)' : 'Export Memory Album (PDF)')}
+            </button>
+            <small style={{ display: 'block', marginTop: '5px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              {language === 'pt' 
+                ? 'O PDF inclui as últimas 150 memórias mais recentes. O histórico completo está disponível na exportação JSON.' 
+                : 'The PDF contains the 150 most recent memories. The full history is available via JSON export.'}
+            </small>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
