@@ -190,5 +190,18 @@ describe('Testes de Segurança - Middlewares', () => {
       expect(res.statusCode).toEqual(429);
       expect(res.body.error).toContain('Limite de tentativas de autenticação excedido');
     });
+
+    it('deve limitar requisições excessivas em rotas gerais com base na quota de 150 requisições', async () => {
+      // Fazemos 150 requisições aceitáveis em rotas gerais (não auth)
+      for (let i = 0; i < 150; i++) {
+        await request(app).get('/api/general-test-route');
+      }
+      
+      // A 151ª requisição deve falhar com status 429
+      const res = await request(app).get('/api/general-test-route');
+      
+      expect(res.statusCode).toEqual(429);
+      expect(res.body.error).toContain('Limite de pedidos excedido');
+    });
   });
 });

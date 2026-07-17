@@ -4,11 +4,15 @@ const PushSubscription = require('../../models/auth/pushSubscriptionModel');
 const configureWebPush = () => {
   const publicKey = process.env.VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const email = process.env.EMAIL_USER || 'mailto:miguelcanito55@gmail.com';
+  let email = process.env.EMAIL_USER || 'miguelcanito55@gmail.com';
 
   if (!publicKey || !privateKey) {
     console.warn('⚠️ Chaves VAPID não configuradas nas variáveis de ambiente. As notificações push não funcionarão.');
     return false;
+  }
+
+  if (email && !email.startsWith('mailto:') && !email.startsWith('http://') && !email.startsWith('https://')) {
+    email = `mailto:${email}`;
   }
 
   webpush.setVapidDetails(email, publicKey, privateKey);

@@ -36,9 +36,9 @@ const authLimiter = rateLimit({
 
 // Limitador geral de acessos para proteger a API (/api/*)
 const generalLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
-  limit: 60, // Máximo de 60 pedidos por IP por minuto
-  message: { error: 'Limite de pedidos excedido. Por favor, abrande as solicitações.' },
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  limit: 150, // Máximo de 150 pedidos por IP por janela de 15 min
+  message: { error: 'Limite de pedidos excedido. Por favor, tente novamente após 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
   // Ignora rotas de autenticação para evitar dupla penalização, visto que estas já têm o seu próprio limitador estrito

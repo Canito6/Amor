@@ -5,14 +5,6 @@ const { validateSchema } = require('../../middlewares/validationMiddleware');
 const { verificarToken } = require('../../middlewares/authMiddleware');
 const router = express.Router();
 
-// Rate limiting para login/registo para evitar ataques de força bruta
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 20, // Limite de 20 tentativas por IP por janela
-  message: { error: 'Demasiadas tentativas. Por favor, tente novamente após 15 minutos.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 // Rate limiting específico para a verificação do código 2FA
 const twoFactorLimiter = rateLimit({
@@ -51,19 +43,19 @@ const forcarMudancaPasswordSchema = {
 };
 
 // 1. ROTA DE REGISTO
-router.post('/register', authLimiter, validateSchema(registerSchema), authController.register);
+router.post('/register', validateSchema(registerSchema), authController.register);
 
 // 2. ROTA DE LOGIN
-router.post('/login', authLimiter, validateSchema(loginSchema), authController.login);
+router.post('/login', validateSchema(loginSchema), authController.login);
 
 // 3. ROTA: Pedir código de recuperação de password por email
-router.post('/forgot-password', authLimiter, validateSchema(forgotPasswordSchema), authController.forgotPassword);
+router.post('/forgot-password', validateSchema(forgotPasswordSchema), authController.forgotPassword);
 
 // 4. ROTA: Redefinir a password antiga trocando pela nova usando o código enviado
-router.post('/reset-password', authLimiter, validateSchema(resetPasswordSchema), authController.resetPassword);
+router.post('/reset-password', validateSchema(resetPasswordSchema), authController.resetPassword);
 
 // 5. ROTA: Mudar a password obrigatória após reset do Admin
-router.post('/forcar-mudanca-password', authLimiter, validateSchema(forcarMudancaPasswordSchema), authController.forcarMudancaPassword);
+router.post('/forcar-mudanca-password', validateSchema(forcarMudancaPasswordSchema), authController.forcarMudancaPassword);
 
 // 6. ROTA: Verificar código de login 2FA
 router.post('/verify-login', twoFactorLimiter, authController.verifyLogin);
