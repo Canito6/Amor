@@ -18,6 +18,19 @@ vi.mock('../../context/ToastContext', () => ({
   }),
 }));
 
+vi.mock('../../context/PWAContext', () => ({
+  usePWA: () => ({
+    isInstallable: false,
+    updateAvailable: false,
+    showIOSPrompt: false,
+    setShowIOSPrompt: vi.fn(),
+    installApp: vi.fn(),
+    updateApp: vi.fn(),
+    dismissIOSPrompt: vi.fn(),
+    showIOSHelp: vi.fn(),
+  }),
+}));
+
 const originalCreateElement = document.createElement.bind(document);
 
 describe('GeneralSettings component - Export Section', () => {

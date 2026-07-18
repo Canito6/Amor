@@ -153,6 +153,7 @@ export default function SettingsModal({
             changeGlobalTheme={changeGlobalTheme}
             colorTheme={colorTheme}
             changeColorTheme={changeColorTheme}
+            onClose={onClose}
           />
 
           {/* Custom Tabs management */}

@@ -37,5 +37,17 @@ export const commonEs = {
   save_success: "¡Cambios guardados!",
   delete_confirm: "¿Estás seguro de que quieres eliminar esta pestaña?",
   loading_tabs: "Cargando pestañas personalizadas... ⏳",
-  loading: "Cargando... ⏳"
+  loading: "Cargando... ⏳",
+
+  // PWA translations
+  pwa_update_title: "Nueva Versión Disponible",
+  pwa_update_desc: "¡Tenemos nuevas funciones! Toca para actualizar y disfrutar de tu Cantinho.",
+  pwa_update_btn: "Actualizar",
+  pwa_install_btn: "Instalar Aplicación",
+  pwa_ios_install_title: "Instalar en iPhone 📱",
+  pwa_ios_install_step1: "1. Toca el botón Compartir en Safari 📤 (barra inferior).",
+  pwa_ios_install_step2: "2. Desliza hacia abajo y selecciona 'Añadir a la pantalla de inicio' ➕.",
+  pwa_ios_install_step3: "3. ¡Confirma en la esquina superior derecha para completar!",
+  pwa_ios_install_dismiss: "¡Entendido!",
+  pwa_ios_settings_help: "Cómo instalar en iPhone"
 };

@@ -37,5 +37,17 @@ export const commonEn = {
   save_success: "Changes saved!",
   delete_confirm: "Are you sure you want to delete this tab?",
   loading_tabs: "Loading custom tabs... ⏳",
-  loading: "Loading... ⏳"
+  loading: "Loading... ⏳",
+
+  // PWA translations
+  pwa_update_title: "New Version Available",
+  pwa_update_desc: "We have new features! Tap to update and enjoy your Cantinho.",
+  pwa_update_btn: "Update",
+  pwa_install_btn: "Install App",
+  pwa_ios_install_title: "Install on iPhone 📱",
+  pwa_ios_install_step1: "1. Tap the Share button in Safari 📤 (bottom bar).",
+  pwa_ios_install_step2: "2. Scroll down and select 'Add to Home Screen' ➕.",
+  pwa_ios_install_step3: "3. Confirm in the top right corner to complete!",
+  pwa_ios_install_dismiss: "Got it!",
+  pwa_ios_settings_help: "How to install on iPhone"
 };

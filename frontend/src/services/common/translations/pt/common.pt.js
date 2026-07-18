@@ -37,5 +37,17 @@ export const commonPt = {
   save_success: "Alterações guardadas!",
   delete_confirm: "Tens a certeza que queres eliminar esta aba?",
   loading_tabs: "A carregar abas personalizadas... ⏳",
-  loading: "A carregar... ⏳"
+  loading: "A carregar... ⏳",
+
+  // PWA translations
+  pwa_update_title: "Nova Versão Disponível",
+  pwa_update_desc: "Temos novas funcionalidades! Toca para atualizar e desfrutar do teu Cantinho.",
+  pwa_update_btn: "Atualizar",
+  pwa_install_btn: "Instalar Aplicação",
+  pwa_ios_install_title: "Instalar no iPhone 📱",
+  pwa_ios_install_step1: "1. Toca no botão de Partilhar no Safari 📤 (na barra inferior).",
+  pwa_ios_install_step2: "2. Desliza para baixo e seleciona 'Adicionar ao Ecrã Principal' ➕.",
+  pwa_ios_install_step3: "3. Confirma no canto superior direito para concluir!",
+  pwa_ios_install_dismiss: "Percebi!",
+  pwa_ios_settings_help: "Como instalar no iPhone"
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
 import { authService } from '../../services/auth/authService';
 import { useToast } from '../../context/ToastContext';
+import { usePWA } from '../../context/PWAContext';
 
 export default function GeneralSettings({
   t,
@@ -10,10 +11,24 @@ export default function GeneralSettings({
   globalTheme,
   changeGlobalTheme,
   colorTheme,
-  changeColorTheme
+  changeColorTheme,
+  onClose
 }) {
   const { soundEnabled, toggleSound } = usePreferences();
   const { showToast } = useToast();
+
+  const { isInstallable, installApp, showIOSHelp } = usePWA();
+
+  const isIOS = React.useMemo(() => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+  }, []);
+
+  const isStandalone = React.useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const hasMatchMedia = typeof window.matchMedia === 'function';
+    return (hasMatchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  }, []);
 
   const [pushSupported, setPushSupported] = React.useState(false);
   const [pushEnabled, setPushEnabled] = React.useState(false);
@@ -258,6 +273,35 @@ export default function GeneralSettings({
               onChange={(e) => handleTogglePush(e.target.checked)}
               style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
             />
+          </div>
+        )}
+
+        {/* PWA Install Button (Android / Chrome) */}
+        {isInstallable && (
+          <div className="form-group" style={{ marginTop: '20px' }}>
+            <button 
+              onClick={installApp}
+              className="btn btn-primary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 16px', borderRadius: '12px' }}
+            >
+              📱 {t.pwa_install_btn}
+            </button>
+          </div>
+        )}
+
+        {/* PWA iOS Install Help Button */}
+        {isIOS && !isStandalone && (
+          <div className="form-group" style={{ marginTop: '20px' }}>
+            <button 
+              onClick={() => {
+                showIOSHelp();
+                if (typeof onClose === 'function') onClose();
+              }}
+              className="btn btn-secondary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 16px', borderRadius: '12px', backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              📱 {t.pwa_ios_settings_help}
+            </button>
           </div>
         )}
       </section>
