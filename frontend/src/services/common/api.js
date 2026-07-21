@@ -31,7 +31,7 @@ export async function apiFetch(endpoint, options = {}) {
     }
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  let response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
     body,
@@ -39,10 +39,39 @@ export async function apiFetch(endpoint, options = {}) {
   });
 
   // Tenta extrair a resposta como JSON
-  const data = await response.json().catch(() => ({}));
+  let data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh-token')) {
+      // Tentar renovar o token
+      try {
+        const refreshRes = await fetch(`${API_URL}/api/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          if (refreshData.token) {
+            localStorage.setItem('token', refreshData.token);
+            // Repetir o pedido original com o novo token
+            headers['Authorization'] = `Bearer ${refreshData.token}`;
+            const retryRes = await fetch(`${API_URL}${endpoint}`, {
+              ...options,
+              headers,
+              body,
+              credentials: 'include'
+            });
+            const retryData = await retryRes.json().catch(() => ({}));
+            if (retryRes.ok) {
+              return retryData;
+            }
+          }
+        }
+      } catch (refreshErr) {
+        console.error('Erro ao tentar renovar token:', refreshErr);
+      }
+
       localStorage.clear();
       if (window.location.pathname !== '/') {
         window.location.href = '/';

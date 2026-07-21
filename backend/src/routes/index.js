@@ -44,7 +44,8 @@ const routePrefixes = {
   'jarRoutes.js': '/fun/jar-notes',
   'likelyRoutes.js': '/fun/likely-questions',
   'dailyCheckInRoutes.js': '/daily-checkin',
-  'cycleRoutes.js': '/cycle'
+  'cycleRoutes.js': '/cycle',
+  'songRoutes.js': '/couple/song'
 };
 
 for (const file of routeFiles) {

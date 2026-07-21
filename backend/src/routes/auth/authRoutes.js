@@ -63,4 +63,7 @@ router.post('/verify-login', twoFactorLimiter, authController.verifyLogin);
 // 7. ROTA: Logout (Limpar Cookie)
 router.post('/logout', authController.logout);
 
+// 8. ROTA: Renovação de Token (Refresh Token)
+router.post('/refresh-token', authController.refreshToken);
+
 module.exports = router;

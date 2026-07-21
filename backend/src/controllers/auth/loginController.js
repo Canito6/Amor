@@ -215,3 +215,42 @@ exports.logout = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.refreshToken = async (req, res, next) => {
+  try {
+    const oldToken = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if (!oldToken) {
+      throw new ApiError(401, 'Token de sessão não fornecido.');
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(oldToken, process.env.JWT_SECRET, { ignoreExpiration: true });
+    } catch (err) {
+      throw new ApiError(401, 'Token inválido.');
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+
+    const newToken = jwt.sign(
+      { id: user._id, username: user.username, role: user.role, coupleId: user.coupleId },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    setTokenCookie(res, newToken);
+
+    res.json({
+      message: 'Token renovado com sucesso!',
+      token: newToken,
+      username: user.username,
+      role: user.role,
+      coupleId: user.coupleId
+    });
+  } catch (error) {
+    next(error);
+  }
+};

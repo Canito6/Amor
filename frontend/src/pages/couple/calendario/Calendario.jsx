@@ -8,6 +8,7 @@ import { translations } from '../../../services/common/translations';
 import EventForm from '../../../components/calendar/EventForm';
 import EventList from '../../../components/calendar/EventList';
 import { formatDateLong } from '../../../utils/formatting/dateFormatter';
+import { exportEventsToICal } from '../../../utils/icalExporter';
 import useSocketUpdate from '../../../hooks/shared/useSocketUpdate';
 import './Calendario.css';
 
@@ -140,7 +141,13 @@ export default function Calendario() {
           ⬅ {t.dashboard}
         </button>
         <h1 className="page-title">{t.calendar_title}</h1>
-        <div className="page-header-spacer"></div>
+        <button 
+          className="btn btn-secondary" 
+          onClick={() => exportEventsToICal(events)}
+          style={{ fontSize: '13px', padding: '6px 14px' }}
+        >
+          📅 {language === 'pt' ? 'Exportar (.ics)' : 'Export (.ics)'}
+        </button>
       </div>
 
       {/* Formulário para Adicionar Evento */}

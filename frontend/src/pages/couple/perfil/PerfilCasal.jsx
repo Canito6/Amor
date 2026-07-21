@@ -7,6 +7,7 @@ import { authService } from '../../../services/auth/authService';
 import LoveCounter from '../../../components/dashboard/widgets/LoveCounter';
 import ProfileCards from '../../../components/perfil/ProfileCards';
 import ProfileStats from '../../../components/perfil/ProfileStats';
+import { usePushNotifications } from '../../../hooks/usePushNotifications';
 import './PerfilCasal.css';
 
 export default function PerfilCasal() {
@@ -142,6 +143,43 @@ export default function PerfilCasal() {
           language={language}
           t={t}
         />
+      )}
+
+      {/* Notificações Push Web */}
+      <PushNotificationControl language={language} />
+    </div>
+  );
+}
+
+function PushNotificationControl({ language }) {
+  const { isSupported, isSubscribed, loading, subscribeToPush, unsubscribeFromPush } = usePushNotifications();
+
+  if (!isSupported) return null;
+
+  return (
+    <div className="glass-panel profile-push-section" style={{ marginTop: '20px', padding: '20px', textAlign: 'center' }}>
+      <h3>🔔 {language === 'pt' ? 'Notificações Push Web' : 'Web Push Notifications'}</h3>
+      <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '15px' }}>
+        {language === 'pt' 
+          ? 'Recebe alertas instantâneos no teu telemóvel quando o teu amor enviar mensagens ou surpresas!' 
+          : 'Receive instant alerts on your phone when your love sends messages or surprises!'}
+      </p>
+      {isSubscribed ? (
+        <button 
+          className="btn btn-secondary" 
+          disabled={loading}
+          onClick={unsubscribeFromPush}
+        >
+          {loading ? '...' : (language === 'pt' ? '🔕 Desativar Notificações' : '🔕 Disable Notifications')}
+        </button>
+      ) : (
+        <button 
+          className="btn btn-primary" 
+          disabled={loading}
+          onClick={subscribeToPush}
+        >
+          {loading ? '...' : (language === 'pt' ? '🔔 Ativar Notificações no Telemóvel' : '🔔 Enable Phone Notifications')}
+        </button>
       )}
     </div>
   );

@@ -15,6 +15,7 @@ import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBa
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
+import DailySongWidget from '../../../components/dashboard/widgets/DailySongWidget';
 import { memoryService } from '../../../services/fun/memoryService';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -138,6 +139,11 @@ export default function Dashboard() {
 
       {/* Partner Cycle Widget (discreet support card if enabled) */}
       <PartnerCycleWidget />
+
+      {/* Daily Song Widget */}
+      <div style={{ marginBottom: '15px' }}>
+        <DailySongWidget language={language} t={t} />
+      </div>
 
       {/* On This Day Widget */}
       <OnThisDay memories={memories} language={language} t={t} />

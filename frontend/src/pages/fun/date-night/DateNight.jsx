@@ -6,29 +6,59 @@ import { translations } from '../../../services/common/translations';
 import PolaroidFrame from '../../../components/shared/PolaroidFrame';
 import './DateNight.css';
 
-const DATE_SUGGESTIONS_PT = [
-  "Preparar fondue de chocolate com frutas frescas 🍓",
-  "Noite de spa em casa com velas aromáticas e massagem 🕯️",
-  "Ver um filme clássico dos anos 80 sob uma tenda de lençóis ⛺",
-  "Fazer cocktails personalizados um para o outro 🍹",
-  "Preparar uma tábua de queijos e vinho para conversar 🍷",
-  "Escrever uma carta de amor para abrir no próximo ano ✉️",
-  "Noite de karaoke no YouTube com as vossas músicas favoritas 🎤",
-  "Cozinhar uma receita internacional que nunca testaram antes 🍕",
-  "Jogar um jogo de tabuleiro com apostas românticas ou massagens de prémio 🎲"
-];
+const DATE_SUGGESTIONS_PT = {
+  romantic: [
+    "Preparar fondue de chocolate com frutas frescas 🍓",
+    "Noite de spa em casa com velas aromáticas e massagem 🕯️",
+    "Escrever uma carta de amor para abrir no próximo ano ✉️",
+    "Jantar à luz das velas ao som de jazz suave 🕯️🎷"
+  ],
+  cozy: [
+    "Ver um filme clássico dos anos 80 sob uma tenda de lençóis ⛺",
+    "Preparar cocktails personalizados um para o outro 🍹",
+    "Maratona de jogos de tabuleiro acompanhados de chocolate quente ☕🎲",
+    "Cozinhar waffles ou panquecas juntos à noite 🧇"
+  ],
+  adventure: [
+    "Passeio noturno a ver as estrelas com cobertor 🌌",
+    "Cozinhar uma receita internacional exótica que nunca testaram antes 🍕",
+    "Noite de karaoke no YouTube com as vossas músicas favoritas 🎤",
+    "Fazer uma caça ao tesouro com pistas e pequenas surpresas pela casa 🗺️"
+  ],
+  budget: [
+    "Preparar uma tábua de queijos e aperitivos caseiros para conversar 🍷",
+    "Jogar um jogo de perguntas com apostas românticas ou massagens 🎲",
+    "Montar um álbum de fotografias ou memórias juntos 📸",
+    "Assistir ao pôr do sol num local especial 🌅"
+  ]
+};
 
-const DATE_SUGGESTIONS_EN = [
-  "Prepare chocolate fondue with fresh fruits 🍓",
-  "Spa night at home with scented candles and massage 🕯️",
-  "Watch a classic 80s movie under a blanket fort ⛺",
-  "Make custom cocktails for each other 🍹",
-  "Prepare a cheese and wine board to talk 🍷",
-  "Write a love letter to open next year ✉️",
-  "YouTube karaoke night with your favorite songs 🎤",
-  "Cook an international recipe you have never tried before 🍕",
-  "Play a board game with romantic bets or massage prizes 🎲"
-];
+const DATE_SUGGESTIONS_EN = {
+  romantic: [
+    "Prepare chocolate fondue with fresh fruits 🍓",
+    "Spa night at home with scented candles and massage 🕯️",
+    "Write a love letter to open next year ✉️",
+    "Candlelight dinner with soft jazz music 🕯️🎷"
+  ],
+  cozy: [
+    "Watch a classic 80s movie under a blanket fort ⛺",
+    "Make custom cocktails for each other 🍹",
+    "Board game marathon with hot chocolate ☕🎲",
+    "Bake waffles or pancakes together late at night 🧇"
+  ],
+  adventure: [
+    "Stargazing night walk with a cozy blanket 🌌",
+    "Cook an exotic international recipe you've never tried 🍕",
+    "YouTube karaoke night with your favorite songs 🎤",
+    "Set up a treasure hunt with romantic clues around the house 🗺️"
+  ],
+  budget: [
+    "Prepare a homemade cheese and snack board to chat 🍷",
+    "Play a Q&A game with romantic bets or massage prizes 🎲",
+    "Create a photo album or memory book together 📸",
+    "Watch the sunset from a special spot 🌅"
+  ]
+};
 
 export default function DateNight() {
   const navigate = useNavigate();
@@ -37,6 +67,7 @@ export default function DateNight() {
 
   const [bucketItems, setBucketItems] = useState([]);
   const [selectedBucket, setSelectedBucket] = useState(null);
+  const [vibe, setVibe] = useState('romantic'); // 'romantic', 'cozy', 'adventure', 'budget'
   const [selectedSuggestion, setSelectedSuggestion] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -87,7 +118,7 @@ export default function DateNight() {
     }
   };
 
-  const drawDateNight = (pendingList = bucketItems) => {
+  const drawDateNight = (pendingList = bucketItems, selectedVibe = vibe) => {
     // Choose random pending bucket item
     if (pendingList.length > 0) {
       const randomBucket = pendingList[Math.floor(Math.random() * pendingList.length)];
@@ -96,11 +127,18 @@ export default function DateNight() {
       setSelectedBucket(null);
     }
 
-    // Choose random activity suggestion
-    const randomSug = suggestions[Math.floor(Math.random() * suggestions.length)];
+    // Choose random activity suggestion based on vibe
+    const currentMap = language === 'pt' ? DATE_SUGGESTIONS_PT : DATE_SUGGESTIONS_EN;
+    const pool = currentMap[selectedVibe] || currentMap['romantic'];
+    const randomSug = pool[Math.floor(Math.random() * pool.length)];
     setSelectedSuggestion(randomSug);
     
     playSparkle();
+  };
+
+  const handleVibeChange = (newVibe) => {
+    setVibe(newVibe);
+    drawDateNight(bucketItems, newVibe);
   };
 
   useEffect(() => {
@@ -124,6 +162,25 @@ export default function DateNight() {
           ? 'Sorteiem um plano surpresa combinando as vossas metas e ideias divertidas!' 
           : 'Draw a surprise plan combining your goals and fun ideas!'}
       </p>
+
+      {/* Vibe Selector */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+        {[
+          { key: 'romantic', labelPt: '💖 Romântico', labelEn: '💖 Romantic' },
+          { key: 'cozy', labelPt: '☕ Aconchegante', labelEn: '☕ Cozy' },
+          { key: 'adventure', labelPt: '🌌 Aventura', labelEn: '🌌 Adventure' },
+          { key: 'budget', labelPt: '🪙 Económico', labelEn: '🪙 Budget' }
+        ].map(item => (
+          <button
+            key={item.key}
+            onClick={() => handleVibeChange(item.key)}
+            className={`btn ${vibe === item.key ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ borderRadius: '20px', padding: '6px 16px', fontSize: '13px' }}
+          >
+            {language === 'pt' ? item.labelPt : item.labelEn}
+          </button>
+        ))}
+      </div>
 
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', margin: '50px 0' }}>

@@ -7,9 +7,13 @@ const logger = require('./utils/logger');
 const configureSecurity = require('./config/security');
 const apiRouter = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+const setupSwagger = require('./config/swagger');
 
 const app = express();
 app.set('trust proxy', 1); // Confiar no primeiro proxy (ex: ngrok)
+
+// Montar documentação Swagger OpenAPI
+setupSwagger(app);
 
 // 1. Middlewares base
 app.use(cookieParser());
