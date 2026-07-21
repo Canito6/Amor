@@ -25,6 +25,8 @@ const decisionWheelSchema = new mongoose.Schema({
   }
 });
 
+decisionWheelSchema.index({ coupleId: 1, createdAt: -1 });
+
 function arrayMinSize(val) {
   return val && val.length >= 2;
 }

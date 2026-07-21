@@ -53,4 +53,6 @@ const quizSchema = new mongoose.Schema({
   }
 });
 
+quizSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Quiz', quizSchema);

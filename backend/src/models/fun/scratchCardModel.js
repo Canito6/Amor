@@ -32,4 +32,6 @@ const scratchCardSchema = new mongoose.Schema({
   }
 });
 
+scratchCardSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('ScratchCard', scratchCardSchema);

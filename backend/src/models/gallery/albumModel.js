@@ -24,4 +24,6 @@ const albumSchema = new mongoose.Schema({
   }
 });
 
+albumSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Album', albumSchema);

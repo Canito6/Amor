@@ -41,4 +41,6 @@ const tabSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+tabSchema.index({ coupleId: 1, order: 1 });
+
 module.exports = mongoose.model('Tab', tabSchema);

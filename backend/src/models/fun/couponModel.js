@@ -17,8 +17,7 @@ const couponSchema = new mongoose.Schema({
   },
   coupleId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   createdBy: {
     type: String,
@@ -35,5 +34,7 @@ const couponSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+couponSchema.index({ coupleId: 1, status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Coupon', couponSchema);

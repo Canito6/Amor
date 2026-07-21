@@ -33,4 +33,6 @@ const eventSchema = new mongoose.Schema({
   }
 });
 
+eventSchema.index({ coupleId: 1, date: 1 });
+
 module.exports = mongoose.model('Event', eventSchema);
