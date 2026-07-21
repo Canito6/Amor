@@ -34,6 +34,10 @@ export default function GeneralSettings({
   const [pushEnabled, setPushEnabled] = React.useState(false);
   const [loadingPush, setLoadingPush] = React.useState(false);
 
+  const [cycleHidden, setCycleHidden] = React.useState(() => {
+    return localStorage.getItem('cycle_hidden_from_menu') === 'true';
+  });
+
   const [exportingJSON, setExportingJSON] = React.useState(false);
   const [exportingPDF, setExportingPDF] = React.useState(false);
 
@@ -304,6 +308,31 @@ export default function GeneralSettings({
             </button>
           </div>
         )}
+        {/* Toggle Ocultar Calendário Menstrual do Menu */}
+        <div className="form-group" style={{ display: 'flex', flexDirection: 'column', marginTop: '20px', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="cycle-hidden-toggle">
+              🌸 {language === 'pt' ? 'Ocultar Calendário Menstrual do meu menu' : 'Hide Menstrual Calendar from menu'}
+            </label>
+            <input 
+              id="cycle-hidden-toggle"
+              type="checkbox" 
+              checked={cycleHidden} 
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setCycleHidden(checked);
+                localStorage.setItem('cycle_hidden_from_menu', checked ? 'true' : 'false');
+                window.dispatchEvent(new Event('refreshSidebar'));
+              }}
+              style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+            />
+          </div>
+          <small style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            {language === 'pt' 
+              ? 'Controla se o atalho do Calendário Menstrual aparece no teu menu de navegação lateral.'
+              : 'Controls whether the Menstrual Calendar shortcut appears on your side navigation menu.'}
+          </small>
+        </div>
       </section>
 
       {/* Secção de Cópia de Segurança e Exportação de Dados do Casal */}

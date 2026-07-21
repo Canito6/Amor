@@ -15,6 +15,10 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/timeline', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
 
+  const [cycleHidden, setCycleHidden] = React.useState(() => {
+    return localStorage.getItem('cycle_hidden_from_menu') === 'true';
+  });
+
   React.useEffect(() => {
     const handleUpdate = () => {
       const saved = localStorage.getItem('sidebar_items');
@@ -23,6 +27,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
           setVisibleItems(JSON.parse(saved));
         } catch (err) {}
       }
+      setCycleHidden(localStorage.getItem('cycle_hidden_from_menu') === 'true');
     };
     window.addEventListener('refreshSidebar', handleUpdate);
     return () => window.removeEventListener('refreshSidebar', handleUpdate);
@@ -37,13 +42,14 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/timeline', label: t.timeline || 'Linha do Tempo', icon: '📈' },
     { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : 'Jogos', icon: '🎮' },
     { path: '/calendario', label: t.calendar, icon: '📅' },
+    { path: '/ciclo', label: 'Ciclo Menstrual', icon: '🌸', hidden: cycleHidden },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
     { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
   ];
 
-  const filteredNavItems = defaultNavItems;
+  const filteredNavItems = defaultNavItems.filter(item => !item.hidden);
 
   const handleNavClick = (path) => {
     navigate(path);

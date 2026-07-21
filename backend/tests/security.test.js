@@ -191,6 +191,17 @@ describe('Testes de Segurança - Middlewares', () => {
       expect(res.body.error).toContain('Limite de tentativas de autenticação excedido');
     });
 
+    it('deve permitir mais de 10 requisições em rotas de dados sob /api/auth sem disparar o rate limiter de autenticação', async () => {
+      // Fazemos 12 requisições em /api/auth/couple-info (que é uma rota de dados)
+      for (let i = 0; i < 12; i++) {
+        await request(app).get('/api/auth/couple-info');
+      }
+      
+      // O status code deve ser 401 (Unauthorized) ou outro erro normal, mas NÃO 429 (Too Many Requests)
+      const res = await request(app).get('/api/auth/couple-info');
+      expect(res.statusCode).not.toEqual(429);
+    });
+
     it('deve limitar requisições excessivas em rotas gerais com base na quota de 150 requisições', async () => {
       // Fazemos 150 requisições aceitáveis em rotas gerais (não auth)
       for (let i = 0; i < 150; i++) {

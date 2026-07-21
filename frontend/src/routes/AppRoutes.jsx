@@ -15,6 +15,7 @@ const Fotos = lazy(() => import('../pages/gallery/Fotos'));
 const Memorias = lazy(() => import('../pages/fun/memorias/Memorias'));
 const Quizzes = lazy(() => import('../pages/fun/quizzes/Quizzes'));
 const Calendario = lazy(() => import('../pages/couple/calendario/Calendario'));
+const CycleCalendar = lazy(() => import('../pages/cycle/CycleCalendar'));
 const CustomTabViewer = lazy(() => import('../pages/couple/custom-tab/CustomTabViewer'));
 const Raspadinhas = lazy(() => import('../pages/fun/raspadinhas/Raspadinhas'));
 const Roleta = lazy(() => import('../pages/fun/roleta/Roleta'));
@@ -58,6 +59,7 @@ export default function AppRoutes() {
             <Route path="/timeline" element={<Timeline />} />
             <Route path="/quizzes" element={<Quizzes />} />
             <Route path="/calendario" element={<Calendario />} />
+            <Route path="/ciclo" element={<CycleCalendar />} />
             <Route path="/raspadinhas" element={<Raspadinhas />} />
             <Route path="/roleta" element={<Roleta />} />
             <Route path="/bucket-list" element={<BucketList />} />

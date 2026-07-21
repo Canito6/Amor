@@ -14,6 +14,7 @@ import CoupleEditModal from '../../../components/dashboard/modals/CoupleEditModa
 import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBar';
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
+import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
 import { memoryService } from '../../../services/fun/memoryService';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -134,6 +135,9 @@ export default function Dashboard() {
           ✏️ {t.edit_couple_info || 'Editar Casal'}
         </button>
       </div>
+
+      {/* Partner Cycle Widget (discreet support card if enabled) */}
+      <PartnerCycleWidget />
 
       {/* On This Day Widget */}
       <OnThisDay memories={memories} language={language} t={t} />

@@ -42,7 +42,17 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   // Ignora rotas de autenticação para evitar dupla penalização, visto que estas já têm o seu próprio limitador estrito
-  skip: (req) => req.originalUrl && req.originalUrl.startsWith('/api/auth'),
+  skip: (req) => {
+    const strictAuthPaths = [
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/auth/verify-login',
+      '/api/auth/forgot-password',
+      '/api/auth/reset-password',
+      '/api/auth/forcar-mudanca-password'
+    ];
+    return req.originalUrl && strictAuthPaths.some(path => req.originalUrl.startsWith(path));
+  },
 });
 
 const configureSecurity = (app) => {
@@ -54,7 +64,7 @@ const configureSecurity = (app) => {
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.spotifycdn.com"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.spotifycdn.com", "https://api.dicebear.com"],
         frameSrc: ["'self'", "https://open.spotify.com"],
         connectSrc: ["'self'", "https://api.cloudinary.com"]
       }
@@ -65,7 +75,12 @@ const configureSecurity = (app) => {
   app.use(mongoSanitizeMiddleware);
 
   // 3. Rate Limiting específico e geral para as rotas da API
-  app.use('/api/auth', authLimiter);
+  app.use('/api/auth/register', authLimiter);
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/verify-login', authLimiter);
+  app.use('/api/auth/forgot-password', authLimiter);
+  app.use('/api/auth/reset-password', authLimiter);
+  app.use('/api/auth/forcar-mudanca-password', authLimiter);
   app.use('/api', generalLimiter);
 
   // 4. Configuração de CORS com Credenciais

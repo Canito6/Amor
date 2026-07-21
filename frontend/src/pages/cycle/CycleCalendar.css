@@ -1,0 +1,314 @@
+.cycle-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 40px 16px;
+  color: var(--text-main, #2d3748);
+}
+
+.cycle-header-card {
+  background: var(--card-bg, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.3));
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+}
+
+.cycle-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cycle-title {
+  font-family: var(--font-title, sans-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-main, #1a202c);
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.phase-badge.menstrual {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.phase-badge.follicular {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.phase-badge.ovulation {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.phase-badge.luteal {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.insight-box {
+  background: var(--input-bg, rgba(248, 250, 252, 0.8));
+  border-left: 4px solid var(--primary-color, #ec4899);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 12px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-main, #334155);
+}
+
+.legal-notice-bar {
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 0.82rem;
+  color: #c2410c;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.cycle-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--card-border, #e2e8f0);
+  padding-bottom: 8px;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  background: var(--primary-color, #ec4899);
+  color: #ffffff;
+}
+
+/* Calendar Grid */
+.calendar-card {
+  background: var(--card-bg, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.3));
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.calendar-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.calendar-month-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+  margin: 0;
+}
+
+.month-nav-btn {
+  background: var(--input-bg, #f1f5f9);
+  border: 1px solid var(--card-border, #cbd5e1);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-main, #334155);
+}
+
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--input-bg, #f8fafc);
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.calendar-day-cell:hover {
+  transform: scale(1.04);
+}
+
+.calendar-day-cell.selected {
+  border-color: var(--primary-color, #ec4899) !important;
+  box-shadow: 0 0 0 2px var(--primary-color, #ec4899);
+}
+
+.calendar-day-cell.other-month {
+  opacity: 0.3;
+}
+
+.calendar-day-cell.period {
+  background: #fecdd3;
+  color: #9f1239;
+}
+
+.calendar-day-cell.fertile {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.calendar-day-cell.ovulation {
+  background: #c084fc;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.calendar-day-cell.today {
+  border: 2px solid var(--text-main, #334155);
+}
+
+.legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: var(--text-muted, #475569);
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-dot.period { background: #fecdd3; }
+.legend-dot.fertile { background: #f3e8ff; }
+.legend-dot.ovulation { background: #c084fc; }
+
+/* Log Form */
+.log-form-card {
+  background: var(--card-bg, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.3));
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.symptom-category-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  margin: 14px 0 8px 0;
+}
+
+.symptoms-tags-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tag-btn {
+  background: var(--input-bg, #f1f5f9);
+  border: 1px solid var(--card-border, #cbd5e1);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  color: var(--text-main, #334155);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tag-btn.active {
+  background: var(--primary-color, #ec4899);
+  color: #ffffff;
+  border-color: var(--primary-color, #ec4899);
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--card-bg, #ffffff);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-day-cell, .tab-button, .tag-btn {
+    transition: none !important;
+    transform: none !important;
+  }
+}

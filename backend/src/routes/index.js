@@ -43,7 +43,8 @@ const routePrefixes = {
   'openWhenRoutes.js': '/fun/letters',
   'jarRoutes.js': '/fun/jar-notes',
   'likelyRoutes.js': '/fun/likely-questions',
-  'dailyCheckInRoutes.js': '/daily-checkin'
+  'dailyCheckInRoutes.js': '/daily-checkin',
+  'cycleRoutes.js': '/cycle'
 };
 
 for (const file of routeFiles) {

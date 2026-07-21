@@ -91,6 +91,25 @@ const userSchema = new mongoose.Schema({
   dashboardWidgets: {
     type: [Object],
     default: undefined
+  },
+  cycleTracking: {
+    shareWithPartner: {
+      type: Boolean,
+      default: false
+    },
+    partnerShareLevel: {
+      type: String,
+      enum: ['none', 'basic', 'detailed'],
+      default: 'basic'
+    },
+    hiddenFromMenu: {
+      type: Boolean,
+      default: false
+    },
+    remindersEnabled: {
+      type: Boolean,
+      default: true
+    }
   }
 });
 

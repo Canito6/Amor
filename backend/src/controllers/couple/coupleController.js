@@ -170,7 +170,7 @@ exports.exportData = async (req, res, next) => {
       photos
     ] = await Promise.all([
       Couple.findById(coupleId),
-      User.find({ coupleId }).select('-password -loginAttempts -lockUntil -resetPasswordToken -resetPasswordExpires -loginVerificationCode -loginVerificationExpires -loginVerificationAttempts -resetPasswordAttempts -trustedDevices -__v'),
+      User.find({ coupleId }).select('-password -loginAttempts -lockUntil -resetPasswordToken -resetPasswordExpires -loginVerificationCode -loginVerificationExpires -loginVerificationAttempts -resetPasswordAttempts -trustedDevices -cycleTracking -__v'),
       Memory.find({ coupleId }).sort({ date: -1 }).select('-coupleId -__v'),
       Message.find({ coupleId }).sort({ createdAt: 1 }).select('-coupleId -__v'),
       BucketItem.find({ coupleId }).sort({ createdAt: -1 }).select('-coupleId -__v'),
