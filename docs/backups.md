@@ -47,7 +47,5 @@ Para um projeto pessoal focado em **memórias, fotos e diários do casal**:
   - **Diários**: Manter durante 14 a 30 dias.
   - **Mensais**: Manter 1 snapshot por mês durante 6 a 12 meses.
 - **Estratégia Adicional (Free Tier M0)**:
-  - Se mantiveres a base de dados no plano gratuito M0, agenda uma rotina semanal/mensal de download dos dados via `mongodump` para armazenamento local seguro:
-    ```bash
-    mongodump --uri="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/amor" --out=./backup_local
-    ```
+  - Se mantiveres a base de dados no plano gratuito M0, consulta o guia detalhado de backups manuais e restauro: [Guia de Backup Manual e Restauro](file:///c:/Users/migue/Desktop/Pessoal/Desenvolvimentos/teste/docs/manual_backup_restore.md).
+

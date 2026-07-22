@@ -1,13 +1,4 @@
 require('dotenv').config();
-const Sentry = require('@sentry/node');
-
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development'
-  });
-}
-
 const http = require('http');
 const { Server } = require('socket.io');
 const logger = require('./utils/logger');

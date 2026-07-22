@@ -1,12 +1,7 @@
 const logger = require('../utils/logger');
 const ApiError = require('../utils/apiError');
-const Sentry = require('@sentry/node');
 
 const errorHandler = (err, req, res, next) => {
-  if (process.env.SENTRY_DSN) {
-    Sentry.captureException(err);
-  }
-
   let error = { ...err };
   error.message = err.message;
   error.name = err.name;

@@ -39,7 +39,19 @@ jobs:
             echo "Error: BACKUP_MONGO_URI secret is missing or empty."
             exit 1
           fi
-          mongodump --uri="$MONGO_URI" --out=./dump
+
+          mongodump --uri="$MONGO_URI" --out=./dump --verbose
+
+          # mongodump can exit 0 while creating nothing if the URI has no
+          # database name and the user lacks listDatabases rights. Fail
+          # loudly here instead of letting the tar step fail with a
+          # confusing "no such file or directory" later.
+          if [ ! -d ./dump ] || [ -z "$(find ./dump -mindepth 1 -print -quit)" ]; then
+            echo "Error: mongodump finished but ./dump is missing or empty."
+            echo "Check that BACKUP_MONGO_URI includes the database name (e.g. .../<dbname>?retryWrites=...)"
+            echo "and that the DB user has read access to it (and listDatabases if omitting the db name)."
+            exit 1
+          fi
 
       - name: Compress Dump
         run: |
@@ -101,4 +113,4 @@ jobs:
           echo "- **File:** \`${ENC_FILENAME}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Date:** ${BACKUP_DATE}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** \`backups\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** Dumped, compressed, encrypted with AES-256-CBC, rotated (max 12 backups), and pushed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Dumped, compressed, encrypted with AES-256-CBC, rotated (max 12 backups), and pushed successfully." >> $GITHUB_STEP_SUMMARYs
