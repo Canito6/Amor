@@ -1,0 +1,104 @@
+name: MongoDB Atlas Backup
+
+on:
+  schedule:
+    # Runs every Sunday at 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup-database:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install MongoDB Database Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg lsb-release
+          curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
+          CODENAME=$(lsb_release -cs)
+          if [ "$CODENAME" = "noble" ]; then CODENAME="jammy"; fi
+          echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
+          mongodump --version
+
+      - name: Dump MongoDB Database
+        env:
+          MONGO_URI: ${{ secrets.BACKUP_MONGO_URI }}
+        run: |
+          if [ -z "$MONGO_URI" ]; then
+            echo "Error: BACKUP_MONGO_URI secret is missing or empty."
+            exit 1
+          fi
+          mongodump --uri="$MONGO_URI" --out=./dump
+
+      - name: Compress Dump
+        run: |
+          BACKUP_DATE=$(date +%Y-%m-%d)
+          FILENAME="amor-backup-${BACKUP_DATE}.tar.gz"
+          tar -czf "$FILENAME" dump
+          echo "ARCHIVE_NAME=$FILENAME" >> $GITHUB_ENV
+          echo "BACKUP_DATE=$BACKUP_DATE" >> $GITHUB_ENV
+
+      - name: Encrypt Backup and Clean Temporary Files
+        env:
+          ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          if [ -z "$ENCRYPTION_KEY" ]; then
+            echo "Error: BACKUP_ENCRYPTION_KEY secret is missing or empty."
+            exit 1
+          fi
+          ENC_FILENAME="${ARCHIVE_NAME}.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE_NAME" -out "$ENC_FILENAME" -pass env:ENCRYPTION_KEY
+          rm -rf "$ARCHIVE_NAME" dump
+          echo "ENC_FILENAME=$ENC_FILENAME" >> $GITHUB_ENV
+
+      - name: Prepare Backups Branch and Rotate Old Backups
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Move encrypted file to temp directory during branch switch
+          TEMP_ENC_FILE="/tmp/${ENC_FILENAME}"
+          mv "$ENC_FILENAME" "$TEMP_ENC_FILE"
+
+          # Switch to 'backups' branch or create orphan branch if it does not exist yet
+          if git ls-remote --exit-code --heads origin backups; then
+            git checkout backups
+            git pull origin backups
+          else
+            git checkout --orphan backups
+            git rm -rf .
+          fi
+
+          # Move encrypted backup back into workspace
+          mv "$TEMP_ENC_FILE" ./"$ENC_FILENAME"
+
+          # Rotation: keep only the 12 most recent backups
+          ls -1 amor-backup-*.tar.gz.enc 2>/dev/null | sort | head -n -12 | xargs -r rm -f
+
+          # Commit and push backup file to branch 'backups'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "backup: ${BACKUP_DATE}"
+            git push origin backups
+          fi
+
+      - name: Job Summary
+        run: |
+          echo "### 🛡️ MongoDB Atlas Backup Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **File:** \`${ENC_FILENAME}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date:** ${BACKUP_DATE}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`backups\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Dumped, compressed, encrypted with AES-256-CBC, rotated (max 12 backups), and pushed successfully." >> $GITHUB_STEP_SUMMARY
