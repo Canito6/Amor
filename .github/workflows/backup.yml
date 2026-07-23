@@ -113,4 +113,4 @@ jobs:
           echo "- **File:** \`${ENC_FILENAME}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Date:** ${BACKUP_DATE}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** \`backups\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** Dumped, compressed, encrypted with AES-256-CBC, rotated (max 12 backups), and pushed successfully." >> $GITHUB_STEP_SUMMARYs
+          echo "- **Status:** Dumped, compressed, encrypted with AES-256-CBC, rotated (max 12 backups), and pushed successfully." >> $GITHUB_STEP_SUMMARY
