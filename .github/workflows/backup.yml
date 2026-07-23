@@ -21,14 +21,10 @@ jobs:
 
       - name: Install MongoDB Database Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg lsb-release
-          curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
-          CODENAME=$(lsb_release -cs)
-          if [ "$CODENAME" = "noble" ]; then CODENAME="jammy"; fi
-          echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-database-tools
+          curl -sSL "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.10.0.tgz" -o tools.tgz
+          tar -xzf tools.tgz
+          sudo cp mongodb-database-tools-ubuntu2204-x86_64-100.10.0/bin/* /usr/local/bin/
+          rm -rf tools.tgz mongodb-database-tools-ubuntu2204-x86_64-100.10.0
           mongodump --version
 
       - name: Dump MongoDB Database
