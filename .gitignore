@@ -50,7 +50,6 @@ desktop.ini
 # Scripts utilitários locais
 backend/limpar-banco.js
 
-pass do git actions para o backup ( ***REMOVIDO*** )
 # Backups e dumbs locais
 *.tar.gz.enc
 *.enc
