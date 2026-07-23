@@ -36,7 +36,7 @@ jobs:
             exit 1
           fi
 
-          mongodump --uri="$MONGO_URI" --out=./dump --verbose
+          mongodump --uri="$MONGO_URI" --ssl --out=./dump --verbose
 
           # mongodump can exit 0 while creating nothing if the URI has no
           # database name and the user lacks listDatabases rights. Fail
