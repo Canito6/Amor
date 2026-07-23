@@ -3,6 +3,7 @@ import Skeleton from '../shared/Skeleton';
 
 export default function EventList({
   t,
+  language = 'pt',
   loading,
   eventosFuturos,
   eventosPassados,

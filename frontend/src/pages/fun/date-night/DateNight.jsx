@@ -76,7 +76,9 @@ export default function DateNight() {
 
   const playSparkle = () => {
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (typeof AudioCtx !== 'function') return;
+      const audioCtx = new AudioCtx();
       const playTone = (freq, time, duration) => {
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();

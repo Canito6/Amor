@@ -78,8 +78,8 @@ export const PreferencesProvider = ({ children }) => {
   // Função auxiliar para aplicar cores e gradientes dinâmicos do tab ativo
   const applyTabSpecificTheme = (themeConfig, forceDarkState = null) => {
     const root = document.documentElement;
-    let accent = '#ff4d6d';
-    let gradient = '';
+    let accent;
+    let gradient;
 
     const isDark = forceDarkState !== null ? forceDarkState : (
       globalTheme === 'dark' || 

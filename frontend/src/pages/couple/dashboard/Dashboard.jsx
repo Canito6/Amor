@@ -13,6 +13,7 @@ import AchievementsWidget from '../../../components/dashboard/widgets/Achievemen
 import CoupleEditModal from '../../../components/dashboard/modals/CoupleEditModal';
 import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBar';
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
+import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
 import DailySongWidget from '../../../components/dashboard/widgets/DailySongWidget';
@@ -37,7 +38,7 @@ function getWidgetFriendlyName(id, language) {
 }
 
 export default function Dashboard() {
-  const { language } = usePreferences();
+  const { language, layoutStyle } = usePreferences();
   const { customTabs } = useTabs();
   const t = translations[language];
 

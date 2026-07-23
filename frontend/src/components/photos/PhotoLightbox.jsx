@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import LightboxControls from './LightboxControls';
 import LightboxImageArea from './LightboxImageArea';
 import LightboxMetadata from './LightboxMetadata';
@@ -22,32 +22,31 @@ export default function PhotoLightbox({
     }
   }, [selectedPhoto]);
 
-  if (!selectedPhoto) return null;
+  const currentIndex = selectedPhoto ? photos.findIndex(p => p._id === selectedPhoto._id) : -1;
 
-  const currentIndex = photos.findIndex(p => p._id === selectedPhoto._id);
-
-  const handlePrev = (e) => {
+  const handlePrev = useCallback((e) => {
     if (e) e.stopPropagation();
-    if (photos.length <= 1) return;
+    if (photos.length <= 1 || currentIndex === -1) return;
     if (currentIndex > 0) {
       setSelectedPhoto(photos[currentIndex - 1]);
     } else {
       setSelectedPhoto(photos[photos.length - 1]);
     }
-  };
+  }, [currentIndex, photos, setSelectedPhoto]);
 
-  const handleNext = (e) => {
+  const handleNext = useCallback((e) => {
     if (e) e.stopPropagation();
-    if (photos.length <= 1) return;
+    if (photos.length <= 1 || currentIndex === -1) return;
     if (currentIndex < photos.length - 1) {
       setSelectedPhoto(photos[currentIndex + 1]);
     } else {
       setSelectedPhoto(photos[0]);
     }
-  };
+  }, [currentIndex, photos, setSelectedPhoto]);
 
   // Keyboard navigation
   useEffect(() => {
+    if (!selectedPhoto) return;
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') {
         handlePrev();
@@ -59,16 +58,18 @@ export default function PhotoLightbox({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, photos]);
+  }, [selectedPhoto, handlePrev, handleNext, setSelectedPhoto]);
 
   // Slideshow autoplay
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!selectedPhoto || !isPlaying) return;
     const interval = setInterval(() => {
       handleNext();
     }, 3000); // 3 seconds transition
     return () => clearInterval(interval);
-  }, [isPlaying, currentIndex, photos]);
+  }, [selectedPhoto, isPlaying, handleNext]);
+
+  if (!selectedPhoto) return null;
 
   return (
     <div 

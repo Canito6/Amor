@@ -167,6 +167,7 @@ export default function Calendario() {
 
       <EventList
         t={t}
+        language={language}
         loading={loading}
         eventosFuturos={eventosFuturos}
         eventosPassados={eventosPassados}
