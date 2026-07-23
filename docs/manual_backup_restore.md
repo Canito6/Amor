@@ -2,6 +2,8 @@
 
 Este documento contém todas as instruções necessárias para criar cópias de segurança (backups) manuais e restaurar dados na base de dados MongoDB Atlas do projeto **O Nosso Cantinho**.
 
+> ⚠️ **Nunca coloques credenciais reais (utilizador, password ou connection string completa) neste ficheiro.** Usa sempre placeholders como `<username>`, `<password>` ou `$MONGO_URI`. Este documento é versionado no Git e pode ficar público.
+
 ---
 
 ## 🛠️ Pré-requisitos no Windows
@@ -35,13 +37,17 @@ Podes criar backups de duas formas: usando a automação do GitHub ou executando
 
 ### Opção B: Via Linha de Comandos (Localmente)
 
-Se quiseres fazer o backup manualmente a partir do teu terminal:
-
-#### 1. Exportar os dados (`mongodump`)
-Obtém a `MONGO_URI` do ficheiro `backend/.env` e executa:
+Se quiseres fazer o backup manualmente a partir do teu terminal, define primeiro as variáveis localmente (nunca as escrevas diretamente nos comandos abaixo):
 
 ```powershell
-mongodump --uri="SUA_MONGO_URI" --out=./dump
+# Cola o valor real só nesta variável de sessão, nunca no ficheiro
+$env:MONGO_URI = "<a tua connection string completa>"
+$env:BACKUP_ENCRYPTION_KEY = "<a tua chave de encriptação>"
+```
+
+#### 1. Exportar os dados (`mongodump`)
+```powershell
+mongodump --uri="$env:MONGO_URI" --out=./dump
 ```
 *(Isto cria a pasta `./dump/site_namorados` com todos os ficheiros `.bson` e `.metadata.json`)*
 
@@ -51,13 +57,9 @@ tar -czf amor-backup-manual.tar.gz dump
 ```
 
 #### 3. Encriptar o arquivo
-Utiliza a tua palavra-passe/chave guardada no segredo `BACKUP_ENCRYPTION_KEY` do GitHub:
-
 ```powershell
-
-openssl enc -aes-256-cbc -pbkdf2 -salt -in amor-backup-manual.tar.gz -out amor-backup-manual.tar.gz.enc -pass "pass:$BACKUP_ENCRYPTION_KEY"
+openssl enc -aes-256-cbc -pbkdf2 -salt -in amor-backup-manual.tar.gz -out amor-backup-manual.tar.gz.enc -pass "pass:$env:BACKUP_ENCRYPTION_KEY"
 ```
-
 
 #### 4. Limpar ficheiros temporários
 ```powershell
@@ -87,18 +89,13 @@ git checkout origin/backups -- amor-backup-2026-07-22.tar.gz.enc
 
 ### Passo 2: Desencriptar o arquivo (`.enc` -> `.tar.gz`)
 
-Utiliza o OpenSSL com a tua chave `BACKUP_ENCRYPTION_KEY` (definida nos segredos do repositório GitHub Secrets).
-
-No PowerShell:
+Define a chave apenas na sessão atual do PowerShell (nunca a escrevas no ficheiro):
 
 ```powershell
-# Define a tua chave de encriptação (BACKUP_ENCRYPTION_KEY do GitHub Secrets)
-$BACKUP_ENCRYPTION_KEY = 'SUA_CHAVE_DE_ENCRIPTACAO_AQUI'
+$env:BACKUP_ENCRYPTION_KEY = "<a tua chave de encriptação>"
 
-# Desencriptar
-& "C:\Program Files\OpenSSL-Win64\bin\openssl.exe" enc -d -aes-256-cbc -pbkdf2 -in amor-backup-2026-07-22.tar.gz.enc -out backup.tar.gz -pass "pass:$BACKUP_ENCRYPTION_KEY"
+openssl enc -d -aes-256-cbc -pbkdf2 -in amor-backup-2026-07-22.tar.gz.enc -out backup.tar.gz -pass "pass:$env:BACKUP_ENCRYPTION_KEY"
 ```
-
 
 ---
 
@@ -113,17 +110,12 @@ tar -xzf backup.tar.gz
 
 ### Passo 4: Importar para a base de dados (`mongorestore`)
 
-Obtém a `MONGO_URI` no ficheiro `backend/.env`.
-
-**Importante:** Aponta o `mongorestore` especificamente para a subpasta da base de dados (`dump/site_namorados`):
+Define a `MONGO_URI` apenas na sessão atual do PowerShell:
 
 ```powershell
-& "C:\Program Files\MongoDB\Tools\100\bin\mongorestore.exe" --uri="SUA_MONGO_URI" dump/site_namorados
-```
+$env:MONGO_URI = "<a tua connection string completa>"
 
-Exemplo com a URI completa:
-```powershell
-& "C:\Program Files\MongoDB\Tools\100\bin\mongorestore.exe" --uri="mongodb+srv://Canito:***REMOVIDO***@cluster0.cvli76g.mongodb.net/site_namorados?retryWrites=true&w=majority" dump/site_namorados
+& "C:\Program Files\MongoDB\Tools\100\bin\mongorestore.exe" --uri="$env:MONGO_URI" dump/site_namorados
 ```
 
 *(Se quiseres substituir/sobrescrever completamente dados existentes, podes adicionar a flag `--drop` no final do comando acima).*
@@ -141,8 +133,6 @@ Remove-Item -Path "dump" -Recurse -Force -ErrorAction SilentlyContinue
 
 ---
 
----
-
 ## 🆘 Cenário de Emergência: Restauro em Caso de Perda da Base de Dados
 
 Se a base de dados for apagada, corrompida ou precisares de reinstalar tudo do zero a partir do backup mais recente, executa o seguinte bloco **no PowerShell**:
@@ -151,24 +141,26 @@ Se a base de dados for apagada, corrompida ou precisares de reinstalar tudo do z
 # 1. Carregar ferramentas no PATH
 $env:Path += ";C:\Program Files\OpenSSL-Win64\bin;C:\Program Files\MongoDB\Tools\100\bin"
 
-# 2. Atualizar lista de backups do GitHub
+# 2. Definir credenciais apenas nesta sessão (nunca as escrevas no ficheiro)
+$env:MONGO_URI = "<a tua connection string completa>"
+$env:BACKUP_ENCRYPTION_KEY = "<a tua chave de encriptação>"
+
+# 3. Atualizar lista de backups do GitHub
 git fetch origin backups
 
-# 3. Baixar o arquivo de backup desejado
+# 4. Baixar o arquivo de backup desejado
 git checkout origin/backups -- amor-backup-2026-07-22.tar.gz.enc
 
-# 4. Definir a palavra-passe e desencriptar
-$BACKUP_ENCRYPTION_KEY = 'SUA_CHAVE_DE_ENCRIPTACAO_AQUI'
-openssl enc -d -aes-256-cbc -pbkdf2 -in amor-backup-2026-07-22.tar.gz.enc -out backup.tar.gz -pass "pass:$BACKUP_ENCRYPTION_KEY"
+# 5. Desencriptar
+openssl enc -d -aes-256-cbc -pbkdf2 -in amor-backup-2026-07-22.tar.gz.enc -out backup.tar.gz -pass "pass:$env:BACKUP_ENCRYPTION_KEY"
 
-# 5. Extrair os dados
+# 6. Extrair os dados
 tar -xzf backup.tar.gz
 
-# 6. Restaurar limpando coleções antigas/corrompidas (--drop)
-mongorestore --uri="mongodb+srv://Canito:***REMOVIDO***@cluster0.cvli76g.mongodb.net/site_namorados?retryWrites=true&w=majority" --drop dump/site_namorados
+# 7. Restaurar limpando coleções antigas/corrompidas (--drop)
+mongorestore --uri="$env:MONGO_URI" --drop dump/site_namorados
 
-# 7. Limpar ficheiros temporários locais
+# 8. Limpar ficheiros temporários locais
 Remove-Item -Path "amor-backup-*.tar.gz.enc", "backup.tar.gz" -Force -ErrorAction SilentlyContinue
 Remove-Item -Path "dump" -Recurse -Force -ErrorAction SilentlyContinue
 ```
-
