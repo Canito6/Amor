@@ -26,10 +26,6 @@ export default function useQuizzes(t, language, meuNome) {
   // Estado para ver detalhes de um Quiz Concluído
   const [selectedCompletedQuiz, setSelectedCompletedQuiz] = useState(null);
 
-  useEffect(() => {
-    carregarQuizzes();
-  }, []);
-
   const carregarQuizzes = async () => {
     try {
       setLoading(true);
@@ -41,6 +37,10 @@ export default function useQuizzes(t, language, meuNome) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    carregarQuizzes();
+  }, []);
 
   // Funções de Criação
   const adicionarPergunta = () => {

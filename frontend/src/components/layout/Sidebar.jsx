@@ -2,15 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onOpenSettings, onLogout, t, isOpen, onClose }) {
+export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onLogout, t, isOpen, onClose }) {
   const navigate = useNavigate();
 
-  const [visibleItems, setVisibleItems] = React.useState(() => {
+  const [, setVisibleItems] = React.useState(() => {
     const saved = localStorage.getItem('sidebar_items');
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (err) {}
+      } catch { /* erro silenciado intencionalmente */ }
     }
     return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/timeline', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
@@ -25,7 +25,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       if (saved) {
         try {
           setVisibleItems(JSON.parse(saved));
-        } catch (err) {}
+        } catch { /* erro silenciado intencionalmente */ }
       }
       setCycleHidden(localStorage.getItem('cycle_hidden_from_menu') === 'true');
     };
@@ -53,11 +53,6 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
 
   const handleNavClick = (path) => {
     navigate(path);
-    if (onClose) onClose();
-  };
-
-  const handleSettingsClick = () => {
-    onOpenSettings();
     if (onClose) onClose();
   };
 

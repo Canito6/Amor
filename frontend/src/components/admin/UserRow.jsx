@@ -1,10 +1,9 @@
-import React from 'react';
+
 
 export default function UserRow({
   user,
   meuNome,
   language,
-  t,
   onEdit,
   onChangeRole,
   onDelete

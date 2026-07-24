@@ -1,9 +1,8 @@
-import React from 'react';
+
 import Skeleton from '../shared/Skeleton';
 
 export default function EventList({
   t,
-  language = 'pt',
   loading,
   eventosFuturos,
   eventosPassados,
@@ -122,7 +121,7 @@ export default function EventList({
                       <h3 style={{ fontSize: '15px', margin: 0, color: 'var(--text-muted)' }}>{evt.title}</h3>
                     </div>
                     <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                      📅 {formatarDataExtenso(evt.date)} | {t.calendar_event_created_by || (language === 'pt' ? 'Por' : 'By')}: {evt.createdBy}
+                      📅 {formatarDataExtenso(evt.date)} | {t.calendar_event_created_by || 'Por'}: {evt.createdBy}
                     </span>
                   </div>
                   

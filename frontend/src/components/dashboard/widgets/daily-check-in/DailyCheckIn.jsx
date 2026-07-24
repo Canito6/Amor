@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { dailyCheckInService } from '../../../../services/couple/dailyCheckInService';
 import { useSocket } from '../../../../context/SocketContext';
 import CheckInConfetti from './CheckInConfetti';
@@ -7,7 +7,7 @@ import CheckInWaiting from './CheckInWaiting';
 import CheckInRevealed from './CheckInRevealed';
 import './DailyCheckIn.css';
 
-export default function DailyCheckIn({ t, language }) {
+export default function DailyCheckIn({ t }) {
   const socket = useSocket();
   const username = localStorage.getItem('username') || localStorage.getItem('nome') || '';
 
@@ -32,6 +32,29 @@ export default function DailyCheckIn({ t, language }) {
   };
 
   const todayDateString = getTodayDateString();
+
+  const triggerConfetti = () => {
+    setShowConfetti(true);
+    const particles = [];
+    const colors = ['#ff4d6d', '#ff758f', '#ffccd5', '#ffb3c1', '#ffd166', '#06d6a0', '#118ab2'];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        id: i,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        left: Math.random() * 100, // percentagem
+        size: Math.random() * 10 + 6, // px
+        delay: Math.random() * 1.5, // segundos
+        duration: Math.random() * 2.5 + 1.5 // segundos
+      });
+    }
+    setConfettiParticles(particles);
+    
+    // Desligar após as animações acabarem
+    setTimeout(() => {
+      setShowConfetti(false);
+      setConfettiParticles([]);
+    }, 4500);
+  };
 
   // Função para carregar o Check-in
   const loadDailyCheckIn = async (isRealtimeUpdate = false) => {
@@ -82,29 +105,6 @@ export default function DailyCheckIn({ t, language }) {
       socket.off('daily-checkin-completed', handleCheckInCompleted);
     };
   }, [socket, todayDateString, checkInData]);
-
-  const triggerConfetti = () => {
-    setShowConfetti(true);
-    const particles = [];
-    const colors = ['#ff4d6d', '#ff758f', '#ffccd5', '#ffb3c1', '#ffd166', '#06d6a0', '#118ab2'];
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        id: i,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        left: Math.random() * 100, // percentagem
-        size: Math.random() * 10 + 6, // px
-        delay: Math.random() * 1.5, // segundos
-        duration: Math.random() * 2.5 + 1.5 // segundos
-      });
-    }
-    setConfettiParticles(particles);
-    
-    // Desligar após as animações acabarem
-    setTimeout(() => {
-      setShowConfetti(false);
-      setConfettiParticles([]);
-    }, 4500);
-  };
 
   // Enviar a resposta
   const handleSubmit = async (e) => {

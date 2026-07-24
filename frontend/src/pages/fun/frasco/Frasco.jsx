@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jarService } from '../../../services/fun/jarService';
 import { usePreferences } from '../../../context/PreferencesContext';
@@ -60,19 +60,10 @@ export default function Frasco() {
       
       osc.start();
       osc.stop(audioCtx.currentTime + 0.25);
-    } catch (e) {
+    } catch {
       // Audio context might be blocked initially by browser autoplay policy
     }
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
-    carregarNotas();
-  }, [navigate]);
 
   const carregarNotas = async (page = 1, append = false) => {
     try {
@@ -99,13 +90,22 @@ export default function Frasco() {
         setCurrentPage(1);
         setTotalPages(1);
       }
-    } catch (err) {
+    } catch {
       setError(t.jar_error_load || 'Erro ao carregar o frasco.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+    carregarNotas();
+  }, [navigate]);
 
   const handleCreateNote = async (content, category) => {
     try {
@@ -118,7 +118,7 @@ export default function Frasco() {
       setNotes([newNote, ...notes]);
       setShowCreator(false);
       showToast(t.jar_success_created || 'Papelinho colocado no frasco! 🎉', 'success');
-    } catch (err) {
+    } catch {
       setError(t.jar_error_save || 'Erro ao guardar papelinho.');
     } finally {
       setCreating(false);
@@ -167,7 +167,7 @@ export default function Frasco() {
         setDrawnNote(null);
       }
       showToast(language === 'pt' ? 'Papelinho eliminado com sucesso!' : 'Note deleted successfully!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.jar_error_delete || 'Erro ao eliminar papelinho.');
     }
   };

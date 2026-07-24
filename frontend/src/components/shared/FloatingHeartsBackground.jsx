@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
 
 export default function FloatingHeartsBackground() {

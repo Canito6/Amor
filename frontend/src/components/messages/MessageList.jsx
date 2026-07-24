@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PostItCard from './PostItCard';
 import EmptyState from '../shared/EmptyState';
 

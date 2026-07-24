@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDateTime } from '../../utils/formatting/dateFormatter';
 import PostItEditForm from './PostItEditForm';
 import PostItEmojiPicker from './PostItEmojiPicker';

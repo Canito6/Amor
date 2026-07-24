@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 
 const PWAContext = createContext(null);
 
@@ -116,6 +116,7 @@ export function PWAProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePWA() {
   const context = useContext(PWAContext);
   if (!context) {

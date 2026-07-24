@@ -24,10 +24,6 @@ export default function useRoleta(t) {
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState(null);
 
-  useEffect(() => {
-    carregarRoletas();
-  }, []);
-
   const carregarRoletas = async () => {
     try {
       setLoading(true);
@@ -37,12 +33,16 @@ export default function useRoleta(t) {
       if (data.length > 0) {
         setSelectedWheel(data[0]);
       }
-    } catch (err) {
+    } catch {
       setError(t.wheel_error_load || 'Erro ao carregar roletas.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    carregarRoletas();
+  }, []);
 
   const handleCreateWheel = async (e) => {
     e.preventDefault();
@@ -65,7 +65,7 @@ export default function useRoleta(t) {
       setNewOptions(['', '']);
       setShowCreator(false);
       showToast(t.wheel_success_created || 'Roleta criada!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.wheel_error_save || 'Erro ao criar roleta.');
     } finally {
       setCreating(false);
@@ -86,7 +86,7 @@ export default function useRoleta(t) {
       const remaining = wheels.filter(w => w._id !== id);
       setWheels(remaining);
       setSelectedWheel(remaining.length > 0 ? remaining[0] : null);
-    } catch (err) {
+    } catch {
       setError(t.wheel_error_delete || 'Erro ao apagar roleta.');
     }
   };

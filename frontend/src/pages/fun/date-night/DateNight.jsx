@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bucketListService } from '../../../services/fun/bucketListService';
 import { usePreferences } from '../../../context/PreferencesContext';
-import { translations } from '../../../services/common/translations';
 import PolaroidFrame from '../../../components/shared/PolaroidFrame';
 import './DateNight.css';
 
@@ -63,7 +62,6 @@ const DATE_SUGGESTIONS_EN = {
 export default function DateNight() {
   const navigate = useNavigate();
   const { language } = usePreferences();
-  const t = translations[language];
 
   const [bucketItems, setBucketItems] = useState([]);
   const [selectedBucket, setSelectedBucket] = useState(null);
@@ -72,13 +70,9 @@ export default function DateNight() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const suggestions = language === 'pt' ? DATE_SUGGESTIONS_PT : DATE_SUGGESTIONS_EN;
-
   const playSparkle = () => {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (typeof AudioCtx !== 'function') return;
-      const audioCtx = new AudioCtx();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const playTone = (freq, time, duration) => {
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
@@ -120,9 +114,12 @@ export default function DateNight() {
     }
   };
 
+  // Nota: drawDateNight só é chamada a partir de efeitos e handlers de eventos
+  // (nunca diretamente durante o render), por isso o uso de Math.random() aqui é seguro.
   const drawDateNight = (pendingList = bucketItems, selectedVibe = vibe) => {
     // Choose random pending bucket item
     if (pendingList.length > 0) {
+      // eslint-disable-next-line react-hooks/purity
       const randomBucket = pendingList[Math.floor(Math.random() * pendingList.length)];
       setSelectedBucket(randomBucket);
     } else {
@@ -132,6 +129,7 @@ export default function DateNight() {
     // Choose random activity suggestion based on vibe
     const currentMap = language === 'pt' ? DATE_SUGGESTIONS_PT : DATE_SUGGESTIONS_EN;
     const pool = currentMap[selectedVibe] || currentMap['romantic'];
+    // eslint-disable-next-line react-hooks/purity
     const randomSug = pool[Math.floor(Math.random() * pool.length)];
     setSelectedSuggestion(randomSug);
     

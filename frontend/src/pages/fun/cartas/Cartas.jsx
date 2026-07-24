@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { letterService } from '../../../services/fun/letterService';
 import { usePreferences } from '../../../context/PreferencesContext';
@@ -37,6 +37,19 @@ export default function Cartas() {
   // Obter o humor atual do utilizador local
   const [meuHumor, setMeuHumor] = useState('');
 
+  const carregarCartas = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await letterService.getLetters();
+      setLetters(data);
+    } catch {
+      setError(t.letter_error_load || 'Erro ao carregar as cartas.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -47,19 +60,6 @@ export default function Cartas() {
     const userMood = localStorage.getItem('userMood') || '';
     setMeuHumor(userMood);
   }, [navigate]);
-
-  const carregarCartas = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await letterService.getLetters();
-      setLetters(data);
-    } catch (err) {
-      setError(t.letter_error_load || 'Erro ao carregar as cartas.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCreateLetter = async (title, content, type, value) => {
     try {
@@ -74,7 +74,7 @@ export default function Cartas() {
       setLetters([newLetter, ...letters]);
       setShowCreator(false);
       showToast(t.letter_success_created || 'Carta surpresa enviada!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.letter_error_save || 'Erro ao enviar carta.');
     } finally {
       setCreating(false);
@@ -104,7 +104,7 @@ export default function Cartas() {
         }
       }, 1000);
 
-    } catch (err) {
+    } catch {
       setOpeningId(null);
       setError(t.letter_error_open || 'Erro ao abrir carta.');
     }
@@ -123,7 +123,7 @@ export default function Cartas() {
       if (readingLetter && readingLetter._id === id) {
         setReadingLetter(null);
       }
-    } catch (err) {
+    } catch {
       setError(t.letter_error_delete || 'Erro ao eliminar carta.');
     }
   };

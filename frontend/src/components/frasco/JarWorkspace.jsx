@@ -1,4 +1,4 @@
-import React from 'react';
+
 import JarBottle from './JarBottle';
 
 export default function JarWorkspace({

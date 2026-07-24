@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import { useState } from 'react';
 import { authService } from '../../services/auth/authService';
 
 export default function LinkCoupleModal({ isOpen, onClose, coupleInfo, t }) {

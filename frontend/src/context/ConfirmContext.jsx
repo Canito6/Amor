@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
 
 const ConfirmContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useConfirm() {
   return useContext(ConfirmContext);
 }

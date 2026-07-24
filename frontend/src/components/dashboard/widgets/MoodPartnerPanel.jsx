@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function MoodPartnerPanel({ parceiroRegisto, formatarTempoRelativo, t }) {
   return (

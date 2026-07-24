@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import MoodTracker from '../../components/dashboard/widgets/MoodTracker';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';

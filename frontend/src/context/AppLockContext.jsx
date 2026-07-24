@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
 
 const AppLockContext = createContext();
 
@@ -56,4 +56,5 @@ export function AppLockProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppLock = () => useContext(AppLockContext);

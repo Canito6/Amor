@@ -31,7 +31,7 @@ export function useDashboard() {
   const [selectedSidebarItems, setSelectedSidebarItems] = useState(() => {
     const saved = localStorage.getItem('sidebar_items');
     if (saved) {
-      try { return JSON.parse(saved); } catch (err) {}
+      try { return JSON.parse(saved); } catch { /* erro silenciado intencionalmente */ }
     }
     return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco'];
   });
@@ -136,7 +136,7 @@ export function useDashboard() {
                 const widgetsToUse = parsed.length > 0 ? parsed : DEFAULT_WIDGETS;
                 setWidgets(widgetsToUse);
                 await authService.saveDashboardWidgets(widgetsToUse);
-              } catch (err) {
+              } catch {
                 setWidgets(DEFAULT_WIDGETS);
                 await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
               }
@@ -153,7 +153,7 @@ export function useDashboard() {
             try {
               const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
               setWidgets(parsed.length > 0 ? parsed : DEFAULT_WIDGETS);
-            } catch (e) {
+            } catch {
               setWidgets(DEFAULT_WIDGETS);
             }
           } else {

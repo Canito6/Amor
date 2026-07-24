@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function CheckInConfetti({ showConfetti, confettiParticles }) {
   if (!showConfetti) return null;

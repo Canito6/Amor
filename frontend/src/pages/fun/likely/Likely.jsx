@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { likelyService } from '../../../services/fun/likelyService';
 import { authService } from '../../../services/auth/authService';
@@ -32,15 +32,6 @@ export default function Likely() {
   const { confirm } = useConfirm();
   const t = translations[language];
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
-    carregarDados();
-  }, [navigate]);
-
   const carregarDados = async () => {
     try {
       setLoading(true);
@@ -55,12 +46,21 @@ export default function Likely() {
       const partner = dadosCasal.partnerNames?.find(name => name !== meuNome) || '';
       setPartnerName(partner);
       setQuestions(dadosPerguntas);
-    } catch (err) {
+    } catch {
       setError(t.likely_error_load || 'Erro ao carregar o jogo.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+    carregarDados();
+  }, [navigate]);
 
   const handleCreateQuestion = async (text) => {
     try {
@@ -72,7 +72,7 @@ export default function Likely() {
       setQuestions([newQuestion, ...questions]);
       setShowCreator(false);
       showToast(t.likely_success_created || 'Pergunta adicionada!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.likely_error_save || 'Erro ao criar pergunta.');
     } finally {
       setCreating(false);
@@ -91,7 +91,7 @@ export default function Likely() {
       setError('');
       const updated = await likelyService.voteLikelyQuestion(questionId, { votedFor });
       setQuestions(questions.map(q => q._id === questionId ? updated : q));
-    } catch (err) {
+    } catch {
       setError(t.likely_error_vote || 'Erro ao registar voto.');
     }
   };
@@ -106,7 +106,7 @@ export default function Likely() {
       setError('');
       await likelyService.deleteLikelyQuestion(id);
       setQuestions(questions.filter(q => q._id !== id));
-    } catch (err) {
+    } catch {
       setError(t.likely_error_delete || 'Erro ao eliminar pergunta.');
     }
   };

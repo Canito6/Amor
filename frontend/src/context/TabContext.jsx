@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { tabService } from '../services/couple/tabService';
 
 const TabContext = createContext();
@@ -90,4 +90,5 @@ export const TabProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTabs = () => useContext(TabContext);

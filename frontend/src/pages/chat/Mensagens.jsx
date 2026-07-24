@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { messageService } from '../../services/chat/messageService';
 import { usePreferences } from '../../context/PreferencesContext';
@@ -30,6 +30,19 @@ export default function Mensagens() {
   const { showToast } = useToast();
   const t = translations[language];
   const socket = useSocket();
+
+  const carregarMensagens = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const dados = await messageService.getMessages();
+      setMessages(dados);
+    } catch {
+      setError(t.messages_error_load || 'Erro ao carregar mensagens.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const simulatePartnerTyping = () => {
     setPartnerNameTyping(language === 'pt' ? 'O teu par' : 'Your partner');
@@ -108,19 +121,6 @@ export default function Mensagens() {
     return () => window.removeEventListener('online', syncOfflineMessages);
   }, []);
 
-  const carregarMensagens = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const dados = await messageService.getMessages();
-      setMessages(dados);
-    } catch (err) {
-      setError(t.messages_error_load || 'Erro ao carregar mensagens.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateMessageSubmit = async (content) => {
     setError('');
     if (!navigator.onLine) {
@@ -190,7 +190,7 @@ export default function Mensagens() {
       setError('');
       await messageService.deleteMessage(id);
       setMessages(messages.filter((msg) => msg._id !== id));
-    } catch (err) {
+    } catch {
       setError(t.messages_error_delete || 'Erro ao apagar nota.');
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
 
 const MOOD_EMOJIS_LIST = ['😊', '🥰', '😢', '😡', '😴', '😷', '🧠', '❤️', '😱'];

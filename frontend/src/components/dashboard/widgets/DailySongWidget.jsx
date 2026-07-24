@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiFetch } from '../../../services/common/api';
 
-export default function DailySongWidget({ language, t }) {
+export default function DailySongWidget({ language }) {
   const [song, setSong] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

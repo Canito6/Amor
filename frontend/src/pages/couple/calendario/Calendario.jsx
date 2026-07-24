@@ -30,6 +30,18 @@ export default function Calendario() {
   const { confirm } = useConfirm();
   const t = translations[language];
 
+  const carregarEventos = async () => {
+    try {
+      setLoading(true);
+      const dados = await eventService.getEvents();
+      setEvents(dados);
+    } catch (err) {
+      setErro(err.message || (language === 'pt' ? 'Erro ao carregar calendário.' : 'Error loading calendar.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -42,18 +54,6 @@ export default function Calendario() {
   useSocketUpdate(() => {
     carregarEventos();
   }, ['evento-']);
-
-  const carregarEventos = async () => {
-    try {
-      setLoading(true);
-      const dados = await eventService.getEvents();
-      setEvents(dados);
-    } catch (err) {
-      setErro(err.message || (language === 'pt' ? 'Erro ao carregar calendário.' : 'Error loading calendar.'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const enviarEvento = async (e) => {
     e.preventDefault();
@@ -167,7 +167,6 @@ export default function Calendario() {
 
       <EventList
         t={t}
-        language={language}
         loading={loading}
         eventosFuturos={eventosFuturos}
         eventosPassados={eventosPassados}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSocket } from '../../context/SocketContext';
 
 export default function MessageForm({ onSubmit, t }) {
@@ -59,7 +59,7 @@ export default function MessageForm({ onSubmit, t }) {
       setError('');
       await onSubmit(content.trim());
       setContent('');
-    } catch (err) {
+    } catch {
       setError(t.messages_error_send || 'Erro ao enviar nota.');
     }
   };

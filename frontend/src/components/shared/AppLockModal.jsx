@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAppLock } from '../../context/AppLockContext';
 
 export default function AppLockModal({ language = 'pt' }) {

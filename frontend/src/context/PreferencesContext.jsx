@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { themePresets, adjustColorBrightness } from '../utils/ui/themeUtils';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { themePresets };
 
 const PreferencesContext = createContext();
@@ -42,39 +43,6 @@ export const PreferencesProvider = ({ children }) => {
     localStorage.setItem('soundEnabled', String(enabled));
   };
 
-  // Monitorizar preferências de tema do sistema e aplicar classes
-  useEffect(() => {
-    const root = document.documentElement;
-    
-    const applyTheme = () => {
-      const isDark = globalTheme === 'dark' || 
-        (globalTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      
-      if (isDark) {
-        root.classList.add('theme-dark');
-        root.classList.remove('theme-light');
-      } else {
-        root.classList.add('theme-light');
-        root.classList.remove('theme-dark');
-      }
-      
-      // Forçar atualização do gradiente de fundo se houver um tema ativo
-      if (activeTabTheme) {
-        applyTabSpecificTheme(activeTabTheme, isDark);
-      }
-    };
-
-    applyTheme();
-
-    // Ouvir alterações no sistema caso seja 'system'
-    if (globalTheme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const listener = () => applyTheme();
-      mediaQuery.addEventListener('change', listener);
-      return () => mediaQuery.removeEventListener('change', listener);
-    }
-  }, [globalTheme, activeTabTheme, colorTheme]);
-
   // Função auxiliar para aplicar cores e gradientes dinâmicos do tab ativo
   const applyTabSpecificTheme = (themeConfig, forceDarkState = null) => {
     const root = document.documentElement;
@@ -114,6 +82,39 @@ export const PreferencesProvider = ({ children }) => {
     root.style.setProperty('--bg-gradient', gradient);
   };
 
+  // Monitorizar preferências de tema do sistema e aplicar classes
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    const applyTheme = () => {
+      const isDark = globalTheme === 'dark' || 
+        (globalTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        root.classList.add('theme-dark');
+        root.classList.remove('theme-light');
+      } else {
+        root.classList.add('theme-light');
+        root.classList.remove('theme-dark');
+      }
+      
+      // Forçar atualização do gradiente de fundo se houver um tema ativo
+      if (activeTabTheme) {
+        applyTabSpecificTheme(activeTabTheme, isDark);
+      }
+    };
+
+    applyTheme();
+
+    // Ouvir alterações no sistema caso seja 'system'
+    if (globalTheme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, [globalTheme, activeTabTheme, colorTheme]);
+
   return (
     <PreferencesContext.Provider value={{
       language,
@@ -132,4 +133,5 @@ export const PreferencesProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePreferences = () => useContext(PreferencesContext);

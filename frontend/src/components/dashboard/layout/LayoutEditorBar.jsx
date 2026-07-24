@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './LayoutEditor.css';
 import './WidgetGrid.css';
 

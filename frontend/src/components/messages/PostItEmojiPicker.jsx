@@ -1,9 +1,8 @@
-import React from 'react';
+
 
 const QUICK_EMOJIS = ['❤️', '😍', '😂', '😭', '🥺', '💕', '✨', '🔥'];
 
 export default function PostItEmojiPicker({
-  minhaReacao,
   handleReact
 }) {
   return (

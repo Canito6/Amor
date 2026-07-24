@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function SpotifyWidget({ t, playlistUrl }) {
   // Converte automaticamente URL de partilha normal do Spotify para URL Embed

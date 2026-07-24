@@ -1,11 +1,9 @@
-import React from 'react';
+
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 export default function WidgetSlot({
   widget,
-  index,
-  totalWidgets,
   isEditingLayout,
   language,
   getWidgetFriendlyName,

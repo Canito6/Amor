@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function AchievementsGrid({ achievements, language }) {
   return (

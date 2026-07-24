@@ -37,24 +37,6 @@ export default function useGallery(t, navigate) {
   
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
-
-    carregarGaleria();
-  }, [navigate]);
-
-  // Carregar fotos sempre que muda a aba ativa ou o álbum selecionado
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && (activeTab === 'todas' || currentAlbum)) {
-      carregarFotos(1, false);
-    }
-  }, [activeTab, currentAlbum]);
-
   const carregarGaleria = async () => {
     try {
       setLoading(true);
@@ -96,6 +78,24 @@ export default function useGallery(t, navigate) {
       setLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+
+    carregarGaleria();
+  }, [navigate]);
+
+  // Carregar fotos sempre que muda a aba ativa ou o álbum selecionado
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && (activeTab === 'todas' || currentAlbum)) {
+      carregarFotos(1, false);
+    }
+  }, [activeTab, currentAlbum]);
 
   const lidarComFicheiro = (e) => {
     const file = e.target.files[0];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiFetch } from '../services/common/api';
+import { api } from '../services/api';
 
 /**
  * Hook para gerir o estado de subscrição de Notificações Push Web no frontend
@@ -10,14 +10,6 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true);
-      setPermission(Notification.permission);
-      checkExistingSubscription();
-    }
-  }, []);
-
   const checkExistingSubscription = async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -27,6 +19,14 @@ export function usePushNotifications() {
       console.error('Erro ao verificar subscrição de push:', err);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
+      setIsSupported(true);
+      setPermission(Notification.permission);
+      checkExistingSubscription();
+    }
+  }, []);
 
   const subscribeToPush = useCallback(async () => {
     if (!isSupported) return false;
@@ -46,8 +46,8 @@ export function usePushNotifications() {
       // Procurar chave VAPID pública da API do backend
       let vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        const res = await apiFetch('/api/users/vapid-public-key');
-        vapidPublicKey = res?.publicKey;
+        const { data } = await api.get('/push/vapid-key');
+        vapidPublicKey = data.publicKey;
       }
 
       if (!vapidPublicKey) {
@@ -64,11 +64,7 @@ export function usePushNotifications() {
       });
 
       // Enviar subscrição para o backend
-      const subJson = subscription.toJSON();
-      await apiFetch('/api/users/push-subscribe', {
-        method: 'POST',
-        body: subJson
-      });
+      await api.post('/push/subscribe', { subscription });
       setIsSubscribed(true);
       setLoading(false);
       return true;
@@ -89,10 +85,7 @@ export function usePushNotifications() {
       
       if (subscription) {
         await subscription.unsubscribe();
-        await apiFetch('/api/users/push-unsubscribe', {
-          method: 'POST',
-          body: { endpoint: subscription.endpoint }
-        });
+        await api.post('/push/unsubscribe', { endpoint: subscription.endpoint });
       }
 
       setIsSubscribed(false);

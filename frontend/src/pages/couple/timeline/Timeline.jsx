@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { photoService } from '../../../services/gallery/photoService';
 import { memoryService } from '../../../services/fun/memoryService';
@@ -16,15 +16,6 @@ export default function Timeline() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterType, setFilterType] = useState('all'); // 'all', 'photo', 'memory', 'event'
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
-    fetchTimelineData();
-  }, [navigate]);
 
   const fetchTimelineData = async () => {
     try {
@@ -95,6 +86,15 @@ export default function Timeline() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+    fetchTimelineData();
+  }, [navigate]);
 
   const formatDate = (dateString) => {
     const d = new Date(dateString);

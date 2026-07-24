@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth/authService';
 import { usePreferences } from '../../../context/PreferencesContext';
-import { translations } from '../../../services/common/translations';
 import './RelationshipStats.css';
 
 export default function RelationshipStats() {
   const navigate = useNavigate();
   const { language } = usePreferences();
-  const t = translations[language] || translations['pt'];
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function ScratchCardCreator({ onSubmit, onClose, t }) {
   const [title, setTitle] = useState('');

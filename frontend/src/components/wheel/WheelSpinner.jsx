@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const PASTEL_COLORS = [
   '#FF6B9D', // Primária

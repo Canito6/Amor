@@ -1,4 +1,4 @@
-import React from 'react';
+
 import ScratchCardItem from './ScratchCardItem';
 
 export default function ScratchCardList({

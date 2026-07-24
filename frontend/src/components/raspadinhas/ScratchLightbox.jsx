@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
 import { playScratchSound, triggerHaptic } from '../../utils/media/audioHelper';
 import { sounds } from '../../utils/ui/soundEffects';
@@ -242,7 +242,6 @@ export default function ScratchLightbox({ card, onClose, onScratchComplete, t })
     const imgData = ctx.getImageData(0, 0, width, height);
     const pixels = imgData.data;
     let transparentCount = 0;
-    const totalPixels = pixels.length / 4;
 
     // Verificar o canal Alpha de cada pixel (amostrando a cada 16 pixéis para performance imediata)
     const sampleStep = 16;

@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function WelcomeBanner({ nome, relationshipDate, language, t }) {
   const daysTogether = relationshipDate

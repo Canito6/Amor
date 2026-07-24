@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { themePresets } from '../../context/PreferencesContext';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
@@ -73,7 +73,7 @@ export default function SettingsModal({
       setNewTabContentType('notes');
       setNewTabUrl('');
       showToast(t.new_tab_success, 'success');
-    } catch (err) {
+    } catch {
       showToast(language === 'pt' ? 'Erro ao criar aba.' : 'Error creating tab.', 'error');
     }
   };
@@ -114,7 +114,7 @@ export default function SettingsModal({
       });
       setEditingTabId(null);
       showToast(t.save_success, 'success');
-    } catch (err) {
+    } catch {
       showToast(language === 'pt' ? 'Erro ao atualizar aba.' : 'Error updating tab.', 'error');
     }
   };
@@ -129,7 +129,7 @@ export default function SettingsModal({
     if (ok) {
       try {
         await deleteCustomTab(id);
-      } catch (err) {
+      } catch {
         showToast(language === 'pt' ? 'Erro ao eliminar aba.' : 'Error deleting tab.', 'error');
       }
     }

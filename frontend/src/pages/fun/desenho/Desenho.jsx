@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';

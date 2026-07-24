@@ -1,15 +1,13 @@
-import React from 'react';
+
 
 export default function Header({
   nome,
   coupleInfo,
-  isMobile,
   onOpenLinkModal,
   onOpenSettings,
   onLogoClick,
   onToggleSidebar,
-  t,
-  isDashboardPage
+  t
 }) {
   return (
     <header className="global-topbar glass-panel">

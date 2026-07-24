@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { couponService } from '../../../services/fun/couponService';
 import { usePreferences } from '../../../context/PreferencesContext';
@@ -30,6 +30,19 @@ export default function Vales() {
   const { confirm } = useConfirm();
   const t = translations[language];
 
+  const carregarVales = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await couponService.getCoupons();
+      setCoupons(data);
+    } catch {
+      setError(t.coupon_error_load || 'Erro ao carregar os vales.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -43,19 +56,6 @@ export default function Vales() {
     carregarVales();
   }, ['coupon-', 'vale-']);
 
-  const carregarVales = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await couponService.getCoupons();
-      setCoupons(data);
-    } catch (err) {
-      setError(t.coupon_error_load || 'Erro ao carregar os vales.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateCoupon = async (title, description, icon) => {
     try {
       setCreating(true);
@@ -68,7 +68,7 @@ export default function Vales() {
       setCoupons([newCoupon, ...coupons]);
       setShowCreator(false);
       showToast(t.coupon_success_created || 'Vale oferecido!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.coupon_error_save || 'Erro ao criar vale.');
     } finally {
       setCreating(false);
@@ -85,7 +85,7 @@ export default function Vales() {
       const updated = await couponService.redeemCoupon(coupon._id);
       setCoupons(coupons.map(c => c._id === coupon._id ? updated : c));
       showToast(language === 'pt' ? 'Vale resgatado com sucesso! 🎉' : 'Coupon redeemed successfully! 🎉', 'success');
-    } catch (err) {
+    } catch {
       setError(t.coupon_error_redeem || 'Erro ao resgatar vale.');
     }
   };
@@ -100,7 +100,7 @@ export default function Vales() {
       setError('');
       await couponService.deleteCoupon(id);
       setCoupons(coupons.filter(c => c._id !== id));
-    } catch (err) {
+    } catch {
       setError(t.coupon_error_delete || 'Erro ao eliminar vale.');
     }
   };

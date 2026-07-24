@@ -10,7 +10,7 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (err) {}
+      } catch { /* erro silenciado intencionalmente */ }
     }
     return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
@@ -21,7 +21,7 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
       if (saved) {
         try {
           setVisibleItems(JSON.parse(saved));
-        } catch (err) {}
+        } catch { /* erro silenciado intencionalmente */ }
       }
     };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { usePreferences } from '../../context/PreferencesContext';
 import { useTabs } from '../../context/TabContext';

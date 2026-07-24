@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { usePreferences } from '../../context/PreferencesContext';
 import { useToast } from '../../context/ToastContext';
 

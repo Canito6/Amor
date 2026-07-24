@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function ProfileStats({ stats, language, t }) {
   return (

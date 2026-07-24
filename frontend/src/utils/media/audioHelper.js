@@ -82,6 +82,6 @@ export function triggerHaptic(duration = 40) {
   if ('vibrate' in navigator) {
     try {
       navigator.vibrate(duration);
-    } catch (err) {}
+    } catch { /* erro silenciado intencionalmente */ }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AnimatedNumber from '../../shared/AnimatedNumber';
 
 export default function LoveCounter({ relationshipDate, language, t, streak = 0 }) {

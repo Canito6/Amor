@@ -1,13 +1,11 @@
-import React from 'react';
+
 
 export default function LikelyQuestionCard({
   q,
   meuNome,
   minhaRole,
-  partnerName,
   onVote,
   onDelete,
-  language,
   t
 }) {
   const getIsQuestionCompleted = (q) => q.votes.length === 2;

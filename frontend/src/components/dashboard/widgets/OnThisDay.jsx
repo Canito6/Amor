@@ -1,7 +1,7 @@
-import React from 'react';
+
 import PolaroidFrame from '../../shared/PolaroidFrame';
 
-export default function OnThisDay({ memories = [], language = 'pt', t }) {
+export default function OnThisDay({ memories = [], language = 'pt' }) {
   if (!memories || memories.length === 0) return null;
 
   const today = new Date();

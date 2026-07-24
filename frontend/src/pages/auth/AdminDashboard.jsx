@@ -20,6 +20,18 @@ export default function AdminDashboard() {
   const { confirm } = useConfirm();
   const t = translations[language];
 
+  const carregarUtilizadores = async () => {
+    try {
+      setLoading(true);
+      const dados = await adminService.getUsers();
+      setUsers(dados);
+    } catch (err) {
+      setErro(err.message || (language === 'pt' ? 'Erro ao procurar utilizadores.' : 'Error fetching users.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const role = localStorage.getItem('role');
     const token = localStorage.getItem('token');
@@ -32,18 +44,6 @@ export default function AdminDashboard() {
 
     carregarUtilizadores();
   }, [navigate]);
-
-  const carregarUtilizadores = async () => {
-    try {
-      setLoading(true);
-      const dados = await adminService.getUsers();
-      setUsers(dados);
-    } catch (err) {
-      setErro(err.message || (language === 'pt' ? 'Erro ao procurar utilizadores.' : 'Error fetching users.'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 1. MUDAR CARGO (Admin <-> User)
   const mudarPermissao = async (user) => {

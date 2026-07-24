@@ -1,4 +1,4 @@
-import React from 'react';
+
 import MemoryCard from './MemoryCard';
 import Skeleton from '../shared/Skeleton';
 import EmptyState from '../shared/EmptyState';

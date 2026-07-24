@@ -1,4 +1,4 @@
-import React from 'react';
+
 import CheckInForm from './CheckInForm';
 
 export default function CheckInRevealed({

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PolaroidFrame from '../shared/PolaroidFrame';
 
 export default function MemoryCard({

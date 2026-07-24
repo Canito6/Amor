@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import PolaroidFrame, { getDeterministicRotation } from '../../components/shared/PolaroidFrame';
 import { describe, it, expect } from 'vitest';

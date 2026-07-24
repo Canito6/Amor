@@ -1,4 +1,4 @@
-import React from 'react';
+
 import LetterCard from './LetterCard';
 
 export default function LetterList({

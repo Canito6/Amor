@@ -24,6 +24,27 @@ export default function useMemories(t, language) {
   const [editingMemId, setEditingMemId] = useState(null);
   const [editMem, setEditMem] = useState({ title: '', description: '', date: '', isTimeCapsule: false, unlockDate: '', imageUrl: '' });
 
+  const carregarMemoras = async () => {
+    try {
+      setLoading(true);
+      const dados = await memoryService.getMemories();
+      setMemories(dados);
+
+      // Encontrar a memória mais antiga para servir de data de aniversário/início
+      if (dados.length > 0) {
+        // Ordenamos cópia para não alterar a ordem do ecrã
+        const ordenadas = [...dados].sort((a, b) => new Date(a.date) - new Date(b.date));
+        setPrimeiraData(ordenadas[0].date);
+      } else {
+        setPrimeiraData(null);
+      }
+    } catch (err) {
+      setErro(t.memories_error_load || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     carregarMemoras();
   }, []);
@@ -48,27 +69,6 @@ export default function useMemories(t, language) {
       setContadorDias(0);
     }
   }, [primeiraData, memories]);
-
-  const carregarMemoras = async () => {
-    try {
-      setLoading(true);
-      const dados = await memoryService.getMemories();
-      setMemories(dados);
-
-      // Encontrar a memória mais antiga para servir de data de aniversário/início
-      if (dados.length > 0) {
-        // Ordenamos cópia para não alterar a ordem do ecrã
-        const ordenadas = [...dados].sort((a, b) => new Date(a.date) - new Date(b.date));
-        setPrimeiraData(ordenadas[0].date);
-      } else {
-        setPrimeiraData(null);
-      }
-    } catch (err) {
-      setErro(t.memories_error_load || err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const enviarMemoria = async (e) => {
     e.preventDefault();

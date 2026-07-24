@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function AnimatedNumber({ value, isFirstLoad = true }) {
   const [displayValue, setDisplayValue] = useState(0);

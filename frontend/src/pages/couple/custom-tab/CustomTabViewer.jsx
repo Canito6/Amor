@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { useTabs } from '../../../context/TabContext';
@@ -95,7 +95,7 @@ export default function CustomTabViewer() {
       try {
         await updateCustomTab(tab._id, { content: val });
         setSyncStatus('saved');
-      } catch (err) {
+      } catch {
         setSyncStatus('error');
       }
     }, 1200);

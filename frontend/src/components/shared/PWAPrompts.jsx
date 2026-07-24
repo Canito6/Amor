@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { usePWA } from '../../context/PWAContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import { translations } from '../../services/common/translations';

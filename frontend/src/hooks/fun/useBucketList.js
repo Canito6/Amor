@@ -31,14 +31,6 @@ export default function useBucketList(t, language, fileInputRef) {
   const [completionFile, setCompletionFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    carregarDesejos();
-  }, []);
-
-  useSocketUpdate(() => {
-    carregarDesejos();
-  }, ['bucket-', 'desejo-']);
-
   const carregarDesejos = async (page = 1, append = false) => {
     try {
       if (append) {
@@ -64,13 +56,21 @@ export default function useBucketList(t, language, fileInputRef) {
         setCurrentPage(1);
         setTotalPages(1);
       }
-    } catch (err) {
+    } catch {
       setError(t.bucket_error_load || 'Erro ao carregar a lista de desejos.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    carregarDesejos();
+  }, []);
+
+  useSocketUpdate(() => {
+    carregarDesejos();
+  }, ['bucket-', 'desejo-']);
 
   const handleCreateItem = async (e) => {
     e.preventDefault();
@@ -91,7 +91,7 @@ export default function useBucketList(t, language, fileInputRef) {
       setNewDescription('');
       setShowCreator(false);
       showToast(t.bucket_success_created || 'Desejo adicionado! 🎉', 'success');
-    } catch (err) {
+    } catch {
       setError(t.bucket_error_save || 'Erro ao criar desejo.');
     } finally {
       setCreating(false);
@@ -113,7 +113,7 @@ export default function useBucketList(t, language, fileInputRef) {
         setError('');
         const updated = await bucketListService.completeBucketItem(item._id, { completed: false });
         setItems(items.map(i => i._id === item._id ? updated : i));
-      } catch (err) {
+      } catch {
         setError(t.bucket_error_complete || 'Erro ao atualizar desejo.');
       }
     } else {
@@ -141,7 +141,7 @@ export default function useBucketList(t, language, fileInputRef) {
       setCompletingItem(null);
       setCompletionFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
-    } catch (err) {
+    } catch {
       setError(t.bucket_error_complete || 'Erro ao concluir desejo.');
     } finally {
       setUploading(false);
@@ -165,7 +165,7 @@ export default function useBucketList(t, language, fileInputRef) {
       await bucketListService.deleteBucketItem(id);
       setItems(items.filter(i => i._id !== id));
       showToast(language === 'pt' ? 'Desejo eliminado com sucesso!' : 'Goal deleted successfully!', 'success');
-    } catch (err) {
+    } catch {
       setError(t.bucket_error_delete || 'Erro ao eliminar desejo.');
     }
   };

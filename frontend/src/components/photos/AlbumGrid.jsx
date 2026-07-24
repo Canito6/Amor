@@ -1,4 +1,4 @@
-import React from 'react';
+
 import Skeleton from '../shared/Skeleton';
 
 export default function AlbumGrid({

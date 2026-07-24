@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { scratchCardService } from '../../../services/fun/scratchCardService';
 import { usePreferences } from '../../../context/PreferencesContext';
@@ -30,6 +30,19 @@ export default function Raspadinhas() {
   const { confirm } = useConfirm();
   const t = translations[language];
 
+  const carregarRaspadinhas = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await scratchCardService.getScratchCards();
+      setCards(data);
+    } catch {
+      setError(t.scratch_error_load || 'Erro ao carregar raspadinhas.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -38,19 +51,6 @@ export default function Raspadinhas() {
     }
     carregarRaspadinhas();
   }, [navigate]);
-
-  const carregarRaspadinhas = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await scratchCardService.getScratchCards();
-      setCards(data);
-    } catch (err) {
-      setError(t.scratch_error_load || 'Erro ao carregar raspadinhas.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCreateCardSubmit = async (title, reward) => {
     try {
@@ -79,7 +79,7 @@ export default function Raspadinhas() {
       if (scratchingCard && scratchingCard._id === id) {
         setScratchingCard(null);
       }
-    } catch (err) {
+    } catch {
       setError(t.scratch_error_delete || 'Erro ao eliminar.');
     }
   };

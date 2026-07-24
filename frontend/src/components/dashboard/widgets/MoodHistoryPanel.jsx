@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export default function MoodHistoryPanel({ sintonia, meuRegisto, parceiroRegisto, formatarDataHistorial }) {
   return (

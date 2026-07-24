@@ -1,10 +1,10 @@
-import React from 'react';
+
 import { calculateLevelAndXP, getAchievementsList } from './achievementsData';
 import AchievementsProgress from './AchievementsProgress';
 import AchievementsGrid from './AchievementsGrid';
 import './AchievementsWidget.css';
 
-export default function AchievementsWidget({ stats, t, language }) {
+export default function AchievementsWidget({ stats, language }) {
   if (!stats) {
     return (
       <div className="achievements-widget-panel glass-panel loading-achievements">

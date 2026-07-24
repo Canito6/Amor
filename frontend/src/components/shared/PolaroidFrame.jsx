@@ -1,10 +1,11 @@
-import React from 'react';
+
 import './PolaroidFrame.css';
 
 /**
  * Calculates a stable, deterministic rotation angle between -4 and 4 degrees
  * based on the character code sum of the provided ID.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const getDeterministicRotation = (id) => {
   if (!id) return 0;
   let hash = 0;

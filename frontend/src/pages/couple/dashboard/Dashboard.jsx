@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { useTabs } from '../../../context/TabContext';
 import { translations } from '../../../services/common/translations';
@@ -13,10 +13,10 @@ import AchievementsWidget from '../../../components/dashboard/widgets/Achievemen
 import CoupleEditModal from '../../../components/dashboard/modals/CoupleEditModal';
 import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBar';
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
-import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
 import DailySongWidget from '../../../components/dashboard/widgets/DailySongWidget';
+import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
 import { memoryService } from '../../../services/fun/memoryService';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -38,9 +38,12 @@ function getWidgetFriendlyName(id, language) {
 }
 
 export default function Dashboard() {
-  const { language, layoutStyle } = usePreferences();
+  const { language } = usePreferences();
   const { customTabs } = useTabs();
   const t = translations[language];
+  // Nota: funcionalidade de "layoutStyle" configurável ainda não está exposta
+  // nas preferências do utilizador; mantém-se o valor por omissão por agora.
+  const layoutStyle = 'default';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -59,7 +62,6 @@ export default function Dashboard() {
     editDate, setEditDate,
     editSpotify, setEditSpotify,
     editError, editSuccess,
-    terminarSessao,
     handleUpdateCoupleInfo,
     handleDragEnd,
     changeWidgetSize,

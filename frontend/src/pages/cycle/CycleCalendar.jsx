@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { cycleService } from '../../services/cycle/cycleService';
 import { useToast } from '../../context/ToastContext';
 import EmptyState from '../../components/shared/EmptyState';

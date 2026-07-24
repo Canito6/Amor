@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import LightboxControls from './LightboxControls';
 import LightboxImageArea from './LightboxImageArea';
 import LightboxMetadata from './LightboxMetadata';
@@ -15,6 +15,8 @@ export default function PhotoLightbox({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const currentIndex = selectedPhoto ? photos.findIndex(p => p._id === selectedPhoto._id) : -1;
+
   useEffect(() => {
     // Reset slideshow play state when closed
     if (!selectedPhoto) {
@@ -22,27 +24,25 @@ export default function PhotoLightbox({
     }
   }, [selectedPhoto]);
 
-  const currentIndex = selectedPhoto ? photos.findIndex(p => p._id === selectedPhoto._id) : -1;
-
-  const handlePrev = useCallback((e) => {
+  const handlePrev = (e) => {
     if (e) e.stopPropagation();
-    if (photos.length <= 1 || currentIndex === -1) return;
+    if (photos.length <= 1) return;
     if (currentIndex > 0) {
       setSelectedPhoto(photos[currentIndex - 1]);
     } else {
       setSelectedPhoto(photos[photos.length - 1]);
     }
-  }, [currentIndex, photos, setSelectedPhoto]);
+  };
 
-  const handleNext = useCallback((e) => {
+  const handleNext = (e) => {
     if (e) e.stopPropagation();
-    if (photos.length <= 1 || currentIndex === -1) return;
+    if (photos.length <= 1) return;
     if (currentIndex < photos.length - 1) {
       setSelectedPhoto(photos[currentIndex + 1]);
     } else {
       setSelectedPhoto(photos[0]);
     }
-  }, [currentIndex, photos, setSelectedPhoto]);
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function PhotoLightbox({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPhoto, handlePrev, handleNext, setSelectedPhoto]);
+  }, [selectedPhoto, currentIndex, photos]);
 
   // Slideshow autoplay
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function PhotoLightbox({
       handleNext();
     }, 3000); // 3 seconds transition
     return () => clearInterval(interval);
-  }, [selectedPhoto, isPlaying, handleNext]);
+  }, [selectedPhoto, isPlaying, currentIndex, photos]);
 
   if (!selectedPhoto) return null;
 

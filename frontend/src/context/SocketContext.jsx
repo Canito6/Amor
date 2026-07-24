@@ -1,12 +1,47 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useToast } from './ToastContext';
 
 const SocketContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSocket() {
   return useContext(SocketContext);
 }
+
+const playNotificationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Tom 1
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+    gain1.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start();
+    osc1.stop(audioCtx.currentTime + 0.15);
+
+    // Tom 2 (um acorde maior 0.08s depois)
+    setTimeout(() => {
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+      gain2.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+      osc2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+      osc2.start();
+      osc2.stop(audioCtx.currentTime + 0.25);
+    }, 80);
+  } catch {
+    // AudioContext bloqueado pelo browser
+  }
+};
 
 export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
@@ -115,40 +150,6 @@ export function SocketProvider({ children }) {
       newSocket.disconnect();
     };
   }, [sessionKey]);
-
-  const playNotificationSound = () => {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // Tom 1
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-      gain1.gain.setValueAtTime(0.05, audioCtx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
-      osc1.start();
-      osc1.stop(audioCtx.currentTime + 0.15);
-
-      // Tom 2 (um acorde maior 0.08s depois)
-      setTimeout(() => {
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
-        gain2.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-        osc2.connect(gain2);
-        gain2.connect(audioCtx.destination);
-        osc2.start();
-        osc2.stop(audioCtx.currentTime + 0.25);
-      }, 80);
-    } catch (e) {
-      // AudioContext bloqueado pelo browser
-    }
-  };
 
   return (
     <SocketContext.Provider value={socket}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cycleService } from '../../../services/cycle/cycleService';
 
 export default function PartnerCycleWidget() {

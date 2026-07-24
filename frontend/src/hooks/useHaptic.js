@@ -10,7 +10,7 @@ export function useHaptic() {
     if (isSupported) {
       try {
         navigator.vibrate(pattern);
-      } catch (err) {
+      } catch {
         // Ignorar se o browser bloquear a vibração por política de interacção
       }
     }
