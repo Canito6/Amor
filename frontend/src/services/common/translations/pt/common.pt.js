@@ -28,9 +28,9 @@ export const commonPt = {
   icon: "Ícone (Emoji)",
   content_type: "Tipo de Conteúdo",
   content_notes: "Caderno / Notas Livres",
-  content_media: "Média (Spotify/YouTube)",
+  content_media: "Média (YouTube/Áudio)",
   content_link: "Página Web / Link Iframe",
-  content_url: "URL do Iframe (Spotify/YouTube/Site)",
+  content_url: "URL do Iframe (YouTube/Site)",
   
   no_tabs: "Nenhuma aba personalizada criada. Crie uma nova nas definições!",
   new_tab_success: "Aba criada com sucesso!",
@@ -49,5 +49,9 @@ export const commonPt = {
   pwa_ios_install_step2: "2. Desliza para baixo e seleciona 'Adicionar ao Ecrã Principal' ➕.",
   pwa_ios_install_step3: "3. Confirma no canto superior direito para concluir!",
   pwa_ios_install_dismiss: "Percebi!",
-  pwa_ios_settings_help: "Como instalar no iPhone"
+  pwa_ios_settings_help: "Como instalar no iPhone",
+
+  // Countdown Widget
+  no_upcoming_events: "Sem contagem decrescente",
+  no_upcoming_events_desc: "Adicionem um evento no Calendário para verem a contagem decrescente aqui! ❤️"
 };

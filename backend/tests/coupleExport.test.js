@@ -163,8 +163,7 @@ describe('Testes de Exportação de Dados do Casal', () => {
       Couple.findById.mockResolvedValue({
         _id: coupleId,
         names: 'Tester & Partner',
-        relationshipDate: new Date('2025-01-01'),
-        spotifyPlaylist: 'https://open.spotify.com/playlist/123'
+        relationshipDate: new Date('2025-01-01')
       });
 
       // Mocks encadeados para os modelos de dados
@@ -206,9 +205,6 @@ describe('Testes de Exportação de Dados do Casal', () => {
       expect(partner).not.toHaveProperty('loginAttempts');
       expect(partner).toHaveProperty('username', 'tester');
       expect(partner).toHaveProperty('email', 'tester@example.com');
-      
-      // Garantir que a playlist do Spotify é exportada (visto ser apenas link público)
-      expect(res.body.couple.spotifyPlaylist).toEqual('https://open.spotify.com/playlist/123');
     });
   });
 

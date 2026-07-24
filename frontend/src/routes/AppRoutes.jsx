@@ -3,9 +3,11 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
 import ProtectedRoute from './ProtectedRoute';
 
-// Lazy loading page components
-const Login = lazy(() => import('../pages/auth/Login'));
-const Dashboard = lazy(() => import('../pages/couple/dashboard/Dashboard'));
+// Páginas principais de acesso imediato
+import Login from '../pages/auth/Login';
+import Dashboard from '../pages/couple/dashboard/Dashboard';
+
+// Carregamento dinâmico (Code-Splitting) para otimizar o tempo de arranque inicial
 const RecuperarPassword = lazy(() => import('../pages/auth/RecuperarPassword'));
 const Registar = lazy(() => import('../pages/auth/Registar'));
 const AdminDashboard = lazy(() => import('../pages/auth/AdminDashboard'));
@@ -30,19 +32,32 @@ const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
 const Timeline = lazy(() => import('../pages/couple/timeline/Timeline'));
 const DateNight = lazy(() => import('../pages/fun/date-night/DateNight'));
 const RelationshipStats = lazy(() => import('../pages/couple/stats/RelationshipStats'));
+const Definicoes = lazy(() => import('../pages/couple/definicoes/Definicoes'));
 
-// Fallback loader component
-function LoadingFallback() {
+// Componente de carregamento elegante enquanto as páginas secundárias são transferidas
+function RouteFallback() {
   return (
-    <div className="loading-container">
-      <div className="spinner"></div>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '60vh',
+      gap: '16px'
+    }}>
+      <div 
+        className="pulsing-heart" 
+        style={{ fontSize: '42px', animation: 'pulse 1.2s infinite ease-in-out' }}
+      >
+        ❤️
+      </div>
     </div>
   );
 }
 
 export default function AppRoutes() {
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/recuperar" element={<RecuperarPassword />} />
@@ -67,11 +82,12 @@ export default function AppRoutes() {
             <Route path="/cartas" element={<Cartas />} />
             <Route path="/frasco" element={<Frasco />} />
             <Route path="/likely" element={<Likely />} />
-             <Route path="/jogos" element={<Jogos />} />
+            <Route path="/jogos" element={<Jogos />} />
             <Route path="/date-night" element={<DateNight />} />
             <Route path="/perfil-casal" element={<PerfilCasal />} />
             <Route path="/desenho" element={<Desenho />} />
             <Route path="/estatisticas" element={<RelationshipStats />} />
+            <Route path="/definicoes" element={<Definicoes />} />
             <Route path="/tab/:tabId" element={<CustomTabViewer />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Route>

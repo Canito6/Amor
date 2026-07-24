@@ -9,6 +9,7 @@ import NoteCreator from '../../../components/frasco/NoteCreator';
 import NoteUnfolder from '../../../components/frasco/NoteUnfolder';
 import JarWorkspace from '../../../components/frasco/JarWorkspace';
 import JarHistoryList from '../../../components/frasco/JarHistoryList';
+import { triggerMagicSparkles } from '../../../utils/confettiUtils';
 import './Frasco.css';
 
 export default function Frasco() {
@@ -139,6 +140,7 @@ export default function Frasco() {
       try {
         const drawn = await jarService.getRandomJarNote();
         setDrawnNote(drawn);
+        triggerMagicSparkles();
       } catch (err) {
         setDrawingError(err.message || t.jar_error_draw || 'O frasco está vazio!');
       } finally {

@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
   },
   loginSecurityMethod: {
     type: String,
-    enum: ['direct', 'email', 'mobile'],
+    enum: ['direct', 'email'],
     default: 'direct'
   },
   phoneNumber: {

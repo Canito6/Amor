@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
 const configureSecurity = require('./config/security');
@@ -16,6 +17,7 @@ app.set('trust proxy', 1); // Confiar no primeiro proxy (ex: ngrok)
 setupSwagger(app);
 
 // 1. Middlewares base
+app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
 

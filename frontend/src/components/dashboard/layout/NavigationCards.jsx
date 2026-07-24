@@ -48,9 +48,6 @@ export default function NavigationCards({ layoutStyle, customTabs, t, language }
 
   const filteredCards = defaultCards.filter(card => visibleItems.includes(card.path));
 
-  // Only render in stacked layout - sidebar layout has its own navigation
-  if (layoutStyle !== 'stacked') return null;
-
   return (
     <div className="stacked-cards-list" style={{ display: 'flex', flexDirection: 'column', gap: '18px', margin: '30px 0' }}>
       {filteredCards.map(card => (

@@ -1,7 +1,45 @@
 import { formatDateLong } from '../../../utils/formatting/dateFormatter';
 
 export default function EventCountdown({ nextEvent, daysRemaining, language, t }) {
-  if (!nextEvent) return null;
+  if (!nextEvent) {
+    return (
+      <div 
+        className="countdown-widget" 
+        style={{ 
+          padding: '24px 20px', 
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          boxSizing: 'border-box',
+          textAlign: 'center'
+        }}
+      >
+        <span style={{ fontSize: '32px', opacity: 0.85 }}>⏳</span>
+        <h3 style={{ 
+          fontFamily: 'var(--font-title)', 
+          fontSize: '16px', 
+          color: 'var(--text-main)', 
+          margin: 0, 
+          fontWeight: '600' 
+        }}>
+          {t?.no_upcoming_events || (language === 'pt' ? 'Sem contagem decrescente' : 'No active countdown')}
+        </h3>
+        <p style={{ 
+          fontFamily: 'var(--font-body)', 
+          fontSize: '13px', 
+          color: 'var(--text-muted)', 
+          margin: 0,
+          maxWidth: '240px',
+          lineHeight: '1.4'
+        }}>
+          {t?.no_upcoming_events_desc || (language === 'pt' ? 'Adicionem um evento no Calendário para verem a contagem decrescente aqui! ❤️' : 'Add an event in the Calendar to see the countdown here! ❤️')}
+        </p>
+      </div>
+    );
+  }
 
   const formatarDataExtenso = (dataStr) => {
     return formatDateLong(dataStr, language === 'pt' ? 'pt' : 'en');

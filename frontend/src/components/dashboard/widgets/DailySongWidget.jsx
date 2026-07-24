@@ -117,7 +117,7 @@ export default function DailySongWidget({ language }) {
               />
               <input 
                 type="url" 
-                placeholder={language === 'pt' ? 'Link Spotify / YouTube (opcional)' : 'Spotify / YouTube Link (optional)'} 
+                placeholder={language === 'pt' ? 'Link YouTube (opcional)' : 'YouTube Link (optional)'} 
                 value={externalUrl} 
                 onChange={e => setExternalUrl(e.target.value)} 
                 className="input-field"

@@ -60,6 +60,9 @@ router.post('/forcar-mudanca-password', validateSchema(forcarMudancaPasswordSche
 // 6. ROTA: Verificar código de login 2FA
 router.post('/verify-login', twoFactorLimiter, authController.verifyLogin);
 
+// 6b. ROTA: Reenviar código 2FA por email
+router.post('/resend-code', twoFactorLimiter, authController.resendVerificationCode);
+
 // 7. ROTA: Logout (Limpar Cookie)
 router.post('/logout', authController.logout);
 

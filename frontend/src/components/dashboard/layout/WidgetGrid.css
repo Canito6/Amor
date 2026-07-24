@@ -97,7 +97,7 @@
   background: #f2e9fc;
   border-color: rgba(123, 44, 191, 0.2);
 }
-:global(.theme-dark) .badge-outro {
+.theme-dark .badge-outro {
   color: var(--secondary-color);
   background: rgba(197, 137, 232, 0.1);
   border-color: rgba(197, 137, 232, 0.15);
@@ -109,7 +109,7 @@
   background: #ffe3ec;
   border-color: rgba(255, 107, 157, 0.25);
 }
-:global(.theme-dark) .badge-aniversario {
+.theme-dark .badge-aniversario {
   color: var(--primary-color);
   background: rgba(255, 107, 157, 0.12);
   border-color: rgba(255, 107, 157, 0.18);
@@ -121,7 +121,7 @@
   background: #e1f5fe;
   border-color: rgba(136, 212, 247, 0.3);
 }
-:global(.theme-dark) .badge-viagem {
+.theme-dark .badge-viagem {
   color: #88D4F7;
   background: rgba(136, 212, 247, 0.12);
   border-color: rgba(136, 212, 247, 0.18);
@@ -133,7 +133,7 @@
   background: #f2e9fc;
   border-color: rgba(123, 44, 191, 0.2);
 }
-:global(.theme-dark) .badge-data-especial {
+.theme-dark .badge-data-especial {
   color: var(--secondary-color);
   background: rgba(197, 137, 232, 0.1);
   border-color: rgba(197, 137, 232, 0.15);
@@ -151,7 +151,7 @@
   position: relative;
 }
 
-:global(.theme-dark) .event-progress-container {
+.theme-dark .event-progress-container {
   background: rgba(255, 255, 255, 0.08);
 }
 

@@ -44,7 +44,16 @@ export default function LoveCounter({ relationshipDate, language, t, streak = 0 
     return () => clearInterval(interval);
   }, [relationshipDate]);
 
-  if (!relationshipDate) return null;
+  if (!relationshipDate) {
+    return (
+      <div className="counter-widget fade-in" style={{ padding: '20px', textAlign: 'center' }}>
+        <span className="pulsing-heart" style={{ fontSize: '32px' }}>💖</span>
+        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: '10px 0', fontWeight: '600' }}>
+          {language === 'pt' ? 'Define a vossa data de namoro nas informações do casal para acompanhar os dias juntos!' : 'Set your relationship date to track your days together!'}
+        </p>
+      </div>
+    );
+  }
 
   const formattedRelationshipDate = new Date(relationshipDate).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-PT', {
     year: 'numeric',

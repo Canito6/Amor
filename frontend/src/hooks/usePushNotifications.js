@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../services/api';
+import { apiFetch } from '../services/common/api';
 
 /**
  * Hook para gerir o estado de subscrição de Notificações Push Web no frontend
@@ -46,7 +46,7 @@ export function usePushNotifications() {
       // Procurar chave VAPID pública da API do backend
       let vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        const { data } = await api.get('/push/vapid-key');
+        const data = await apiFetch('/api/auth/vapid-public-key');
         vapidPublicKey = data.publicKey;
       }
 
@@ -64,7 +64,7 @@ export function usePushNotifications() {
       });
 
       // Enviar subscrição para o backend
-      await api.post('/push/subscribe', { subscription });
+      await apiFetch('/api/auth/push-subscribe', { method: 'POST', body: subscription });
       setIsSubscribed(true);
       setLoading(false);
       return true;
@@ -85,7 +85,7 @@ export function usePushNotifications() {
       
       if (subscription) {
         await subscription.unsubscribe();
-        await api.post('/push/unsubscribe', { endpoint: subscription.endpoint });
+        await apiFetch('/api/auth/push-unsubscribe', { method: 'POST', body: { endpoint: subscription.endpoint } });
       }
 
       setIsSubscribed(false);

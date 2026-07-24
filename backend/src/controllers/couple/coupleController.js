@@ -36,7 +36,6 @@ exports.getCoupleInfo = async (req, res, next) => {
       coupleId,
       names: couple?.names || '',
       relationshipDate: couple?.relationshipDate || null,
-      spotifyPlaylist: couple?.spotifyPlaylist || 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5YxZ2718Eld?utm_source=generator&theme=0',
       partnerNames,
       partners: users.map(u => ({
         username: u.username,
@@ -54,7 +53,7 @@ exports.getCoupleInfo = async (req, res, next) => {
 exports.updateCoupleInfo = async (req, res, next) => {
   try {
     const coupleId = req.coupleId;
-    const { names, relationshipDate, spotifyPlaylist } = req.body;
+    const { names, relationshipDate } = req.body;
 
     let couple = await Couple.findById(coupleId);
     if (!couple) {
@@ -63,7 +62,6 @@ exports.updateCoupleInfo = async (req, res, next) => {
 
     if (names !== undefined) couple.names = names;
     if (relationshipDate !== undefined) couple.relationshipDate = relationshipDate ? new Date(relationshipDate) : null;
-    if (spotifyPlaylist !== undefined) couple.spotifyPlaylist = spotifyPlaylist;
 
     await couple.save();
 
@@ -74,7 +72,6 @@ exports.updateCoupleInfo = async (req, res, next) => {
       coupleId,
       names: couple.names,
       relationshipDate: couple.relationshipDate,
-      spotifyPlaylist: couple.spotifyPlaylist,
       partnerNames
     });
   } catch (error) {
@@ -296,7 +293,6 @@ exports.exportData = async (req, res, next) => {
       couple: {
         names: couple?.names || '',
         relationshipDate: couple?.relationshipDate || null,
-        spotifyPlaylist: couple?.spotifyPlaylist || 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5YxZ2718Eld?utm_source=generator&theme=0',
         createdAt: couple?.createdAt || null
       },
       partners: users.map(u => ({

@@ -8,9 +8,9 @@ describe('LoveCounter component', () => {
     memories_counter_title: 'Contador do Amor'
   };
 
-  it('renders null when relationshipDate is not provided', () => {
-    const { container } = render(<LoveCounter relationshipDate={null} language="pt" t={t} />);
-    expect(container.firstChild).toBeNull();
+  it('renders prompt message when relationshipDate is not provided', () => {
+    render(<LoveCounter relationshipDate={null} language="pt" t={t} />);
+    expect(screen.getByText(/Define a vossa data de namoro/i)).toBeInTheDocument();
   });
 
   it('renders calculation correctly in Portuguese', () => {

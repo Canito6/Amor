@@ -6,7 +6,6 @@ export default function useRegisterForm(navigate) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginSecurityMethod, setLoginSecurityMethod] = useState('direct');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
@@ -24,18 +23,12 @@ export default function useRegisterForm(navigate) {
     setErro('');
     setSucesso('');
 
-    if (loginSecurityMethod === 'mobile' && !phoneNumber.trim()) {
-      setErro('O número de telemóvel é obrigatório para a verificação por SMS.');
-      return;
-    }
-
     try {
       await authService.register(
         username, 
         email, 
         password, 
         loginSecurityMethod, 
-        phoneNumber, 
         inviteCode
       );
       
@@ -55,8 +48,6 @@ export default function useRegisterForm(navigate) {
     setPassword,
     loginSecurityMethod,
     setLoginSecurityMethod,
-    phoneNumber,
-    setPhoneNumber,
     inviteCode,
     setInviteCode,
     erro,

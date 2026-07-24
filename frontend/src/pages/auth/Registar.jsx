@@ -15,8 +15,6 @@ export default function Registar() {
     setPassword,
     loginSecurityMethod,
     setLoginSecurityMethod,
-    phoneNumber,
-    setPhoneNumber,
     inviteCode,
     setInviteCode,
     erro,
@@ -67,18 +65,6 @@ export default function Registar() {
             value={loginSecurityMethod}
             onChange={setLoginSecurityMethod}
           />
-
-          {loginSecurityMethod === 'mobile' && (
-            <AuthInput
-              id="phone"
-              label="Número de Telemóvel"
-              type="tel"
-              placeholder="Ex: +351 912 345 678"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-            />
-          )}
 
           <div className="form-group">
             <label className="input-label" htmlFor="inviteCode">Código de Convite do Parceiro (Opcional)</label>

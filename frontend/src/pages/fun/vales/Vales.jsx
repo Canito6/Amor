@@ -9,6 +9,7 @@ import CouponCreator from '../../../components/vales/CouponCreator';
 import CouponFilters from '../../../components/vales/CouponFilters';
 import CouponList from '../../../components/vales/CouponList';
 import useSocketUpdate from '../../../hooks/shared/useSocketUpdate';
+import { triggerHeartConfetti } from '../../../utils/confettiUtils';
 import './Vales.css';
 
 export default function Vales() {
@@ -84,6 +85,7 @@ export default function Vales() {
       setError('');
       const updated = await couponService.redeemCoupon(coupon._id);
       setCoupons(coupons.map(c => c._id === coupon._id ? updated : c));
+      triggerHeartConfetti();
       showToast(language === 'pt' ? 'Vale resgatado com sucesso! 🎉' : 'Coupon redeemed successfully! 🎉', 'success');
     } catch {
       setError(t.coupon_error_redeem || 'Erro ao resgatar vale.');

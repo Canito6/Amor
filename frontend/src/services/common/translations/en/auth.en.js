@@ -18,7 +18,6 @@ export const authEn = {
   partner_token_placeholder: "Enter the code or username...",
   connect_now_btn: "Connect Now 💑",
   relationship_date_label: "Anniversary / Relationship Start Date",
-  spotify_playlist_label: "Spotify Embed Link",
   edit_couple_info: "Edit Couple Information",
   names_label: "Couple Name (e.g., John & Jane)",
   copy_btn: "Copy"

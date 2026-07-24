@@ -25,10 +25,8 @@ describe('Testes de Autenticação - API Endpoints', () => {
 
   describe('POST /api/auth/register', () => {
     it('deve registar um novo utilizador com sucesso', async () => {
-      // Mock do User.findOne para simular que o email/user não existe
       User.findOne.mockResolvedValue(null);
 
-      // Mock dos métodos de save
       const saveMock = jest.fn().mockResolvedValue({});
       User.mockImplementation(() => ({
         save: saveMock,
@@ -57,7 +55,6 @@ describe('Testes de Autenticação - API Endpoints', () => {
     });
 
     it('deve falhar se o nome de utilizador ou email já estiverem em uso', async () => {
-      // Simula que utilizador já existe
       User.findOne.mockResolvedValue({ username: 'testuser' });
 
       const res = await request(app)
@@ -101,6 +98,36 @@ describe('Testes de Autenticação - API Endpoints', () => {
       expect(res.body).toHaveProperty('token');
     });
 
+    it('deve solicitar verificação 2FA por e-mail se o utilizador tiver loginSecurityMethod == email', async () => {
+      const mockComparePassword = jest.fn().mockResolvedValue(true);
+      const mockSave = jest.fn().mockResolvedValue({});
+      const mockUser = {
+        _id: 'mock_user_id',
+        username: 'testuser',
+        email: 'test@example.com',
+        role: 'user',
+        loginSecurityMethod: 'email',
+        trustedDevices: [],
+        comparePassword: mockComparePassword,
+        precisaMudarPassword: false,
+        save: mockSave
+      };
+
+      User.findOne.mockResolvedValue(mockUser);
+
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({
+          username: 'testuser',
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('requiresVerification', true);
+      expect(res.body).toHaveProperty('method', 'email');
+      expect(res.body).toHaveProperty('emailMasked', 'te***@example.com');
+    });
+
     it('deve falhar com password incorreta', async () => {
       const mockComparePassword = jest.fn().mockResolvedValue(false);
       const mockSave = jest.fn().mockResolvedValue({});
@@ -124,6 +151,30 @@ describe('Testes de Autenticação - API Endpoints', () => {
 
       expect(res.statusCode).toEqual(400);
       expect(res.body.error).toContain('Password incorreta!');
+    });
+  });
+
+  describe('POST /api/auth/resend-code', () => {
+    it('deve reenviar o código de verificação por email com sucesso', async () => {
+      const mockSave = jest.fn().mockResolvedValue({});
+      const mockUser = {
+        _id: 'mock_user_id',
+        username: 'testuser',
+        email: 'test@example.com',
+        save: mockSave
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      const res = await request(app)
+        .post('/api/auth/resend-code')
+        .send({
+          userId: 'mock_user_id'
+        });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('message', 'Novo código enviado por e-mail!');
+      expect(res.body).toHaveProperty('emailMasked', 'te***@example.com');
     });
   });
 });

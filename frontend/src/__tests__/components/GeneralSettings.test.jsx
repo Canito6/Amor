@@ -1,7 +1,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import GeneralSettings from '../../components/settings/GeneralSettings';
+import GeneralSettings, { BackupSettings } from '../../components/settings/GeneralSettings';
 
 // Mock contexts
 vi.mock('../../context/PreferencesContext', () => ({
@@ -82,17 +82,7 @@ describe('GeneralSettings component - Export Section', () => {
   });
 
   it('renders JSON and PDF export buttons along with descriptive text', () => {
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     // Verificar cabeçalho e descrição
     expect(screen.getByText(/Cópia de Segurança e Exportação/i)).toBeInTheDocument();
@@ -118,17 +108,7 @@ describe('GeneralSettings component - Export Section', () => {
       blob: () => Promise.resolve(mockBlob),
     });
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const jsonBtn = screen.getByRole('button', { name: /Exportar os meus dados \(JSON\)/i });
     fireEvent.click(jsonBtn);
@@ -161,17 +141,7 @@ describe('GeneralSettings component - Export Section', () => {
       json: () => Promise.resolve({ error: 'Erro interno no servidor' }),
     });
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const jsonBtn = screen.getByRole('button', { name: /Exportar os meus dados \(JSON\)/i });
     fireEvent.click(jsonBtn);
@@ -195,17 +165,7 @@ describe('GeneralSettings component - Export Section', () => {
       blob: () => Promise.resolve(mockBlob),
     });
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const pdfBtn = screen.getByRole('button', { name: /Exportar álbum de memórias \(PDF\)/i });
     fireEvent.click(pdfBtn);
@@ -237,17 +197,7 @@ describe('GeneralSettings component - Export Section', () => {
     
     const fetchMock = vi.spyOn(global, 'fetch').mockReturnValue(fetchPromise);
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const pdfBtn = screen.getByRole('button', { name: /Exportar álbum de memórias \(PDF\)/i });
     fireEvent.click(pdfBtn);
@@ -277,17 +227,7 @@ describe('GeneralSettings component - Export Section', () => {
     
     const fetchMock = vi.spyOn(global, 'fetch').mockReturnValue(fetchPromise);
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const jsonBtn = screen.getByRole('button', { name: /Exportar os meus dados \(JSON\)/i });
     
@@ -312,17 +252,7 @@ describe('GeneralSettings component - Export Section', () => {
   it('handles generic network exception errors smoothly without hanging the button', async () => {
     const fetchMock = vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network connection lost'));
 
-    render(
-      <GeneralSettings
-        t={t}
-        language="pt"
-        changeLanguage={vi.fn()}
-        globalTheme="light"
-        changeGlobalTheme={vi.fn()}
-        colorTheme="romance"
-        changeColorTheme={vi.fn()}
-      />
-    );
+    render(<BackupSettings language="pt" />);
 
     const jsonBtn = screen.getByRole('button', { name: /Exportar os meus dados \(JSON\)/i });
     fireEvent.click(jsonBtn);

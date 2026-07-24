@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { quizService } from '../../services/fun/quizService';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { triggerVictoryConfetti } from '../../utils/confettiUtils';
 
 export default function useQuizzes(t, language, meuNome) {
   const { showToast } = useToast();
@@ -149,6 +150,7 @@ export default function useQuizzes(t, language, meuNome) {
       setQuizzes(quizzes.map(q => q._id === atualizado._id ? atualizado : q));
       setActiveQuiz(null);
       setSelectedCompletedQuiz(atualizado); // Abre o feedback
+      triggerVictoryConfetti();
     } catch (err) {
       setErro(err.message || (language === 'pt' ? 'Erro ao submeter respostas.' : 'Error submitting answers.'));
     }

@@ -5,29 +5,32 @@ export default function useLoginForm(navigate) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   
   // 2FA Verification States
   const [requiresVerification, setRequiresVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
   const [tempUserId, setTempUserId] = useState('');
-  const [securityMethod, setSecurityMethod] = useState('');
-  const [mockSMSCode, setMockSMSCode] = useState('');
+  const [emailMasked, setEmailMasked] = useState('');
+  const [isResending, setIsResending] = useState(false);
 
   const fazerLogin = async (e) => {
     e.preventDefault(); 
     setErro(''); 
+    setInfoMessage('');
 
     try {
       const deviceToken = localStorage.getItem('trustedDeviceToken');
       const dados = await authService.login(username, password, deviceToken);
 
-      // Se necessitar de verificação por email ou telemóvel (2FA)
+      // Se necessitar de verificação por email (2FA)
       if (dados.requiresVerification) {
         setRequiresVerification(true);
         setTempUserId(dados.userId);
-        setSecurityMethod(dados.method);
-        setMockSMSCode(dados.mockCode || '');
+        if (dados.emailMasked) {
+          setEmailMasked(dados.emailMasked);
+        }
         return;
       }
 
@@ -52,6 +55,7 @@ export default function useLoginForm(navigate) {
   const confirmarCodigo = async (e) => {
     e.preventDefault();
     setErro('');
+    setInfoMessage('');
 
     try {
       const dados = await authService.verifyLogin(tempUserId, verificationCode, trustDevice);
@@ -72,11 +76,30 @@ export default function useLoginForm(navigate) {
     }
   };
 
+  const reenviarCodigo = async () => {
+    if (isResending || !tempUserId) return;
+    setErro('');
+    setInfoMessage('');
+    setIsResending(true);
+    try {
+      const res = await authService.resendCode(tempUserId);
+      setInfoMessage(res.message || 'Novo código de verificação enviado por e-mail! ✉️');
+      if (res.emailMasked) {
+        setEmailMasked(res.emailMasked);
+      }
+    } catch (error) {
+      setErro(error.message || 'Erro ao reenviar código.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const voltarParaPassword = () => {
     setRequiresVerification(false);
     setVerificationCode('');
-    setMockSMSCode('');
+    setEmailMasked('');
     setErro('');
+    setInfoMessage('');
   };
 
   return {
@@ -86,15 +109,18 @@ export default function useLoginForm(navigate) {
     setPassword,
     erro,
     setErro,
+    infoMessage,
+    setInfoMessage,
     requiresVerification,
     verificationCode,
     setVerificationCode,
     trustDevice,
     setTrustDevice,
-    securityMethod,
-    mockSMSCode,
+    emailMasked,
+    isResending,
     fazerLogin,
     confirmarCodigo,
+    reenviarCodigo,
     voltarParaPassword
   };
 }

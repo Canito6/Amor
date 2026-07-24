@@ -28,9 +28,9 @@ export const commonEs = {
   icon: "Icono (Emoji)",
   content_type: "Tipo de Contenido",
   content_notes: "Cuaderno / Notas Libres",
-  content_media: "Multimedia (Spotify/YouTube)",
+  content_media: "Multimedia (YouTube/Audio)",
   content_link: "Página Web / Enlace Iframe",
-  content_url: "URL del Iframe (Spotify/YouTube/Web)",
+  content_url: "URL del Iframe (YouTube/Web)",
   
   no_tabs: "Ninguna pestaña personalizada creada. ¡Crea una nueva en ajustes!",
   new_tab_success: "¡Pestaña creada con éxito!",
@@ -49,5 +49,9 @@ export const commonEs = {
   pwa_ios_install_step2: "2. Desliza hacia abajo y selecciona 'Añadir a la pantalla de inicio' ➕.",
   pwa_ios_install_step3: "3. ¡Confirma en la esquina superior derecha para completar!",
   pwa_ios_install_dismiss: "¡Entendido!",
-  pwa_ios_settings_help: "Cómo instalar en iPhone"
+  pwa_ios_settings_help: "Cómo instalar en iPhone",
+
+  // Countdown Widget
+  no_upcoming_events: "Sin cuenta atrás activa",
+  no_upcoming_events_desc: "¡Añadid un evento en el Calendario para ver la cuenta atrás aquí! ❤️"
 };

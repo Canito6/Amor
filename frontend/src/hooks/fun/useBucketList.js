@@ -1,10 +1,11 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { bucketListService } from '../../services/fun/bucketListService';
 import { validateImageSize } from '../../utils/media/fileValidator';
 import { formatDateLong } from '../../utils/formatting/dateFormatter';
 import useSocketUpdate from '../shared/useSocketUpdate';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { triggerHeartConfetti } from '../../utils/confettiUtils';
 
 export default function useBucketList(t, language, fileInputRef) {
   const [items, setItems] = useState([]);
@@ -141,6 +142,8 @@ export default function useBucketList(t, language, fileInputRef) {
       setCompletingItem(null);
       setCompletionFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
+      triggerHeartConfetti();
+      showToast(language === 'pt' ? 'Conquista alcançada com sucesso! 🎉' : 'Achievement completed! 🎉', 'success');
     } catch {
       setError(t.bucket_error_complete || 'Erro ao concluir desejo.');
     } finally {

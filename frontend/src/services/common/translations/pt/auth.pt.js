@@ -18,7 +18,6 @@ export const authPt = {
   partner_token_placeholder: "Insere o código ou utilizador...",
   connect_now_btn: "Conectar Agora 💑",
   relationship_date_label: "Data de Início do Namoro",
-  spotify_playlist_label: "Link Spotify Embed",
   edit_couple_info: "Editar Informações do Casal",
   names_label: "Nome do Casal (ex: Miguel & Maria)",
   copy_btn: "Copiar"

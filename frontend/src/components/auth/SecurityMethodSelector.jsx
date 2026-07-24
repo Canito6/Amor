@@ -23,17 +23,7 @@ export default function SecurityMethodSelector({ value, onChange }) {
             checked={value === 'email'} 
             onChange={() => onChange('email')} 
           />
-          Código por Email (Segurança recomendada)
-        </label>
-        <label className="auth-radio-label">
-          <input 
-            type="radio" 
-            name="securityMethod" 
-            value="mobile" 
-            checked={value === 'mobile'} 
-            onChange={() => onChange('mobile')} 
-          />
-          Código por Telemóvel
+          Código por Email 📧 (Segurança recomendada)
         </label>
       </div>
     </div>

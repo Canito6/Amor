@@ -31,12 +31,17 @@ export async function apiFetch(endpoint, options = {}) {
     }
   }
 
-  let response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-    body,
-    credentials: 'include' // Envia e recebe cookies HTTP-Only de sessão automaticamente
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+      body,
+      credentials: 'include' // Envia e recebe cookies HTTP-Only de sessão automaticamente
+    });
+  } catch {
+    throw new Error('Não foi possível estabelecer ligação ao servidor. Por favor, verifica a tua ligação.');
+  }
 
   // Tenta extrair a resposta como JSON
   let data = await response.json().catch(() => ({}));

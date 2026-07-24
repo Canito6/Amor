@@ -18,7 +18,6 @@ export const authEs = {
   partner_token_placeholder: "Introduce el código o usuario...",
   connect_now_btn: "Conectar Ahora 💑",
   relationship_date_label: "Fecha de Inicio de Relación",
-  spotify_playlist_label: "Enlace Spotify Embed",
   edit_couple_info: "Editar Información de Pareja",
   names_label: "Nombre de la Pareja (ej: Miguel & María)",
   copy_btn: "Copiar"

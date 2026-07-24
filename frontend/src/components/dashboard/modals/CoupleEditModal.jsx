@@ -8,8 +8,6 @@ export default function CoupleEditModal({
   setEditNames,
   editDate,
   setEditDate,
-  editSpotify,
-  setEditSpotify,
   editError,
   editSuccess,
   t
@@ -67,20 +65,6 @@ export default function CoupleEditModal({
               type="date"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
-              className="input-control"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="input-label" htmlFor="spotifyUrl">
-              {t.spotify_playlist_label || 'Link da Playlist Especial do Spotify'}
-            </label>
-            <input 
-              id="spotifyUrl"
-              type="text"
-              placeholder="Ex: https://open.spotify.com/playlist/..."
-              value={editSpotify}
-              onChange={(e) => setEditSpotify(e.target.value)}
               className="input-control"
             />
           </div>

@@ -1,37 +1,104 @@
 
 
-export default function WelcomeBanner({ nome, relationshipDate, language, t }) {
+export default function WelcomeBanner({ nome, relationshipDate, language, t, onCustomiseLayout, onEditCouple, isEditingLayout }) {
   const daysTogether = relationshipDate
     ? Math.max(0, Math.floor((new Date().getTime() - new Date(relationshipDate).getTime()) / (1000 * 60 * 60 * 24)))
     : null;
 
   return (
     <div 
-      className="welcome-banner-premium" 
+      className="welcome-banner-premium pop-in" 
       style={{ 
-        padding: '35px 30px', 
+        padding: '36px 32px', 
         textAlign: 'left',
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(255, 107, 157, 0.15) 0%, rgba(197, 137, 232, 0.1) 100%)',
-        border: '1px solid rgba(255, 107, 157, 0.15)',
+        background: 'linear-gradient(135deg, rgba(255, 107, 157, 0.18) 0%, rgba(197, 137, 232, 0.12) 50%, rgba(255, 240, 245, 0.4) 100%)',
+        border: '1px solid rgba(255, 107, 157, 0.22)',
         borderRadius: 'var(--radius-lg, 24px)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        boxShadow: 'var(--shadow-md)'
       }}
     >
+      {/* Integrated Action Controls (Top Right) */}
+      <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '8px', zIndex: 10 }}>
+        {!isEditingLayout && onCustomiseLayout && (
+          <button
+            onClick={onCustomiseLayout}
+            style={{
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: '700',
+              fontFamily: 'var(--font-title)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 107, 157, 0.3)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              color: 'var(--primary-color)',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'var(--transition-smooth)'
+            }}
+          >
+            🛠️ {language === 'pt' ? 'Customizar Painel' : 'Customize Layout'}
+          </button>
+        )}
+        {onEditCouple && (
+          <button
+            onClick={onEditCouple}
+            style={{
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: '700',
+              fontFamily: 'var(--font-title)',
+              borderRadius: '12px',
+              border: '1px solid rgba(0, 0, 0, 0.08)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              color: 'var(--text-main)',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'var(--transition-smooth)'
+            }}
+          >
+            ✏️ {language === 'pt' ? 'Editar Casal' : 'Edit Couple'}
+          </button>
+        )}
+      </div>
+
+      {/* Decorative Badge */}
+      <div 
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '6px 14px',
+          borderRadius: '20px',
+          background: 'rgba(255, 255, 255, 0.75)',
+          border: '1px solid rgba(255, 107, 157, 0.25)',
+          fontSize: '12px',
+          fontWeight: '700',
+          color: 'var(--primary-color)',
+          width: 'fit-content',
+          marginBottom: '14px',
+          boxShadow: 'var(--shadow-sm)'
+        }}
+      >
+        <span className="pulse-heart">💖</span>
+        <span>{language === 'pt' ? 'O Nosso Cantinho de Amor' : 'Our Love Sanctuary'}</span>
+      </div>
+
       {/* Premium background SVG illustration of intersecting hearts & stars */}
       <svg 
         style={{
           position: 'absolute',
           top: '-10px',
           right: '-10px',
-          width: '160px',
-          height: '160px',
-          opacity: 0.18,
+          width: '180px',
+          height: '180px',
+          opacity: 0.22,
           pointerEvents: 'none',
           userSelect: 'none'
         }}
@@ -41,10 +108,10 @@ export default function WelcomeBanner({ nome, relationshipDate, language, t }) {
         <path 
           d="M12 21.35C16.8 17.6 22.8 15 28.8 18.2C36.8 22.4 39.2 32.8 33.6 39.6L12 62L-9.6 39.6C-15.2 32.8 -12.8 22.4 -4.8 18.2C1.2 15 7.2 17.6 12 21.35Z" 
           fill="url(#heartGrad)" 
-          transform="translate(50, 20) scale(0.9)"
+          transform="translate(50, 20) scale(0.95)"
         />
-        <circle cx="25" cy="80" r="3" fill="#C589E8" />
-        <circle cx="85" cy="30" r="4" fill="#FF6B9D" />
+        <circle cx="25" cy="80" r="3.5" fill="#C589E8" />
+        <circle cx="85" cy="30" r="4.5" fill="#FF6B9D" />
         <path d="M75 75L77 70L79 75L84 77L79 79L77 84L75 79L70 77L75 75Z" fill="#FF6B9D" />
         <path d="M20 20L21.5 16.5L23 20L26.5 21.5L23 23L21.5 26.5L20 23L16.5 21.5L20 20Z" fill="#C589E8" />
         <defs>
@@ -63,7 +130,7 @@ export default function WelcomeBanner({ nome, relationshipDate, language, t }) {
         marginBottom: '10px',
         lineHeight: '1.2'
       }}>
-        {t.welcome}, <span style={{ background: 'var(--main-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: '800' }}>{nome}</span>! ✨
+        {t.welcome}, <span style={{ background: 'var(--main-gradient)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: '800' }}>{nome}</span>! ✨
       </h1>
       
       {daysTogether !== null ? (
@@ -71,15 +138,15 @@ export default function WelcomeBanner({ nome, relationshipDate, language, t }) {
           fontFamily: 'var(--font-body)',
           color: 'var(--text-main)', 
           fontSize: '15px',
-          margin: '0 0 5px 0',
+          margin: '0 0 6px 0',
           fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           gap: '6px'
         }}>
-          💖 {language === 'pt' 
-            ? `Hoje celebramos o vosso ${daysTogether}º dia juntos!` 
-            : `Today marks your ${daysTogether}th day together!`}
+          🌹 {language === 'pt' 
+            ? `Hoje celebramos o vosso ${daysTogether}º dia juntos com muito amor!` 
+            : `Today marks your ${daysTogether}th day together with endless love!`}
         </p>
       ) : null}
 

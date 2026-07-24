@@ -33,23 +33,29 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     return () => window.removeEventListener('refreshSidebar', handleUpdate);
   }, []);
 
-  const defaultNavItems = [
+  // Grupos intuitivos de navegação
+  const mainGroup = [
     { path: '/dashboard', label: t.dashboard, icon: '🏠' },
     { path: '/perfil-casal', label: t.profile_title ? t.profile_title.replace(' 💖', '') : 'Perfil Casal', icon: '💖' },
     { path: '/mensagens', label: t.messages, icon: '💌' },
-    { path: '/fotos', label: t.photos, icon: '📸' },
-    { path: '/memorias', label: t.memories, icon: '⏳' },
-    { path: '/timeline', label: t.timeline || 'Linha do Tempo', icon: '📈' },
+    { path: '/definicoes', label: t.settings || 'Definições', icon: '⚙️' },
+  ];
+
+  const funGroup = [
     { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : 'Jogos', icon: '🎮' },
-    { path: '/calendario', label: t.calendar, icon: '📅' },
-    { path: '/ciclo', label: 'Ciclo Menstrual', icon: '🌸', hidden: cycleHidden },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },
-    { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
   ];
 
-  const filteredNavItems = defaultNavItems.filter(item => !item.hidden);
+  const memoryGroup = [
+    { path: '/fotos', label: t.photos, icon: '📸' },
+    { path: '/memorias', label: t.memories, icon: '⏳' },
+    { path: '/timeline', label: t.timeline || 'Linha do Tempo', icon: '📈' },
+    { path: '/calendario', label: t.calendar, icon: '📅' },
+    { path: '/ciclo', label: 'Ciclo Menstrual', icon: '🌸', hidden: cycleHidden },
+    { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
+  ];
 
   const handleNavClick = (path) => {
     navigate(path);
@@ -59,6 +65,30 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
   const handleLogoutClick = () => {
     onLogout();
     if (onClose) onClose();
+  };
+
+  const renderNavGroup = (items, categoryTitle) => {
+    const visible = items.filter(item => !item.hidden);
+    if (visible.length === 0) return null;
+
+    return (
+      <div key={categoryTitle}>
+        <div className="sidebar-category-title">{categoryTitle}</div>
+        {visible.map(item => {
+          const isActive = currentPath === item.path;
+          return (
+            <button
+              key={item.path}
+              onClick={() => handleNavClick(item.path)}
+              className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="sidebar-nav-icon">{item.icon}</span>
+              <span className="sidebar-nav-label">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -73,42 +103,37 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       
       <nav className="sidebar-nav">
         <div className="sidebar-nav-links">
-          {filteredNavItems.map(item => {
-            const isActive = currentPath === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item.path)}
-                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
-              >
-                <span className="sidebar-nav-icon">{item.icon}</span>
-                <span className="sidebar-nav-label">{item.label}</span>
-              </button>
-            );
-          })}
+          {renderNavGroup(mainGroup, '📌 Principal')}
+          {renderNavGroup(funGroup, '🎮 Diversão & Jogos')}
+          {renderNavGroup(memoryGroup, '📸 Recordações & Agenda')}
 
-          {/* Custom Tabs */}
-          {customTabs.map(tab => {
-            const tabPath = `/tab/${tab._id}`;
-            const isActive = currentPath === tabPath;
-            return (
-              <button
-                key={tab._id}
-                onClick={() => handleNavClick(tabPath)}
-                className={`sidebar-nav-item custom-tab-item ${isActive ? 'active' : ''}`}
-                style={{ '--tab-accent': tab.accentColor }}
-              >
-                <span className="sidebar-nav-icon">{tab.icon}</span>
-                <span className="sidebar-nav-label">{tab.title}</span>
-              </button>
-            );
-          })}
+          {/* Abas Personalizadas */}
+          {customTabs && customTabs.length > 0 && (
+            <div>
+              <div className="sidebar-category-title">⭐ Abas Personalizadas</div>
+              {customTabs.map(tab => {
+                const tabPath = `/tab/${tab._id}`;
+                const isActive = currentPath === tabPath;
+                return (
+                  <button
+                    key={tab._id}
+                    onClick={() => handleNavClick(tabPath)}
+                    className={`sidebar-nav-item custom-tab-item ${isActive ? 'active' : ''}`}
+                    style={{ '--tab-accent': tab.accentColor }}
+                  >
+                    <span className="sidebar-nav-icon">{tab.icon}</span>
+                    <span className="sidebar-nav-label">{tab.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {roleGuardado === 'admin' && (
             <button
               onClick={() => handleNavClick('/admin')}
               className={`sidebar-nav-item ${currentPath === '/admin' ? 'active' : ''}`}
-              style={{ marginTop: '20px', borderTop: '1px dashed rgba(255, 255, 255, 0.2)', paddingTop: '15px' }}
+              style={{ marginTop: '15px', borderTop: '1px dashed rgba(255, 255, 255, 0.2)', paddingTop: '15px' }}
             >
               <span className="sidebar-nav-icon">👑</span>
               <span className="sidebar-nav-label">{t.admin}</span>

@@ -30,6 +30,10 @@ export default function WidgetSlot({
     opacity: isDragging ? 0.6 : 1,
   };
 
+  if (!children && !isEditingLayout) {
+    return null;
+  }
+
   return (
     <div
       ref={setNodeRef}

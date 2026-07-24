@@ -15,10 +15,6 @@ const coupleSchema = new mongoose.Schema({
   },
   relationshipDate: {
     type: Date
-  },
-  spotifyPlaylist: {
-    type: String,
-    default: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5YxZ2718Eld?utm_source=generator&theme=0'
   }
 }, { timestamps: true });
 

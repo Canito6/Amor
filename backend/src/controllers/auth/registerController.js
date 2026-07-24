@@ -4,7 +4,7 @@ const ApiError = require('../../utils/apiError');
 
 exports.register = async (req, res, next) => {
   try {
-    const { username, email, password, codigoAdmin, loginSecurityMethod, phoneNumber, inviteCode } = req.body;
+    const { username, email, password, codigoAdmin, loginSecurityMethod, inviteCode } = req.body;
     
     // Verifica se o nome ou o email já estão a ser usados
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
@@ -17,13 +17,14 @@ exports.register = async (req, res, next) => {
     const adminSecret = process.env.ADMIN_SECRET_CODE;
     const role = (adminSecret && codigoAdmin === adminSecret) ? 'admin' : 'user';
 
+    const validSecurityMethod = loginSecurityMethod === 'email' ? 'email' : 'direct';
+
     const user = new User({ 
       username, 
       email, 
       password, 
       role,
-      loginSecurityMethod: loginSecurityMethod || 'direct',
-      phoneNumber: phoneNumber || ''
+      loginSecurityMethod: validSecurityMethod
     });
 
     if (inviteCode && inviteCode.trim() !== '') {

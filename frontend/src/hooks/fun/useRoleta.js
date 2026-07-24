@@ -4,6 +4,7 @@ import { playClickSound, triggerHaptic } from '../../utils/media/audioHelper';
 import { sounds } from '../../utils/ui/soundEffects';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
+import { triggerVictoryConfetti } from '../../utils/confettiUtils';
 
 export default function useRoleta(t) {
   const { showToast } = useToast();
@@ -173,6 +174,7 @@ export default function useRoleta(t) {
       setResult(options[selectedIndex]);
       triggerHaptic(100); // Vibração de parada/sucesso!
       sounds.playChime();
+      triggerVictoryConfetti();
     }, duration);
   };
 

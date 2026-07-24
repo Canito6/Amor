@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { themePresets } from '../../context/PreferencesContext';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
-import GeneralSettings from '../settings/GeneralSettings';
+import GeneralSettings, { BackupSettings } from '../settings/GeneralSettings';
 import CreateTabForm from '../settings/CreateTabForm';
 import ManageTabsList from '../settings/ManageTabsList';
 import './SettingsModal.css';
@@ -24,6 +24,10 @@ export default function SettingsModal({
 }) {
   const { showToast } = useToast();
   const { confirm: confirmDialog } = useConfirm();
+
+  // Active settings section tab state ('general' | 'tabs' | 'backup')
+  const [activeTab, setActiveTab] = useState('general');
+
   // Form states for creating a new tab
   const [newTabTitle, setNewTabTitle] = useState('');
   const [newTabIcon, setNewTabIcon] = useState('❤️');
@@ -143,66 +147,103 @@ export default function SettingsModal({
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
+        {/* Navegação por 3 Abas Internas */}
+        <div className="settings-tab-nav">
+          <button 
+            className={`settings-tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+            onClick={() => setActiveTab('general')}
+          >
+            🛠️ {language === 'pt' ? 'Geral' : 'General'}
+          </button>
+          <button 
+            className={`settings-tab-btn ${activeTab === 'tabs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tabs')}
+          >
+            📂 {language === 'pt' ? 'Abas' : 'Custom Tabs'}
+          </button>
+          <button 
+            className={`settings-tab-btn ${activeTab === 'backup' ? 'active' : ''}`}
+            onClick={() => setActiveTab('backup')}
+          >
+            🔒 {language === 'pt' ? 'Cópia & Exportação' : 'Backup'}
+          </button>
+        </div>
+
         <div className="modal-body">
-          {/* General Preferences */}
-          <GeneralSettings
-            t={t}
-            language={language}
-            changeLanguage={changeLanguage}
-            globalTheme={globalTheme}
-            changeGlobalTheme={changeGlobalTheme}
-            colorTheme={colorTheme}
-            changeColorTheme={changeColorTheme}
-            onClose={onClose}
-          />
+          {/* ABA 1: Preferências Gerais */}
+          {activeTab === 'general' && (
+            <div className="fade-in">
+              <GeneralSettings
+                t={t}
+                language={language}
+                changeLanguage={changeLanguage}
+                globalTheme={globalTheme}
+                changeGlobalTheme={changeGlobalTheme}
+                colorTheme={colorTheme}
+                changeColorTheme={changeColorTheme}
+                onClose={onClose}
+              />
+            </div>
+          )}
 
-          {/* Custom Tabs management */}
-          <section className="settings-section">
-            <h3>📂 {t.edit_tabs}</h3>
+          {/* ABA 2: Gestão de Abas Personalizadas */}
+          {activeTab === 'tabs' && (
+            <div className="fade-in">
+              <section className="settings-section">
+                <h3>📂 {t.edit_tabs}</h3>
 
-            {/* Create Tab form */}
-            <CreateTabForm
-              t={t}
-              language={language}
-              handleCreateTab={handleCreateTab}
-              newTabTitle={newTabTitle}
-              setNewTabTitle={setNewTabTitle}
-              newTabIcon={newTabIcon}
-              setNewTabIcon={setNewTabIcon}
-              newTabContentType={newTabContentType}
-              setNewTabContentType={setNewTabContentType}
-              newTabUrl={newTabUrl}
-              setNewTabUrl={setNewTabUrl}
-              newTabPreset={newTabPreset}
-              setNewTabPreset={setNewTabPreset}
-              newTabCustomColor={newTabCustomColor}
-              setNewTabCustomColor={setNewTabCustomColor}
-            />
+                {/* Formulário de criação de aba */}
+                <CreateTabForm
+                  t={t}
+                  language={language}
+                  handleCreateTab={handleCreateTab}
+                  newTabTitle={newTabTitle}
+                  setNewTabTitle={setNewTabTitle}
+                  newTabIcon={newTabIcon}
+                  setNewTabIcon={setNewTabIcon}
+                  newTabContentType={newTabContentType}
+                  setNewTabContentType={setNewTabContentType}
+                  newTabUrl={newTabUrl}
+                  setNewTabUrl={setNewTabUrl}
+                  newTabPreset={newTabPreset}
+                  setNewTabPreset={setNewTabPreset}
+                  newTabCustomColor={newTabCustomColor}
+                  setNewTabCustomColor={setNewTabCustomColor}
+                />
 
-            {/* List and edit existing tabs */}
-            <ManageTabsList
-              t={t}
-              language={language}
-              customTabs={customTabs}
-              editingTabId={editingTabId}
-              setEditingTabId={setEditingTabId}
-              handleUpdateTab={handleUpdateTab}
-              editTabTitle={editTabTitle}
-              setEditTabTitle={setEditTabTitle}
-              editTabIcon={editTabIcon}
-              setEditTabIcon={setEditTabIcon}
-              editTabContentType={editTabContentType}
-              setEditTabContentType={setEditTabContentType}
-              editTabUrl={editTabUrl}
-              setEditTabUrl={setEditTabUrl}
-              editTabPreset={editTabPreset}
-              setEditTabPreset={setEditTabPreset}
-              editTabCustomColor={editTabCustomColor}
-              setEditTabCustomColor={setEditTabCustomColor}
-              handleEditClick={handleEditClick}
-              handleDeleteTab={handleDeleteTab}
-            />
-          </section>
+                {/* Lista e edição de abas existentes */}
+                <ManageTabsList
+                  t={t}
+                  language={language}
+                  customTabs={customTabs}
+                  editingTabId={editingTabId}
+                  setEditingTabId={setEditingTabId}
+                  handleUpdateTab={handleUpdateTab}
+                  editTabTitle={editTabTitle}
+                  setEditTabTitle={setEditTabTitle}
+                  editTabIcon={editTabIcon}
+                  setEditTabIcon={setEditTabIcon}
+                  editTabContentType={editTabContentType}
+                  setEditTabContentType={setEditTabContentType}
+                  editTabUrl={editTabUrl}
+                  setEditTabUrl={setEditTabUrl}
+                  editTabPreset={editTabPreset}
+                  setEditTabPreset={setEditTabPreset}
+                  editTabCustomColor={editTabCustomColor}
+                  setEditTabCustomColor={setEditTabCustomColor}
+                  handleEditClick={handleEditClick}
+                  handleDeleteTab={handleDeleteTab}
+                />
+              </section>
+            </div>
+          )}
+
+          {/* ABA 3: Cópia de Segurança & Exportação (Sempre a última aba) */}
+          {activeTab === 'backup' && (
+            <div className="fade-in">
+              <BackupSettings language={language} />
+            </div>
+          )}
         </div>
       </div>
     </div>

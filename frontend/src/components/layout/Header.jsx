@@ -49,7 +49,8 @@ export default function Header({
             </button>
           )}
           <button className="topbar-settings-btn" onClick={onOpenSettings}>
-            ⚙️ {t.settings}
+            <span className="settings-icon">⚙️</span>
+            <span>{t.settings}</span>
           </button>
         </div>
       </div>

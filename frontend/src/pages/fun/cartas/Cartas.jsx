@@ -9,6 +9,7 @@ import LetterCreator from '../../../components/cartas/LetterCreator';
 import LetterReader from '../../../components/cartas/LetterReader';
 import LetterFilters from '../../../components/cartas/LetterFilters';
 import LetterList from '../../../components/cartas/LetterList';
+import { triggerMagicSparkles } from '../../../utils/confettiUtils';
 import './Cartas.css';
 
 export default function Cartas() {
@@ -97,6 +98,7 @@ export default function Cartas() {
           const opened = await letterService.openLetter(letter._id);
           setLetters(letters.map(l => l._id === letter._id ? opened : l));
           setReadingLetter(opened);
+          triggerMagicSparkles();
         } catch (err) {
           setError(err.message || t.letter_error_open || 'Erro ao abrir carta. Condições não cumpridas!');
         } finally {

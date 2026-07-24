@@ -28,9 +28,9 @@ export const commonEn = {
   icon: "Icon (Emoji)",
   content_type: "Content Type",
   content_notes: "Notebook / Free Notes",
-  content_media: "Media (Spotify/YouTube)",
+  content_media: "Media (YouTube/Audio)",
   content_link: "Web Page / Link Iframe",
-  content_url: "Iframe URL (Spotify/YouTube/Site)",
+  content_url: "Iframe URL (YouTube/Site)",
   
   no_tabs: "No custom tabs created. Create a new one in the settings!",
   new_tab_success: "Tab created successfully!",
@@ -49,5 +49,9 @@ export const commonEn = {
   pwa_ios_install_step2: "2. Scroll down and select 'Add to Home Screen' ➕.",
   pwa_ios_install_step3: "3. Confirm in the top right corner to complete!",
   pwa_ios_install_dismiss: "Got it!",
-  pwa_ios_settings_help: "How to install on iPhone"
+  pwa_ios_settings_help: "How to install on iPhone",
+
+  // Countdown Widget
+  no_upcoming_events: "No active countdown",
+  no_upcoming_events_desc: "Add an event in the Calendar to see the countdown here! ❤️"
 };

@@ -9,6 +9,7 @@ import ScratchLightbox from '../../../components/raspadinhas/ScratchLightbox';
 import ScratchCardCreator from '../../../components/raspadinhas/ScratchCardCreator';
 import ScratchTabs from '../../../components/raspadinhas/ScratchTabs';
 import ScratchCardList from '../../../components/raspadinhas/ScratchCardList';
+import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
 import './Raspadinhas.css';
 
 export default function Raspadinhas() {
@@ -88,6 +89,7 @@ export default function Raspadinhas() {
     try {
       const updated = await scratchCardService.scratchCard(id);
       setCards(cards.map(c => c._id === id ? updated : c));
+      triggerVictoryConfetti();
       // Se a raspadinha estiver aberta em modal, atualiza
       if (scratchingCard && scratchingCard._id === id) {
         setScratchingCard(updated);

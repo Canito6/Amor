@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { useTabs } from '../../../context/TabContext';
 import { translations } from '../../../services/common/translations';
 import { useDashboard } from '../../../hooks/couple/useDashboard';
 import WelcomeBanner from '../../../components/dashboard/widgets/WelcomeBanner';
 import EventCountdown from '../../../components/dashboard/widgets/EventCountdown';
-import SpotifyWidget from '../../../components/dashboard/widgets/SpotifyWidget';
 import MoodTracker from '../../../components/dashboard/widgets/MoodTracker';
 import DailyCheckIn from '../../../components/dashboard/widgets/daily-check-in/DailyCheckIn';
 import LoveCounter from '../../../components/dashboard/widgets/LoveCounter';
@@ -15,7 +15,6 @@ import LayoutEditorBar from '../../../components/dashboard/layout/LayoutEditorBa
 import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
-import DailySongWidget from '../../../components/dashboard/widgets/DailySongWidget';
 import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
 import { memoryService } from '../../../services/fun/memoryService';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -31,13 +30,13 @@ function getWidgetFriendlyName(id, language) {
     love:       language === 'pt' ? 'Contador de Amor' : 'Love Counter',
     countdown:  language === 'pt' ? 'Contagem Decrescente' : 'Event Countdown',
     navigation: language === 'pt' ? 'Atalhos de Navegação' : 'Navigation Cards',
-    spotify:    language === 'pt' ? 'Playlist Spotify' : 'Spotify Playlist',
     achievements: language === 'pt' ? 'Nível & Conquistas' : 'Level & Achievements',
   };
   return names[id] ?? id;
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { language } = usePreferences();
   const { customTabs } = useTabs();
   const t = translations[language];
@@ -60,7 +59,6 @@ export default function Dashboard() {
     isEditModalOpen, setIsEditModalOpen,
     editNames, setEditNames,
     editDate, setEditDate,
-    editSpotify, setEditSpotify,
     editError, editSuccess,
     handleUpdateCoupleInfo,
     handleDragEnd,
@@ -85,7 +83,17 @@ export default function Dashboard() {
   const renderWidget = (widgetId) => {
     switch (widgetId) {
       case 'welcome':
-        return <WelcomeBanner nome={nome} relationshipDate={coupleInfo.relationshipDate} language={language} t={t} />;
+        return (
+          <WelcomeBanner 
+            nome={nome} 
+            relationshipDate={coupleInfo.relationshipDate} 
+            language={language} 
+            t={t}
+            onCustomiseLayout={() => setIsEditingLayout(true)}
+            onEditCouple={() => setIsEditModalOpen(true)}
+            isEditingLayout={isEditingLayout}
+          />
+        );
       case 'mood':
         return <MoodTracker coupleInfo={coupleInfo} loadCoupleInfo={loadCoupleInfo} t={t} language={language} />;
       case 'checkin':
@@ -96,8 +104,6 @@ export default function Dashboard() {
         return <EventCountdown nextEvent={nextEvent} daysRemaining={daysRemaining} language={language} t={t} />;
       case 'navigation':
         return <NavigationCards layoutStyle={layoutStyle} customTabs={customTabs} t={t} language={language} />;
-      case 'spotify':
-        return <SpotifyWidget t={t} playlistUrl={coupleInfo.spotifyPlaylist} />;
       case 'achievements':
         return <AchievementsWidget stats={stats} t={t} language={language} />;
       default:
@@ -106,7 +112,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '850px', paddingTop: '20px' }}>
+    <div className="app-container fade-in" style={{ textAlign: 'center', maxWidth: '1100px', paddingTop: '20px' }}>
 
       {/* Layout Customization Top Bar */}
       {isEditingLayout && (
@@ -124,29 +130,24 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Action Buttons Row */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px', gap: '10px' }}>
-        {!isEditingLayout && (
-          <button
-            className="btn-edit-dashboard"
-            onClick={() => setIsEditingLayout(true)}
-            style={{ background: 'var(--ocean-accent, #00bbf9)', color: 'white', borderColor: 'transparent' }}
-          >
-            🛠️ {language === 'pt' ? 'Customizar Painel' : 'Customize Dashboard'}
-          </button>
-        )}
-        <button className="btn-edit-dashboard" onClick={() => setIsEditModalOpen(true)}>
-          ✏️ {t.edit_couple_info || 'Editar Casal'}
+      {/* Barra de Ações Rápidas do Cantinho */}
+      <div className="quick-actions-bar">
+        <button className="quick-action-btn" onClick={() => navigate('/mensagens')}>
+          💌 <span>{language === 'pt' ? 'Mandar Mensagem' : 'Send Message'}</span>
+        </button>
+        <button className="quick-action-btn" onClick={() => navigate('/fotos')}>
+          📸 <span>{language === 'pt' ? 'Adicionar Foto' : 'Add Photo'}</span>
+        </button>
+        <button className="quick-action-btn" onClick={() => navigate('/frasco')}>
+          🏺 <span>{language === 'pt' ? 'Tirar Papelinho' : 'Draw Note'}</span>
+        </button>
+        <button className="quick-action-btn" onClick={() => navigate('/jogos')}>
+          🎮 <span>{language === 'pt' ? 'Jogos & Diversão' : 'Games & Fun'}</span>
         </button>
       </div>
 
       {/* Partner Cycle Widget (discreet support card if enabled) */}
       <PartnerCycleWidget />
-
-      {/* Daily Song Widget */}
-      <div style={{ marginBottom: '15px' }}>
-        <DailySongWidget language={language} t={t} />
-      </div>
 
       {/* On This Day Widget */}
       <OnThisDay memories={memories} language={language} t={t} />
@@ -193,8 +194,6 @@ export default function Dashboard() {
         setEditNames={setEditNames}
         editDate={editDate}
         setEditDate={setEditDate}
-        editSpotify={editSpotify}
-        setEditSpotify={setEditSpotify}
         editError={editError}
         editSuccess={editSuccess}
         t={t}

@@ -79,26 +79,24 @@ exports.login = async (req, res, next) => {
       user.loginVerificationAttempts = 0; // [SEGURANÇA - VULN-001] Reset do contador ao gerar novo código
       await user.save();
 
-      // Send code
-      if (user.loginSecurityMethod === 'email') {
-        eventBus.emit('mail:send', {
-          to: user.email,
-          subject: '🔑 Código de Acesso - O Nosso Cantinho',
-          text: `Olá ${user.username},\n\nO teu código de acesso para entrar é: ${code}\n\nEste código é válido por 5 minutos.`
-        });
-      } else if (user.loginSecurityMethod === 'mobile') {
-        console.log(`\n==================================================`);
-        console.log(`[SMS MOCK] Enviando SMS para ${user.phoneNumber || 'número não registado'}:`);
-        console.log(`Código de Acesso: ${code}`);
-        console.log(`==================================================\n`);
-      }
+      // Send code via email
+      eventBus.emit('mail:send', {
+        to: user.email,
+        subject: '🔑 Código de Acesso - O Nosso Cantinho',
+        text: `Olá ${user.username},\n\nO teu código de acesso para entrar é: ${code}\n\nEste código é válido por 5 minutos.`
+      });
+
+      // Mask email for display in UI (e.g. ma***@gmail.com)
+      const emailParts = user.email.split('@');
+      const emailMasked = emailParts[0].length > 2 
+        ? `${emailParts[0].slice(0, 2)}***@${emailParts[1]}` 
+        : `${emailParts[0]}***@${emailParts[1]}`;
 
       return res.json({
         requiresVerification: true,
-        method: user.loginSecurityMethod,
+        method: 'email',
         userId: user._id,
-        // Expose code in development for easy testing if method is mobile
-        mockCode: process.env.NODE_ENV !== 'production' && user.loginSecurityMethod === 'mobile' ? code : undefined
+        emailMasked
       });
     }
 
@@ -182,6 +180,46 @@ exports.verifyLogin = async (req, res, next) => {
       role: user.role,
       coupleId: user.coupleId,
       trustedDeviceToken
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resendVerificationCode = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      throw new ApiError(400, 'Identificador de utilizador não fornecido.');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'Utilizador não encontrado.');
+    }
+
+    // Gerar novo código de 6 dígitos
+    const code = crypto.randomInt(100000, 1000000).toString();
+    user.loginVerificationCode = code;
+    user.loginVerificationExpires = Date.now() + 5 * 60 * 1000; // 5 minutos
+    user.loginVerificationAttempts = 0;
+    await user.save();
+
+    // Enviar por email
+    eventBus.emit('mail:send', {
+      to: user.email,
+      subject: '🔑 Novo Código de Acesso - O Nosso Cantinho',
+      text: `Olá ${user.username},\n\nO teu novo código de acesso é: ${code}\n\nEste código é válido por 5 minutos.`
+    });
+
+    const emailParts = user.email.split('@');
+    const emailMasked = emailParts[0].length > 2 
+      ? `${emailParts[0].slice(0, 2)}***@${emailParts[1]}` 
+      : `${emailParts[0]}***@${emailParts[1]}`;
+
+    res.json({
+      message: 'Novo código enviado por e-mail!',
+      emailMasked
     });
   } catch (error) {
     next(error);

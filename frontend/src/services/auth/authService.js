@@ -1,10 +1,10 @@
 import { apiFetch } from '../common/api';
 
 export const authService = {
-  register: (username, email, password, loginSecurityMethod, phoneNumber, inviteCode) => {
+  register: (username, email, password, loginSecurityMethod, inviteCode) => {
     return apiFetch('/api/auth/register', {
       method: 'POST',
-      body: { username, email, password, loginSecurityMethod, phoneNumber, inviteCode }
+      body: { username, email, password, loginSecurityMethod, inviteCode }
     });
   },
 
@@ -19,6 +19,13 @@ export const authService = {
     return apiFetch('/api/auth/verify-login', {
       method: 'POST',
       body: { userId, code, trustDevice }
+    });
+  },
+
+  resendCode: (userId) => {
+    return apiFetch('/api/auth/resend-code', {
+      method: 'POST',
+      body: { userId }
     });
   },
 

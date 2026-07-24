@@ -45,8 +45,7 @@ export default function MainLayout() {
     coupleId: '',
     names: '',
     partnerNames: [],
-    relationshipDate: null,
-    spotifyPlaylist: ''
+    relationshipDate: null
   });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const roleGuardado = localStorage.getItem('role');
@@ -145,7 +144,7 @@ export default function MainLayout() {
         coupleInfo={coupleInfo}
         isMobile={isMobile}
         onOpenLinkModal={() => setIsLinkModalOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSettings={() => navigate('/definicoes')}
         onLogoClick={() => navigate('/dashboard')}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         t={t}
@@ -162,7 +161,7 @@ export default function MainLayout() {
           roleGuardado={roleGuardado}
           customTabs={customTabs}
           currentPath={location.pathname}
-          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenSettings={() => navigate('/definicoes')}
           onLogout={handleLogout}
           t={t}
           isOpen={isSidebarOpen}
@@ -187,13 +186,13 @@ export default function MainLayout() {
           </div>
         )}
         <div className="content-outlet" style={{ position: 'relative' }}>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 0 : 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 0 : -12 }}
-              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
               style={{ width: '100%' }}
             >
               <Outlet />

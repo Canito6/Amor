@@ -12,9 +12,26 @@ export const DEFAULT_WIDGETS = [
   { id: 'countdown', visible: true, size: 'normal' },
   { id: 'mood',      visible: true, size: 'normal' },
   { id: 'checkin',   visible: true, size: 'normal' },
-  { id: 'spotify',   visible: true, size: 'normal' },
   { id: 'achievements', visible: true, size: 'wide' },
 ];
+
+// Helper para limpar widgets obsoletos (spotify, etc) e garantir que todos os DEFAULT_WIDGETS estão presentes
+function sanitizeWidgets(rawList) {
+  let list = Array.isArray(rawList) && rawList.length > 0 ? rawList : DEFAULT_WIDGETS;
+  
+  // Remover widgets obsoletos
+  list = list.filter(w => w && w.id !== 'spotify' && w.id !== 'navigation');
+
+  // Garantir que todos os widgets por omissão estão presentes na lista
+  DEFAULT_WIDGETS.forEach(def => {
+    const found = list.find(w => w.id === def.id);
+    if (!found) {
+      list.push({ ...def });
+    }
+  });
+
+  return list;
+}
 
 export function useDashboard() {
   const navigate = useNavigate();
@@ -40,15 +57,13 @@ export function useDashboard() {
     coupleId: '',
     names: '',
     partnerNames: [],
-    relationshipDate: null,
-    spotifyPlaylist: ''
+    relationshipDate: null
   });
 
   // Edit Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editNames, setEditNames] = useState('');
   const [editDate, setEditDate] = useState('');
-  const [editSpotify, setEditSpotify] = useState('');
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
 
@@ -73,7 +88,6 @@ export function useDashboard() {
       }
 
       setEditNames(info.names || '');
-      setEditSpotify(info.spotifyPlaylist || '');
       if (info.relationshipDate) {
         const d = new Date(info.relationshipDate);
         setEditDate(d.toISOString().split('T')[0]);
@@ -125,40 +139,27 @@ export function useDashboard() {
 
       authService.getDashboardWidgets()
         .then(async (res) => {
-          if (res && Array.isArray(res.widgets) && res.widgets.length > 0) {
-            setWidgets(res.widgets);
-            localStorage.setItem('dashboard_widgets', JSON.stringify(res.widgets));
-          } else {
+          let raw = (res && Array.isArray(res.widgets) && res.widgets.length > 0) ? res.widgets : null;
+          if (!raw) {
             const saved = localStorage.getItem('dashboard_widgets');
             if (saved) {
-              try {
-                const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
-                const widgetsToUse = parsed.length > 0 ? parsed : DEFAULT_WIDGETS;
-                setWidgets(widgetsToUse);
-                await authService.saveDashboardWidgets(widgetsToUse);
-              } catch {
-                setWidgets(DEFAULT_WIDGETS);
-                await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
-              }
-            } else {
-              setWidgets(DEFAULT_WIDGETS);
-              await authService.saveDashboardWidgets(DEFAULT_WIDGETS);
+              try { raw = JSON.parse(saved); } catch { /* silenciado */ }
             }
           }
+          const cleanWidgets = sanitizeWidgets(raw);
+          setWidgets(cleanWidgets);
+          localStorage.setItem('dashboard_widgets', JSON.stringify(cleanWidgets));
+          await authService.saveDashboardWidgets(cleanWidgets).catch(() => {});
         })
         .catch((err) => {
           console.error('Erro ao carregar widgets do backend:', err);
           const saved = localStorage.getItem('dashboard_widgets');
+          let raw = null;
           if (saved) {
-            try {
-              const parsed = JSON.parse(saved).filter(w => w.id !== 'navigation');
-              setWidgets(parsed.length > 0 ? parsed : DEFAULT_WIDGETS);
-            } catch {
-              setWidgets(DEFAULT_WIDGETS);
-            }
-          } else {
-            setWidgets(DEFAULT_WIDGETS);
+            try { raw = JSON.parse(saved); } catch { /* silenciado */ }
           }
+          const cleanWidgets = sanitizeWidgets(raw);
+          setWidgets(cleanWidgets);
         });
     }
 
@@ -181,8 +182,7 @@ export function useDashboard() {
     try {
       const data = {
         names: editNames.trim(),
-        relationshipDate: editDate ? new Date(editDate) : null,
-        spotifyPlaylist: editSpotify.trim()
+        relationshipDate: editDate ? new Date(editDate) : null
       };
       const updated = await authService.updateCoupleInfo(data);
       setCoupleInfo(updated);
@@ -280,7 +280,6 @@ export function useDashboard() {
     isEditModalOpen, setIsEditModalOpen,
     editNames, setEditNames,
     editDate, setEditDate,
-    editSpotify, setEditSpotify,
     editError, editSuccess,
     // Handlers
     terminarSessao,

@@ -52,16 +52,9 @@ export default function CustomTabViewer() {
     if (!url) return '';
     let formatted = url;
 
-    // Spotify (Playlist, Album, Track)
-    // Exemplo: https://open.spotify.com/playlist/37i9dQZF1DX5YxZ2718Eld?si=xxx
-    if (url.includes('open.spotify.com')) {
-      if (!url.includes('/embed/')) {
-        formatted = url.replace('open.spotify.com/', 'open.spotify.com/embed/');
-      }
-    }
     // YouTube (Video standard)
     // Exemplo: https://www.youtube.com/watch?v=dQw4w9WgXcQ
-    else if (url.includes('youtube.com/watch')) {
+    if (url.includes('youtube.com/watch')) {
       const videoId = new URL(url).searchParams.get('v');
       if (videoId) {
         formatted = `https://www.youtube.com/embed/${videoId}`;
@@ -159,7 +152,7 @@ export default function CustomTabViewer() {
             style={{ borderRadius: '16px', border: 'none', background: 'rgba(0,0,0,0.05)' }}
             src={formatEmbedUrl(tab.content)}
             width="100%"
-            height={tab.content.includes('spotify.com') && !tab.content.includes('playlist') ? '160' : '450'}
+            height="450"
             allowFullScreen=""
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
