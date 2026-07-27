@@ -23,8 +23,10 @@ export default function QuizCreator({
 
       <form onSubmit={submeterNovoQuiz} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div className="form-group">
-          <label className="input-label">{t.quizzes_create_quiz_title}</label>
+          <label htmlFor="quizTitle" className="input-label">{t.quizzes_create_quiz_title}</label>
           <input
+            id="quizTitle"
+            name="quizTitle"
             type="text"
             placeholder={t.quizzes_placeholder_title}
             value={quizTitle}
@@ -67,8 +69,10 @@ export default function QuizCreator({
               </h3>
 
               <div className="form-group" style={{ marginBottom: '15px' }}>
-                <label className="input-label">{t.quizzes_create_question_text}</label>
+                <label htmlFor={`q-text-${pIndex}`} className="input-label">{t.quizzes_create_question_text}</label>
                 <textarea
+                  id={`q-text-${pIndex}`}
+                  name={`q-text-${pIndex}`}
                   rows={2}
                   placeholder={t.quizzes_placeholder_qtext}
                   value={q.questionText}
@@ -82,8 +86,10 @@ export default function QuizCreator({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '15px' }}>
                 {q.options.map((opt, oIndex) => (
                   <div key={oIndex} className="form-group" style={{ margin: 0 }}>
-                    <label className="input-label">{t.quizzes_create_option_num.replace('{num}', oIndex + 1)}</label>
+                    <label htmlFor={`q-${pIndex}-opt-${oIndex}`} className="input-label">{t.quizzes_create_option_num.replace('{num}', oIndex + 1)}</label>
                     <textarea
+                      id={`q-${pIndex}-opt-${oIndex}`}
+                      name={`q-${pIndex}-opt-${oIndex}`}
                       rows={1}
                       placeholder={t.quizzes_create_option_num.replace('{num}', oIndex + 1)}
                       value={opt}
@@ -104,8 +110,10 @@ export default function QuizCreator({
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="input-label">{t.quizzes_create_correct_select}</label>
+                <label htmlFor={`q-correct-${pIndex}`} className="input-label">{t.quizzes_create_correct_select}</label>
                 <select
+                  id={`q-correct-${pIndex}`}
+                  name={`q-correct-${pIndex}`}
                   value={q.creatorAnswer}
                   onChange={(e) => atualizarPergunta(pIndex, 'creatorAnswer', e.target.value)}
                   required

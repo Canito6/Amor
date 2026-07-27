@@ -36,6 +36,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Ignorar pedidos que não sejam GET ou esquemas não-http/https (como extensões de browser chrome-extension://)
+  if (event.request.method !== 'GET' || (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://'))) {
+    return;
+  }
+
   // Ignorar pedidos da API do backend e WebSockets
   if (event.request.url.includes('/api/') || event.request.url.includes('socket.io')) {
     return;
