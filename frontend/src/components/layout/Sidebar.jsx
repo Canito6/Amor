@@ -93,7 +93,18 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
 
   return (
     <aside className={`app-sidebar glass-panel ${isOpen ? 'open' : ''}`}>
-      <button className="sidebar-close-btn" onClick={onClose} aria-label="Fechar Menu">✕</button>
+      <button 
+        type="button"
+        className="sidebar-close-btn" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onClose) onClose();
+        }} 
+        aria-label="Fechar Menu"
+      >
+        ✕
+      </button>
       
       <div className="sidebar-header">
         <span className="sidebar-logo">💑</span>
