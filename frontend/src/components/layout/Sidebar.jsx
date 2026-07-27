@@ -101,6 +101,11 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
           e.stopPropagation();
           if (onClose) onClose();
         }} 
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onClose) onClose();
+        }}
         aria-label="Fechar Menu"
       >
         ✕
