@@ -93,6 +93,15 @@ const userSchema = new mongoose.Schema({
     default: undefined
   },
   cycleTracking: {
+    gender: {
+      type: String,
+      enum: ['homem', 'mulher', 'nao_especificado'],
+      default: 'nao_especificado'
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false
+    },
     shareWithPartner: {
       type: Boolean,
       default: false

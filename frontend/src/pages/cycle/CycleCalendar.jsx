@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { cycleService } from '../../services/cycle/cycleService';
 import { useToast } from '../../context/ToastContext';
 import EmptyState from '../../components/shared/EmptyState';
+import CycleOnboardingModal from '../../components/cycle/CycleOnboardingModal';
+import PartnerCycleWidget from '../../components/dashboard/widgets/PartnerCycleWidget';
 import './CycleCalendar.css';
 
 const SYMPTOM_CATEGORIES = {
@@ -43,11 +45,17 @@ export default function CycleCalendar() {
   const [summary, setSummary] = useState(null);
   const [entries, setEntries] = useState([]);
   const [preferences, setPreferences] = useState({
+    gender: 'mulher',
+    onboardingCompleted: false,
     shareWithPartner: false,
     partnerShareLevel: 'basic',
     hiddenFromMenu: false,
     remindersEnabled: true
   });
+
+  // Modal States
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   // Calendar State
   const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
@@ -61,9 +69,6 @@ export default function CycleCalendar() {
   const [sexualActivity, setSexualActivity] = useState(false);
   const [notes, setNotes] = useState('');
 
-  // Modal State
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const loadData = async () => {
     setLoading(true);
     try {
@@ -75,6 +80,9 @@ export default function CycleCalendar() {
       setEntries(entData);
       if (sumData.preferences) {
         setPreferences(sumData.preferences);
+        if (sumData.preferences.onboardingCompleted === false) {
+          setShowOnboardingModal(true);
+        }
       }
     } catch (err) {
       showToast(err.message || 'Erro ao carregar dados do ciclo.', 'error');
@@ -132,10 +140,22 @@ export default function CycleCalendar() {
   const handleUpdatePreferences = async (newPrefs) => {
     try {
       const updated = await cycleService.updatePreferences(newPrefs);
-      setPreferences(updated.preferences || updated);
-      showToast('Preferências de privacidade atualizadas!', 'success');
+      const merged = updated.preferences || updated;
+      setPreferences(merged);
+      showToast('Preferências salvas com sucesso!', 'success');
+      return merged;
     } catch (err) {
       showToast(err.message || 'Erro ao atualizar preferências.', 'error');
+      throw err;
+    }
+  };
+
+  const handleSaveOnboarding = async (onboardingPrefs) => {
+    try {
+      await handleUpdatePreferences(onboardingPrefs);
+      loadData();
+    } catch (err) {
+      showToast(err.message || 'Erro ao concluir onboarding.', 'error');
     }
   };
 
@@ -222,6 +242,14 @@ export default function CycleCalendar() {
 
   return (
     <div className="cycle-page-container">
+      {/* Onboarding Modal */}
+      <CycleOnboardingModal
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+        onSave={handleSaveOnboarding}
+        initialPreferences={preferences}
+      />
+
       {/* Aviso Legal Visível Obrigatório */}
       <div className="legal-notice-bar" role="note">
         <span>⚠️</span>
@@ -229,6 +257,25 @@ export default function CycleCalendar() {
           <strong>Aviso Informativo:</strong> {stats.disclaimer || "As previsões são apenas informativas e não substituem aconselhamento médico nem servem como método contracetivo."}
         </div>
       </div>
+
+      {/* Se o utilizador estiver configurado como Homem */}
+      {preferences.gender === 'homem' && (
+        <div 
+          className="glass-panel" 
+          style={{ padding: '20px', marginBottom: '24px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.85)' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '28px' }}>🙋‍♂️</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Modo Acompanhamento de Par</h3>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                Estás configurado como Homem no Cantinho. Podes acompanhar o ciclo da tua parceira quando partilhado.
+              </p>
+            </div>
+          </div>
+          <PartnerCycleWidget />
+        </div>
+      )}
 
       {/* Header Card */}
       <div className="cycle-header-card">
@@ -546,34 +593,80 @@ export default function CycleCalendar() {
       {/* TAB 3: DEFINIÇÕES & PRIVACIDADE */}
       {activeTab === 'settings' && (
         <div className="log-form-card">
-          <h2 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', fontFamily: 'var(--font-title)' }}>
+          <h2 style={{ fontSize: '1.2rem', margin: '0 0 20px 0', fontFamily: 'var(--font-title)' }}>
             🔒 Privacidade & Definições do Ciclo
           </h2>
 
+          {/* Botão de Refazer Onboarding */}
+          <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--primary-light)', borderRadius: '16px', border: '1px solid rgba(255, 107, 157, 0.2)' }}>
+            <h3 style={{ fontSize: '1rem', margin: '0 0 6px 0', color: 'var(--primary-color)' }}>
+              ✨ Questionário de Configuração
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0 0 12px 0' }}>
+              Queres rever as tuas respostas de identificação e partilha inicial?
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setShowOnboardingModal(true)}
+              style={{ fontSize: '14px', padding: '10px 18px' }}
+            >
+              🔄 Refazer Questionário de Onboarding
+            </button>
+          </div>
+
+          {/* Identificação de Género */}
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+              👤 Identificação / Papel no Ciclo
+            </label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                className={`tag-btn ${preferences.gender === 'mulher' ? 'active' : ''}`}
+                onClick={() => handleUpdatePreferences({ gender: 'mulher' })}
+              >
+                🙋‍♀️ Mulher (Registar Ciclo)
+              </button>
+              <button
+                type="button"
+                className={`tag-btn ${preferences.gender === 'homem' ? 'active' : ''}`}
+                onClick={() => handleUpdatePreferences({ gender: 'homem' })}
+              >
+                🙋‍♂️ Homem (Ver Ciclo do Par)
+              </button>
+            </div>
+          </div>
+
+          {/* Partilha com o Parceiro */}
           <div style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <label htmlFor="share-partner-toggle" style={{ fontWeight: '600', cursor: 'pointer' }}>
-                💖 Modo Parceiro (Partilhar visão resumida com o parceiro)
+                💖 Partilhar informação de ciclo com o parceiro
               </label>
               <input
                 id="share-partner-toggle"
                 type="checkbox"
                 checked={preferences.shareWithPartner}
-                onChange={e => handleUpdatePreferences({ shareWithPartner: e.target.checked })}
+                onChange={e => handleUpdatePreferences({ 
+                  shareWithPartner: e.target.checked,
+                  partnerShareLevel: e.target.checked ? (preferences.partnerShareLevel === 'none' ? 'basic' : preferences.partnerShareLevel) : 'none'
+                })}
                 style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
               />
             </div>
             <small style={{ color: 'var(--text-muted)', display: 'block', lineHeight: '1.4' }}>
-              Quando ativo, o teu parceiro vê um widget discreto no Dashboard dele com sugestões de apoio.
+              Ao desativar, o teu parceiro deixa imediatamente de ter acesso aos teus dados de ciclo sem apagar nada do teu histórico.
             </small>
           </div>
 
+          {/* Nível de Partilha */}
           {preferences.shareWithPartner && (
             <div style={{ marginBottom: '24px', paddingLeft: '16px', borderLeft: '3px solid var(--primary-color)' }}>
               <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
                 Nível de Detalhe Visível para o Parceiro
               </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
                     type="radio"
@@ -582,7 +675,7 @@ export default function CycleCalendar() {
                     checked={preferences.partnerShareLevel === 'basic'}
                     onChange={() => handleUpdatePreferences({ partnerShareLevel: 'basic' })}
                   />
-                  <span><strong>Básico (Recomendado):</strong> Apenas fase atual, se o período está ativo e a próxima data prevista.</span>
+                  <span><strong>Só o Essencial (Básico):</strong> Apenas datas de início/fim do período e próxima previsão.</span>
                 </label>
                 <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
@@ -592,12 +685,13 @@ export default function CycleCalendar() {
                     checked={preferences.partnerShareLevel === 'detailed'}
                     onChange={() => handleUpdatePreferences({ partnerShareLevel: 'detailed' })}
                   />
-                  <span><strong>Detalhado:</strong> Também mostra sintomas e humor do dia registado.</span>
+                  <span><strong>Tudo (Detalhado):</strong> Inclui sintomas, estado de ânimo/humor e notas do dia.</span>
                 </label>
               </div>
             </div>
           )}
 
+          {/* Lembretes Push */}
           <div style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <label htmlFor="reminders-toggle" style={{ fontWeight: '600', cursor: 'pointer' }}>
@@ -612,10 +706,11 @@ export default function CycleCalendar() {
               />
             </div>
             <small style={{ color: 'var(--text-muted)', display: 'block', lineHeight: '1.4' }}>
-              Recebe avisos discretos no telemóvel antes da data prevista. A notificação no ecrã bloqueado é sempre genérica e neutra por privacidade.
+              Recebe avisos discretos no telemóvel antes da data prevista. A notificação é sempre genérica e neutra por privacidade.
             </small>
           </div>
 
+          {/* Zona de Perigo */}
           <div style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px solid var(--card-border)' }}>
             <h3 style={{ fontSize: '1rem', color: '#e11d48', margin: '0 0 8px 0' }}>
               ⚠️ Zona de Perigo
