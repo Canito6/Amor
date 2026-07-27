@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { themePresets } from '../../../context/PreferencesContext';
 
-export default function NavigationCards({ layoutStyle, customTabs, t, language }) {
+export default function NavigationCards({ customTabs, t, language }) {
   const navigate = useNavigate();
 
   const [visibleItems, setVisibleItems] = useState(() => {

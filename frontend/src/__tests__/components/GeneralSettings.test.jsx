@@ -1,7 +1,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import GeneralSettings, { BackupSettings } from '../../components/settings/GeneralSettings';
+import { BackupSettings } from '../../components/settings/GeneralSettings';
 
 // Mock contexts
 vi.mock('../../context/PreferencesContext', () => ({
@@ -34,17 +34,6 @@ vi.mock('../../context/PWAContext', () => ({
 const originalCreateElement = document.createElement.bind(document);
 
 describe('GeneralSettings component - Export Section', () => {
-  const t = {
-    language: 'Idioma',
-    layout_style: 'Estilo do Layout',
-    layout_sidebar: 'Barra Lateral',
-    layout_stacked: 'Ficheiros Empilhados',
-    global_theme: 'Tema Global',
-    theme_light: 'Claro',
-    theme_dark: 'Escuro',
-    theme_system: 'Sistema',
-  };
-
   let dummyAnchor;
   let clickSpy;
 
