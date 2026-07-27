@@ -1,2 +1,2 @@
-// Mock global do nodemailer para garantir que nenhum teste tenta estabelecer ligação à rede
-jest.mock('nodemailer');
+// Mock global do Resend para evitar chamadas de rede durante os testes
+jest.mock('resend');

@@ -1,27 +1,30 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../../models/auth/userModel');
 
-// Configurar o nosso carteiro virtual com os dados do .env
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Inicializar cliente do Resend com a chave de API das variáveis de ambiente
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper genérico para enviar e-mails
 const sendEmail = async (to, subject, text, html) => {
   try {
-    const mailOptions = {
-      from: `"O Nosso Cantinho ❤️" <${process.env.EMAIL_USER}>`,
+    const fromAddress = process.env.EMAIL_FROM || 'O Nosso Cantinho ❤️ <onboarding@resend.dev>';
+    const payload = {
+      from: fromAddress,
       to,
-      subject,
-      text,
-      html
+      subject
     };
-    await transporter.sendMail(mailOptions);
+    if (html) payload.html = html;
+    if (text) payload.text = text;
+
+    const { data, error } = await resend.emails.send(payload);
+
+    if (error) {
+      console.error('❌ Erro ao enviar email via Resend:', error);
+      return;
+    }
+
     console.log(`✉️ Email enviado com sucesso para ${to}`);
+    return data;
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error);
   }
@@ -42,4 +45,4 @@ const notifyCouplePartner = async (senderUsername, coupleId, subject, text, html
   }
 };
 
-module.exports = { transporter, sendEmail, notifyCouplePartner };
+module.exports = { resend, sendEmail, notifyCouplePartner };
