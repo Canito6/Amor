@@ -376,7 +376,7 @@
   }
   
   .profile-heart-divider {
-    transform: rotate(90deg);
+    transform: none;
     margin: 10px 0;
   }
   
@@ -410,5 +410,45 @@
   
   .profile-stats-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Suporte Dinâmico a Orientação Landscape (Telemóvel na Horizontal) */
+@media (max-height: 550px) and (orientation: landscape) {
+  .profile-cards-container {
+    flex-direction: row !important;
+    align-items: stretch;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .profile-heart-divider {
+    transform: none !important;
+    margin: 0;
+    font-size: 32px;
+  }
+
+  .profile-user-card {
+    max-width: 46%;
+    padding: 20px 15px;
+  }
+
+  .profile-avatar-wrapper {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 12px;
+  }
+
+  .profile-avatar-placeholder {
+    font-size: 24px;
+  }
+
+  .profile-username {
+    font-size: 16px;
+  }
+
+  .profile-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }

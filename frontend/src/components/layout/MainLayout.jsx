@@ -171,20 +171,6 @@ export default function MainLayout() {
 
       {/* Main Content Area */}
       <main className="layout-content-wrapper">
-        {isMobile && location.pathname !== '/dashboard' && (
-          <div className="app-container" style={{ paddingBottom: '0', paddingTop: '10px' }}>
-            <button 
-              className="btn btn-dark" 
-              onClick={() => {
-                const isGamePath = ['/quizzes', '/raspadinhas', '/roleta', '/likely'].includes(location.pathname);
-                navigate(isGamePath ? '/jogos' : '/dashboard');
-              }} 
-              style={{ marginBottom: '15px' }}
-            >
-              ⬅ {['/quizzes', '/raspadinhas', '/roleta', '/likely'].includes(location.pathname) ? (language === 'pt' ? 'Jogos' : 'Games') : t.dashboard}
-            </button>
-          </div>
-        )}
         <div className="content-outlet" style={{ position: 'relative' }}>
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
