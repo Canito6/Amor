@@ -8,10 +8,8 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from '../pages/auth/Login';
 import Registar from '../pages/auth/Registar';
 
-// Páginas de acesso pós-autenticação imediato
-import Dashboard from '../pages/couple/dashboard/Dashboard';
-
-// Carregamento dinâmico (Code-Splitting) para páginas secundárias
+// Carregamento dinâmico (Code-Splitting) para páginas pós-login
+const Dashboard = lazy(() => import('../pages/couple/dashboard/Dashboard'));
 const RecuperarPassword = lazy(() => import('../pages/auth/RecuperarPassword'));
 const AdminDashboard = lazy(() => import('../pages/auth/AdminDashboard'));
 const ForcarMudancaPassword = lazy(() => import('../pages/auth/ForcarMudancaPassword'));
