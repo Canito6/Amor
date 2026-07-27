@@ -83,13 +83,21 @@ export default function QuizCreator({
                 {q.options.map((opt, oIndex) => (
                   <div key={oIndex} className="form-group" style={{ margin: 0 }}>
                     <label className="input-label">{t.quizzes_create_option_num.replace('{num}', oIndex + 1)}</label>
-                    <input
-                      type="text"
+                    <textarea
+                      rows={1}
                       placeholder={t.quizzes_create_option_num.replace('{num}', oIndex + 1)}
                       value={opt}
                       onChange={(e) => atualizarOpcao(pIndex, oIndex, e.target.value)}
                       required
                       className="input-control"
+                      style={{ 
+                        resize: 'vertical', 
+                        width: '100%', 
+                        minHeight: '42px', 
+                        fieldSizing: 'content', 
+                        fontFamily: 'var(--font-body)', 
+                        lineHeight: '1.4' 
+                      }}
                     />
                   </div>
                 ))}
@@ -102,7 +110,7 @@ export default function QuizCreator({
                   onChange={(e) => atualizarPergunta(pIndex, 'creatorAnswer', e.target.value)}
                   required
                   className="input-control"
-                  style={{ appearance: 'auto' }}
+                  style={{ appearance: 'auto', width: '100%', whiteSpace: 'normal', height: 'auto', minHeight: '42px', padding: '10px' }}
                 >
                   <option value="">{t.quizzes_create_correct_placeholder}</option>
                   {q.options.filter(o => o.trim() !== '').map((opt, oIndex) => (

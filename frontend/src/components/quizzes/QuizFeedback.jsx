@@ -186,10 +186,10 @@ export default function QuizFeedback({
                   border: acertou ? '1px solid rgba(42, 157, 143, 0.3)' : '1px solid rgba(230, 57, 70, 0.3)'
                 }}
               >
-                <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px', wordBreak: 'break-word', lineHeight: '1.4' }}>
                   {index + 1}. {q.questionText}
                 </p>
-                <div style={{ fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '4px', wordBreak: 'break-word', lineHeight: '1.4' }}>
                   <span style={{ color: '#2a9d8f' }}>
                     {t.quizzes_lightbox_correct.replace('{creator}', selectedCompletedQuiz.createdBy).replace('{answer}', q.creatorAnswer)}
                   </span>
