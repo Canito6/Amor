@@ -113,7 +113,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
       
       <div className="sidebar-header">
         <span className="sidebar-logo">💑</span>
-        <h2 className="sidebar-title">Cantinho</h2>
+        <h2 className="sidebar-title">AMORI</h2>
         <p className="sidebar-subtitle">{nome} ❤️</p>
       </div>
       

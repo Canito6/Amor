@@ -36,7 +36,7 @@ export default function AppLockModal({ language = 'pt' }) {
       <div className="glass-panel" style={{ width: '90%', maxWidth: '340px', padding: '30px 20px', textAlign: 'center', borderRadius: '24px' }}>
         <div style={{ fontSize: '42px', marginBottom: '10px' }}>🔒</div>
         <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', color: 'var(--text-main)' }}>
-          {language === 'pt' ? 'O Nosso Cantinho ❤️' : 'Our Corner ❤️'}
+          AMORI ❤️
         </h2>
         <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--text-muted)' }}>
           {language === 'pt' ? 'Introduz o teu PIN de 4 dígitos' : 'Enter your 4-digit PIN'}

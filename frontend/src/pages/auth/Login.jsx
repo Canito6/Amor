@@ -41,7 +41,7 @@ export default function Login() {
       <div className="auth-glow-2"></div>
       <div className="glass-panel auth-card fade-in">
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: '0 0 4px 0' }}>O Nosso Cantinho ❤️</h1>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: '0 0 4px 0' }}>AMORI ❤️</h1>
         </div>
         
         {!requiresVerification ? (
