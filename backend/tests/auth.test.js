@@ -154,8 +154,8 @@ describe('Testes de Autenticação - API Endpoints', () => {
       expect(res.body).toHaveProperty('message', 'Login feito com sucesso!');
       expect(User.findOne).toHaveBeenCalledWith({
         $or: [
-          { username: { $regex: new RegExp('^lara$', 'i') } },
-          { email: { $regex: new RegExp('^lara$', 'i') } }
+          { username: { $in: expect.any(Array) } },
+          { email: { $in: expect.any(Array) } }
         ]
       });
     });

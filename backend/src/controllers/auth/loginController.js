@@ -15,14 +15,22 @@ exports.login = async (req, res, next) => {
 
     const { password, trustedDeviceToken } = req.body;
     
-    const searchInput = rawInput.trim().toLowerCase();
-    const escapedInput = searchInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchInput = rawInput.trim();
+    const searchInputLower = searchInput.toLowerCase();
+    const searchInputNoSpaces = searchInputLower.replace(/\s+/g, '');
+    const tokens = searchInputLower.split(/\s+/).filter(Boolean);
 
-    // Procura quem está a tentar entrar por username ou email (case-insensitive)
+    const regexList = [
+      new RegExp(`^${searchInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+      new RegExp(`^${searchInputNoSpaces.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+      ...tokens.map(t => new RegExp(`^${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'))
+    ];
+
+    // Procura quem está a tentar entrar por username ou email (case-insensitive e flexível)
     const user = await User.findOne({
       $or: [
-        { username: { $regex: new RegExp(`^${escapedInput}$`, 'i') } },
-        { email: { $regex: new RegExp(`^${escapedInput}$`, 'i') } }
+        { username: { $in: regexList } },
+        { email: { $in: regexList } }
       ]
     });
 
