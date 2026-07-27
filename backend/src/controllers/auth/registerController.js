@@ -6,6 +6,21 @@ exports.register = async (req, res, next) => {
   try {
     const { username, email, password, codigoAdmin, loginSecurityMethod, inviteCode } = req.body;
     
+    // Validações no backend
+    if (!username || username.trim().length < 3) {
+      throw new ApiError(400, 'O nome de utilizador deve ter pelo menos 3 caracteres.');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      throw new ApiError(400, 'Insere um endereço de email válido.');
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)/;
+    if (!password || password.length < 8 || !passwordRegex.test(password)) {
+      throw new ApiError(400, 'A password deve ter pelo menos 8 caracteres, contendo pelo menos 1 letra e 1 número.');
+    }
+
     // Verifica se o nome ou o email já estão a ser usados
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
     if (userExists) {

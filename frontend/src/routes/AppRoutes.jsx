@@ -1,15 +1,18 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
+import AuthLayout from '../components/auth/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
 
-// Páginas principais de acesso imediato
+// Páginas de autenticação principais de acesso imediato (sem lazy para animações fluida desde o 1º clique)
 import Login from '../pages/auth/Login';
+import Registar from '../pages/auth/Registar';
+
+// Páginas de acesso pós-autenticação imediato
 import Dashboard from '../pages/couple/dashboard/Dashboard';
 
-// Carregamento dinâmico (Code-Splitting) para otimizar o tempo de arranque inicial
+// Carregamento dinâmico (Code-Splitting) para páginas secundárias
 const RecuperarPassword = lazy(() => import('../pages/auth/RecuperarPassword'));
-const Registar = lazy(() => import('../pages/auth/Registar'));
 const AdminDashboard = lazy(() => import('../pages/auth/AdminDashboard'));
 const ForcarMudancaPassword = lazy(() => import('../pages/auth/ForcarMudancaPassword'));
 const Mensagens = lazy(() => import('../pages/chat/Mensagens'));
@@ -59,10 +62,13 @@ export default function AppRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/recuperar" element={<RecuperarPassword />} />
-        <Route path="/registar" element={<Registar />} />
-        <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
+        {/* Rotas de Autenticação com Transições de Animação (AuthLayout) */}
+        <Route element={<AuthLayout />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/registar" element={<Registar />} />
+          <Route path="/recuperar" element={<RecuperarPassword />} />
+          <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
+        </Route>
         
         {/* Rotas Autenticadas protegidas pelo MainLayout */}
         <Route element={<ProtectedRoute />}>

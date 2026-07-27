@@ -161,6 +161,12 @@ class CycleService {
       user.cycleTracking = {};
     }
 
+    if (['homem', 'mulher', 'nao_especificado'].includes(prefs.gender)) {
+      user.cycleTracking.gender = prefs.gender;
+    }
+    if (typeof prefs.onboardingCompleted === 'boolean') {
+      user.cycleTracking.onboardingCompleted = prefs.onboardingCompleted;
+    }
     if (typeof prefs.shareWithPartner === 'boolean') {
       user.cycleTracking.shareWithPartner = prefs.shareWithPartner;
     }
