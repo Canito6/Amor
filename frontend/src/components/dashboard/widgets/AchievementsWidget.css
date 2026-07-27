@@ -201,3 +201,37 @@
   justify-content: center;
   min-height: 250px;
 }
+
+@media (max-width: 480px) {
+  .achievements-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .achievements-title {
+    font-size: 16px;
+  }
+
+  .couple-level-badge {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .achievements-badges-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 8px;
+  }
+
+  .achievement-badge-card {
+    padding: 10px 6px;
+  }
+
+  .badge-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .badge-icon {
+    font-size: 18px;
+  }
+}

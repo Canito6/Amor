@@ -68,13 +68,14 @@ export default function QuizCreator({
 
               <div className="form-group" style={{ marginBottom: '15px' }}>
                 <label className="input-label">{t.quizzes_create_question_text}</label>
-                <input
-                  type="text"
+                <textarea
+                  rows={2}
                   placeholder={t.quizzes_placeholder_qtext}
                   value={q.questionText}
                   onChange={(e) => atualizarPergunta(pIndex, 'questionText', e.target.value)}
                   required
                   className="input-control"
+                  style={{ resize: 'vertical', width: '100%', minHeight: '60px', fieldSizing: 'content', fontFamily: 'var(--font-body)', lineHeight: '1.4' }}
                 />
               </div>
 

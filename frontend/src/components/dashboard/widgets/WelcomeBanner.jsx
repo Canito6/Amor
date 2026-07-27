@@ -9,7 +9,6 @@ export default function WelcomeBanner({ nome, relationshipDate, language, t, onC
     <div 
       className="welcome-banner-premium pop-in" 
       style={{ 
-        padding: '36px 32px', 
         textAlign: 'left',
         position: 'relative',
         overflow: 'hidden',

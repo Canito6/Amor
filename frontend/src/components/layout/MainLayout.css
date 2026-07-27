@@ -1,4 +1,8 @@
 /* --- MAIN LAYOUT STRUCTURE STYLES --- */
+:root {
+  --topbar-height: 70px;
+  --topbar-offset-top: 20px;
+}
 
 .layout-root {
   min-height: 100vh;
@@ -18,7 +22,7 @@
 .layout-sidebar .layout-content-wrapper {
   flex: 1;
   min-height: 100vh;
-  padding-top: 110px;
+  padding-top: calc(var(--topbar-offset-top) + var(--topbar-height) + 20px + env(safe-area-inset-top, 0px));
   padding-left: 20px;
   padding-right: 20px;
   width: 100%;
@@ -27,7 +31,7 @@
 
 /* Modo Stacked Layout */
 .layout-stacked .layout-content-wrapper {
-  padding-top: 110px;
+  padding-top: calc(var(--topbar-offset-top) + var(--topbar-height) + 20px + env(safe-area-inset-top, 0px));
   padding-left: 20px;
   padding-right: 20px;
   width: 100%;
@@ -186,19 +190,24 @@
 }
 
 @media (max-width: 768px) {
+  :root {
+    --topbar-height: 60px;
+    --topbar-offset-top: 10px;
+  }
+
   .layout-sidebar .layout-content-wrapper,
   .layout-stacked .layout-content-wrapper {
-    padding-top: 80px;
+    padding-top: calc(var(--topbar-offset-top) + var(--topbar-height) + 20px + env(safe-area-inset-top, 0px));
     padding-left: 12px;
     padding-right: 12px;
   }
   
   .global-topbar,
   .layout-sidebar .global-topbar {
-    top: 10px;
+    top: var(--topbar-offset-top);
     left: 10px;
     right: 10px;
-    height: 60px;
+    height: var(--topbar-height);
     padding: 0 12px;
     border-radius: 16px;
   }

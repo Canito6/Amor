@@ -82,10 +82,13 @@ export default function EventCountdown({ nextEvent, daysRemaining, language, t }
       <span style={{ fontSize: '32px' }}>📅</span>
       <h3 style={{ 
         fontFamily: 'var(--font-title)', 
-        fontSize: '18px', 
+        fontSize: '17px', 
         color: 'var(--text-main)', 
         margin: 0, 
-        fontWeight: '700' 
+        fontWeight: '700',
+        wordBreak: 'break-word',
+        textAlign: 'center',
+        maxWidth: '100%'
       }}>
         {t.next_event}: <span style={{ color: 'var(--primary-color)' }}>{nextEvent.title}</span>
       </h3>

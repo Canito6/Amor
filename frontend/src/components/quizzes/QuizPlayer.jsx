@@ -83,7 +83,7 @@ export default function QuizPlayer({
           marginBottom: '30px'
         }}
       >
-        <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-main)' }}>
+        <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-main)', wordBreak: 'break-word', lineHeight: '1.4' }}>
           {activeQuestion.questionText}
         </h3>
         
@@ -113,7 +113,7 @@ export default function QuizPlayer({
                 onChange={() => handleOptionChange(opt)}
                 style={{ display: 'none' }}
               />
-              <span style={{ fontSize: '15px', color: 'var(--text-main)' }}>{opt}</span>
+              <span style={{ fontSize: '15px', color: 'var(--text-main)', wordBreak: 'break-word', lineHeight: '1.4' }}>{opt}</span>
             </label>
           ))}
         </div>
