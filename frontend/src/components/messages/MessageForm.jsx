@@ -12,12 +12,20 @@ export default function MessageForm({ onSubmit, t }) {
   const coupleId = localStorage.getItem('coupleId') || '';
   const meuNome = localStorage.getItem('nome') || '';
 
-  // Limpar timeout ao desmontar
-  useEffect(() => {
-    return () => {
+  // Limpar timeout e notificar par ao desmontar
+  const stopTyping = () => {
+    if (socket && isTypingRef.current) {
+      isTypingRef.current = false;
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
+      socket.emit('stop-typing', { room: coupleId, user: meuNome });
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopTyping();
     };
   }, []);
 
@@ -25,8 +33,10 @@ export default function MessageForm({ onSubmit, t }) {
     const value = e.target.value;
     setContent(value);
 
-    if (socket) {
-      if (!isTypingRef.current && value.trim().length > 0) {
+    if (!socket) return;
+
+    if (value.trim().length > 0) {
+      if (!isTypingRef.current) {
         isTypingRef.current = true;
         socket.emit('typing', { room: coupleId, user: meuNome });
       }
@@ -35,11 +45,18 @@ export default function MessageForm({ onSubmit, t }) {
         clearTimeout(typingTimeoutRef.current);
       }
 
+      // Parar após 1.5s sem novas teclas
       typingTimeoutRef.current = setTimeout(() => {
-        isTypingRef.current = false;
-        socket.emit('stop-typing', { room: coupleId, user: meuNome });
+        stopTyping();
       }, 1500);
+    } else {
+      // Se apagou o texto todo, para imediatamente de notificar
+      stopTyping();
     }
+  };
+
+  const handleBlur = () => {
+    stopTyping();
   };
 
   const handleSubmit = async (e) => {
@@ -47,13 +64,7 @@ export default function MessageForm({ onSubmit, t }) {
     if (!content.trim()) return;
 
     // Parar indicador de escrita imediatamente
-    if (socket && isTypingRef.current) {
-      isTypingRef.current = false;
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      socket.emit('stop-typing', { room: coupleId, user: meuNome });
-    }
+    stopTyping();
 
     try {
       setError('');
@@ -73,6 +84,7 @@ export default function MessageForm({ onSubmit, t }) {
           placeholder={t.messages_placeholder}
           value={content}
           onChange={handleContentChange}
+          onBlur={handleBlur}
           rows="4"
           required
           style={{ resize: 'vertical' }}

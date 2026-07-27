@@ -44,14 +44,7 @@ export default function Mensagens() {
     }
   };
 
-  const simulatePartnerTyping = () => {
-    setPartnerNameTyping(language === 'pt' ? 'O teu par' : 'Your partner');
-    setPartnerTyping(true);
-    const timer = setTimeout(() => {
-      setPartnerTyping(false);
-    }, 3000);
-    return timer;
-  };
+  const typingTimerRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -62,28 +55,32 @@ export default function Mensagens() {
 
     carregarMensagens();
 
-    // Simulação decorativa ao entrar na página
-    const initialTypingTimeout = setTimeout(() => {
-      simulatePartnerTyping();
-    }, 1500);
-
     if (socket) {
-      socket.on('partner-typing', (data) => {
+      const handlePartnerTyping = (data) => {
         setPartnerTyping(true);
-        setPartnerNameTyping(data.user);
-      });
-      socket.on('partner-stop-typing', () => {
-        setPartnerTyping(false);
-      });
-    }
+        setPartnerNameTyping(data.user || (language === 'pt' ? 'O teu par' : 'Your partner'));
+        
+        // Auto-limpeza de segurança após 3 segundos sem novas atualizações
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = setTimeout(() => {
+          setPartnerTyping(false);
+        }, 3000);
+      };
 
-    return () => {
-      clearTimeout(initialTypingTimeout);
-      if (socket) {
-        socket.off('partner-typing');
-        socket.off('partner-stop-typing');
-      }
-    };
+      const handlePartnerStopTyping = () => {
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+        setPartnerTyping(false);
+      };
+
+      socket.on('partner-typing', handlePartnerTyping);
+      socket.on('partner-stop-typing', handlePartnerStopTyping);
+
+      return () => {
+        socket.off('partner-typing', handlePartnerTyping);
+        socket.off('partner-stop-typing', handlePartnerStopTyping);
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      };
+    }
   }, [navigate, socket, language]);
 
   useSocketUpdate(() => {
@@ -153,10 +150,6 @@ export default function Mensagens() {
       const novaMsg = await messageService.createMessage(content);
       setMessages([...messages, novaMsg]);
       sounds.playPop();
-      // Simulação decorativa após utilizador enviar mensagem
-      setTimeout(() => {
-        simulatePartnerTyping();
-      }, 1000);
     } catch (err) {
       setError(t.messages_error_send || 'Erro ao enviar nota.');
       throw err;
