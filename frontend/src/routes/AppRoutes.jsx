@@ -66,6 +66,8 @@ export default function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="/" element={<Login />} />
           <Route path="/registar" element={<Registar />} />
+          <Route path="/vincular" element={<Registar />} />
+          <Route path="/convite" element={<Registar />} />
           <Route path="/recuperar" element={<RecuperarPassword />} />
           <Route path="/forcar-password" element={<ForcarMudancaPassword />} />
         </Route>
