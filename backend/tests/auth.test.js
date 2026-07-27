@@ -128,6 +128,38 @@ describe('Testes de Autenticação - API Endpoints', () => {
       expect(res.body).toHaveProperty('emailMasked', 'te***@example.com');
     });
 
+    it('deve fazer login por email ou username com espaços extra e maiúsculas/minúsculas', async () => {
+      const mockComparePassword = jest.fn().mockResolvedValue(true);
+      const mockUser = {
+        _id: 'mock_user_id',
+        username: 'lara',
+        email: 'lara@example.com',
+        role: 'user',
+        loginSecurityMethod: 'direct',
+        comparePassword: mockComparePassword,
+        precisaMudarPassword: false
+      };
+
+      User.findOne.mockResolvedValue(mockUser);
+      process.env.JWT_SECRET = 'secreta_teste_jwt';
+
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({
+          username: '  LARA  ',
+          password: 'Password123!'
+        });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('message', 'Login feito com sucesso!');
+      expect(User.findOne).toHaveBeenCalledWith({
+        $or: [
+          { username: { $regex: new RegExp('^lara$', 'i') } },
+          { email: { $regex: new RegExp('^lara$', 'i') } }
+        ]
+      });
+    });
+
     it('deve falhar com password incorreta', async () => {
       const mockComparePassword = jest.fn().mockResolvedValue(false);
       const mockSave = jest.fn().mockResolvedValue({});

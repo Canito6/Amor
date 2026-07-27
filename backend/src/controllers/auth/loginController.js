@@ -8,10 +8,24 @@ const TokenBlacklist = require('../../models/auth/tokenBlacklistModel');
 
 exports.login = async (req, res, next) => {
   try {
-    const { username, password, trustedDeviceToken } = req.body;
+    const rawInput = req.body.username || req.body.email;
+    if (!rawInput || typeof rawInput !== 'string' || !rawInput.trim()) {
+      throw new ApiError(400, 'Nome de utilizador ou e-mail é obrigatório!');
+    }
+
+    const { password, trustedDeviceToken } = req.body;
     
-    // Procura quem está a tentar entrar
-    const user = await User.findOne({ username });
+    const searchInput = rawInput.trim().toLowerCase();
+    const escapedInput = searchInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Procura quem está a tentar entrar por username ou email (case-insensitive)
+    const user = await User.findOne({
+      $or: [
+        { username: { $regex: new RegExp(`^${escapedInput}$`, 'i') } },
+        { email: { $regex: new RegExp(`^${escapedInput}$`, 'i') } }
+      ]
+    });
+
     if (!user) {
       throw new ApiError(404, 'Utilizador não encontrado!');
     }

@@ -24,70 +24,87 @@ export default function WelcomeBanner({ nome, relationshipDate, language, t, onC
         boxShadow: 'var(--shadow-md)'
       }}
     >
-      {/* Integrated Action Controls (Top Right) */}
-      <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '8px', zIndex: 10 }}>
-        {!isEditingLayout && onCustomiseLayout && (
-          <button
-            onClick={onCustomiseLayout}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12px',
-              fontWeight: '700',
-              fontFamily: 'var(--font-title)',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 107, 157, 0.3)',
-              background: 'rgba(255, 255, 255, 0.9)',
-              color: 'var(--primary-color)',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'var(--transition-smooth)'
-            }}
-          >
-            🛠️ {language === 'pt' ? 'Customizar Painel' : 'Customize Layout'}
-          </button>
-        )}
-        {onEditCouple && (
-          <button
-            onClick={onEditCouple}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12px',
-              fontWeight: '700',
-              fontFamily: 'var(--font-title)',
-              borderRadius: '12px',
-              border: '1px solid rgba(0, 0, 0, 0.08)',
-              background: 'rgba(255, 255, 255, 0.9)',
-              color: 'var(--text-main)',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'var(--transition-smooth)'
-            }}
-          >
-            ✏️ {language === 'pt' ? 'Editar Casal' : 'Edit Couple'}
-          </button>
-        )}
-      </div>
-
-      {/* Decorative Badge */}
+      {/* Header Row with Badge & Action Buttons in Flexbox */}
       <div 
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '6px 14px',
-          borderRadius: '20px',
-          background: 'rgba(255, 255, 255, 0.75)',
-          border: '1px solid rgba(255, 107, 157, 0.25)',
-          fontSize: '12px',
-          fontWeight: '700',
-          color: 'var(--primary-color)',
-          width: 'fit-content',
-          marginBottom: '14px',
-          boxShadow: 'var(--shadow-sm)'
+        className="welcome-banner-header"
+        style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          flexWrap: 'wrap', 
+          gap: '12px', 
+          marginBottom: '14px', 
+          position: 'relative', 
+          zIndex: 10,
+          width: '100%'
         }}
       >
-        <span className="pulse-heart">💖</span>
-        <span>{language === 'pt' ? 'O Nosso Cantinho de Amor' : 'Our Love Sanctuary'}</span>
+        {/* Decorative Badge */}
+        <div 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 14px',
+            borderRadius: '20px',
+            background: 'rgba(255, 255, 255, 0.75)',
+            border: '1px solid rgba(255, 107, 157, 0.25)',
+            fontSize: '12px',
+            fontWeight: '700',
+            color: 'var(--primary-color)',
+            width: 'fit-content',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+        >
+          <span className="pulse-heart">💖</span>
+          <span>{language === 'pt' ? 'O Nosso Cantinho de Amor' : 'Our Love Sanctuary'}</span>
+        </div>
+
+        {/* Integrated Action Controls (Flexbox side by side) */}
+        <div className="welcome-banner-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {!isEditingLayout && onCustomiseLayout && (
+            <button
+              onClick={onCustomiseLayout}
+              style={{
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-title)',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 107, 157, 0.3)',
+                background: 'rgba(255, 255, 255, 0.9)',
+                color: 'var(--primary-color)',
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'var(--transition-smooth)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              🛠️ {language === 'pt' ? 'Customizar Painel' : 'Customize Layout'}
+            </button>
+          )}
+          {onEditCouple && (
+            <button
+              onClick={onEditCouple}
+              style={{
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-title)',
+                borderRadius: '12px',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                background: 'rgba(255, 255, 255, 0.9)',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'var(--transition-smooth)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              ✏️ {language === 'pt' ? 'Editar' : 'Edit'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Premium background SVG illustration of intersecting hearts & stars */}
