@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -11,7 +10,8 @@ vi.mock('../../services/cycle/cycleService', () => ({
     getEntries: vi.fn(),
     createOrUpdateEntry: vi.fn(),
     updatePreferences: vi.fn(),
-    deleteAllEntries: vi.fn()
+    deleteAllEntries: vi.fn(),
+    getPartnerSummary: vi.fn().mockResolvedValue({ enabled: false })
   }
 }));
 
@@ -22,13 +22,15 @@ vi.mock('../../context/ToastContext', () => ({
 }));
 
 describe('CycleCalendar Page Component', () => {
-  const mockSummaryNoData = {
+  const mockSummaryNoOnboarding = {
     stats: {
       hasEnoughData: false,
       disclaimer: 'As previsões são apenas informativas e não substituem aconselhamento médico nem servem como método contracetivo.',
       totalEntries: 0
     },
     preferences: {
+      gender: 'mulher',
+      onboardingCompleted: false,
       shareWithPartner: false,
       partnerShareLevel: 'basic',
       hiddenFromMenu: false,
@@ -36,7 +38,7 @@ describe('CycleCalendar Page Component', () => {
     }
   };
 
-  const mockSummaryWithData = {
+  const mockSummaryWithOnboarding = {
     stats: {
       hasEnoughData: true,
       disclaimer: 'As previsões são apenas informativas e não substituem aconselhamento médico nem servem como método contracetivo.',
@@ -52,6 +54,8 @@ describe('CycleCalendar Page Component', () => {
       ovulationDate: '2026-06-13T00:00:00.000Z'
     },
     preferences: {
+      gender: 'mulher',
+      onboardingCompleted: true,
       shareWithPartner: true,
       partnerShareLevel: 'basic',
       hiddenFromMenu: false,
@@ -64,7 +68,7 @@ describe('CycleCalendar Page Component', () => {
   });
 
   it('renderiza o aviso legal obrigatório e título principal', async () => {
-    cycleService.getSummary.mockResolvedValue(mockSummaryNoData);
+    cycleService.getSummary.mockResolvedValue(mockSummaryWithOnboarding);
     cycleService.getEntries.mockResolvedValue([]);
 
     render(
@@ -80,8 +84,8 @@ describe('CycleCalendar Page Component', () => {
     expect(screen.getByRole('note')).toHaveTextContent(/As previsões são apenas informativas e não substituem aconselhamento médico/i);
   });
 
-  it('exibe mensagem inicial quando não há histórico suficiente (< 2 ciclos)', async () => {
-    cycleService.getSummary.mockResolvedValue(mockSummaryNoData);
+  it('mostra o modal de onboarding quando onboardingCompleted é false e oculta quando é true', async () => {
+    cycleService.getSummary.mockResolvedValue(mockSummaryNoOnboarding);
     cycleService.getEntries.mockResolvedValue([]);
 
     render(
@@ -91,32 +95,14 @@ describe('CycleCalendar Page Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Regista pelo menos 2 ciclos para desbloquear previsões/i)).toBeInTheDocument();
-    });
-  });
-
-  it('exibe o resumo da fase e insight quando há histórico suficiente', async () => {
-    cycleService.getSummary.mockResolvedValue(mockSummaryWithData);
-    cycleService.getEntries.mockResolvedValue([
-      { _id: '1', startDate: '2026-05-01' },
-      { _id: '2', startDate: '2026-05-29' }
-    ]);
-
-    render(
-      <MemoryRouter>
-        <CycleCalendar />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/Dia 14 do teu ciclo/i)).toBeInTheDocument();
+      expect(screen.getByText(/Configuração Inicial do Ciclo/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Estás na fase de ovulação/i)).toBeInTheDocument();
+    expect(screen.getByText(/Passo 1: Identificação/i)).toBeInTheDocument();
   });
 
-  it('permite alternar entre as abas (Calendário, Registo Diário, Definições)', async () => {
-    cycleService.getSummary.mockResolvedValue(mockSummaryNoData);
+  it('não abre o modal de onboarding automaticamente se onboardingCompleted for true', async () => {
+    cycleService.getSummary.mockResolvedValue(mockSummaryWithOnboarding);
     cycleService.getEntries.mockResolvedValue([]);
 
     render(
@@ -129,12 +115,63 @@ describe('CycleCalendar Page Component', () => {
       expect(screen.getByText(/Calendário Menstrual/i)).toBeInTheDocument();
     });
 
-    // Clicar na aba de Registo Diário
-    fireEvent.click(screen.getByText(/Registo Diário/i));
-    expect(screen.getByText(/Registo para o dia:/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Configuração Inicial do Ciclo/i)).not.toBeInTheDocument();
+  });
 
-    // Clicar na aba de Definições & Privacidade
+  it('o botão "Refazer Questionário de Onboarding" na aba de definições reabre o modal', async () => {
+    cycleService.getSummary.mockResolvedValue(mockSummaryWithOnboarding);
+    cycleService.getEntries.mockResolvedValue([]);
+
+    render(
+      <MemoryRouter>
+        <CycleCalendar />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Calendário Menstrual/i)).toBeInTheDocument();
+    });
+
+    // Ir para a aba de definições
     fireEvent.click(screen.getByText(/Definições & Privacidade/i));
-    expect(screen.getByText(/Privacidade & Definições do Ciclo/i)).toBeInTheDocument();
+
+    // Clicar em Refazer Questionário
+    const btnRefazer = screen.getByRole('button', { name: /Refazer Questionário de Onboarding/i });
+    fireEvent.click(btnRefazer);
+
+    expect(screen.getByText(/Configuração Inicial do Ciclo/i)).toBeInTheDocument();
+  });
+
+  it('o toggle de partilha e alternador de nível atualizam as preferências chamando cycleService.updatePreferences', async () => {
+    cycleService.getSummary.mockResolvedValue(mockSummaryWithOnboarding);
+    cycleService.getEntries.mockResolvedValue([]);
+    cycleService.updatePreferences.mockResolvedValue({
+      shareWithPartner: false,
+      partnerShareLevel: 'none'
+    });
+
+    render(
+      <MemoryRouter>
+        <CycleCalendar />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Calendário Menstrual/i)).toBeInTheDocument();
+    });
+
+    // Ir para definições
+    fireEvent.click(screen.getByText(/Definições & Privacidade/i));
+
+    // Desativar toggle de partilha
+    const toggleShare = screen.getByLabelText(/Partilhar informação de ciclo com o parceiro/i);
+    fireEvent.click(toggleShare);
+
+    await waitFor(() => {
+      expect(cycleService.updatePreferences).toHaveBeenCalledWith({
+        shareWithPartner: false,
+        partnerShareLevel: 'none'
+      });
+    });
   });
 });

@@ -1,8 +1,9 @@
 import { useLocation, Outlet } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 export default function AuthLayout() {
   const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
 
   // Determina a direção do efeito de slide (Login -> Registar: slide para a esquerda; Registar -> Login: slide para a direita)
   const isRegistering = location.pathname === '/registar';
@@ -10,24 +11,24 @@ export default function AuthLayout() {
   const slideVariants = {
     initial: {
       opacity: 0,
-      x: isRegistering ? 40 : -40,
-      scale: 0.98
+      x: shouldReduceMotion ? 0 : (isRegistering ? 40 : -40),
+      scale: shouldReduceMotion ? 1 : 0.98
     },
     animate: {
       opacity: 1,
       x: 0,
       scale: 1,
       transition: {
-        duration: 0.3,
+        duration: shouldReduceMotion ? 0.01 : 0.3,
         ease: [0.25, 0.8, 0.25, 1]
       }
     },
     exit: {
       opacity: 0,
-      x: isRegistering ? -40 : 40,
-      scale: 0.98,
+      x: shouldReduceMotion ? 0 : (isRegistering ? -40 : 40),
+      scale: shouldReduceMotion ? 1 : 0.98,
       transition: {
-        duration: 0.25,
+        duration: shouldReduceMotion ? 0.01 : 0.25,
         ease: [0.25, 0.8, 0.25, 1]
       }
     }

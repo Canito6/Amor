@@ -20,7 +20,7 @@ export default function CycleOnboardingModal({ isOpen, onClose, onSave, initialP
       setStep(3);
     } else {
       // Se não quiser partilhar, conclui diretamente
-      finishOnboarding(selectedGender => gender, false, 'none');
+      finishOnboarding(gender, false, 'none');
     }
   };
 
