@@ -20,7 +20,7 @@ describe('AuthLayout Component', () => {
   });
 
   it('permite a alternância de rota entre / e /registar sem erros', () => {
-    const { rerender } = render(
+    render(
       <MemoryRouter initialEntries={['/registar']}>
         <Routes>
           <Route element={<AuthLayout />}>

@@ -36,6 +36,7 @@ export default function CycleOnboardingModal({ isOpen, onClose, onSave, initialP
       setSaving(false);
       onClose();
     } catch (err) {
+      console.error('Erro ao guardar onboarding:', err);
       setSaving(false);
     }
   };
