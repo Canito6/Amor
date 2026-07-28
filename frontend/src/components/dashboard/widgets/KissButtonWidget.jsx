@@ -46,7 +46,7 @@ export default function KissButtonWidget({ language, partnerName }) {
   const { showToast } = useToast();
   const { triggerVibration } = useHaptic();
 
-  // Escutar evento 'openLovePhrasesDrawer' vindo do menu principal Sidebar.jsx
+  // Escutar evento 'openLovePhrasesDrawer' disparado a partir da Sidebar principal
   useEffect(() => {
     const handleOpenDrawer = () => {
       setIsDrawerOpen(true);
@@ -437,14 +437,14 @@ export default function KissButtonWidget({ language, partnerName }) {
 
   return (
     <>
-      {/* Widget Fininho com a Frase Pronta Selecionada (Sem Edição Direta no Widget) */}
+      {/* Widget Fininho no Dashboard (Apenas 1 Botão Único para a Frase Selecionada) */}
       <div 
         className="glass-panel"
         style={{
-          padding: '8px 14px',
+          padding: '8px 16px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           borderRadius: '16px',
           background: 'rgba(255, 255, 255, 0.15)',
           backdropFilter: 'blur(12px)',
@@ -452,11 +452,9 @@ export default function KissButtonWidget({ language, partnerName }) {
           boxShadow: '0 4px 20px rgba(255, 77, 109, 0.1)',
           width: '100%',
           boxSizing: 'border-box',
-          gap: '10px',
           minHeight: '44px'
         }}
       >
-        {/* Botão Único com a Frase Pronta Selecionada */}
         <button
           onClick={() => handleSendCarinho(selectedPhrase)}
           disabled={sending}
@@ -465,14 +463,15 @@ export default function KissButtonWidget({ language, partnerName }) {
             border: 'none',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
             cursor: 'pointer',
-            padding: 0,
+            padding: '4px 8px',
             color: 'var(--text-main)',
             fontWeight: '600',
-            fontSize: '13px',
-            textAlign: 'left',
-            flex: 1,
+            fontSize: '13.5px',
+            textAlign: 'center',
+            width: '100%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
@@ -483,30 +482,9 @@ export default function KissButtonWidget({ language, partnerName }) {
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {lastSentText 
-              ? (language === 'pt' ? `Enviado! 💖` : `Sent! 💖`)
+              ? (language === 'pt' ? `Enviado a ${partnerName || 'teu amor'}! 💖` : `Sent to ${partnerName || 'your love'}! 💖`)
               : selectedPhrase.text}
           </span>
-        </button>
-
-        {/* Botão de Escolher Frase na Aba / Sidebar */}
-        <button
-          onClick={() => setIsDrawerOpen(true)}
-          className="btn btn-secondary"
-          title={language === 'pt' ? 'Mudar Frase / Aba Lateral' : 'Change Phrase / Sidebar'}
-          style={{
-            padding: '5px 12px',
-            fontSize: '12px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'rgba(255, 255, 255, 0.25)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          <span>✨</span> {language === 'pt' ? 'Mudar' : 'Change'}
         </button>
       </div>
 
