@@ -1,5 +1,8 @@
 
 
+import { useEffect } from 'react';
+import { useHaptic } from '../../hooks/useHaptic';
+
 const PASTEL_COLORS = [
   '#FF6B9D', // Primária
   '#C589E8', // Secundária
@@ -40,7 +43,20 @@ export default function WheelSpinner({
   result,
   t
 }) {
+  const { triggerMedium, triggerSuccess } = useHaptic();
+
+  useEffect(() => {
+    if (result && !isSpinning) {
+      triggerSuccess();
+    }
+  }, [result, isSpinning]);
+
   if (!selectedWheel) return null;
+
+  const handleSpinClick = () => {
+    triggerMedium();
+    spinWheel();
+  };
 
   return (
     <div className="wheel-workspace fade-in">
@@ -106,7 +122,7 @@ export default function WheelSpinner({
       {/* Spin Button */}
       <div className="wheel-actions-container">
         <button
-          onClick={spinWheel}
+          onClick={handleSpinClick}
           disabled={isSpinning}
           className="btn btn-primary btn-spin-trigger"
         >
