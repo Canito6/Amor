@@ -12,8 +12,8 @@ export function AppLockProvider({ children }) {
     return !!(enabled && pin);
   });
 
-  const isBiometricsSupported = typeof window !== 'undefined' && 
-    window.PublicKeyCredential && 
+  const isBiometricsSupported = typeof window !== 'undefined' &&
+    window.PublicKeyCredential &&
     typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
 
   const enablePin = (pin) => {

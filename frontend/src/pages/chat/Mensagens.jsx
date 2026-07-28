@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { messageService } from '../../services/chat/messageService';
 import { usePreferences } from '../../context/PreferencesContext';
