@@ -32,6 +32,7 @@ function getWidgetFriendlyName(id, language) {
     countdown:  language === 'pt' ? 'Contagem Decrescente' : 'Event Countdown',
     navigation: language === 'pt' ? 'Atalhos de Navegação' : 'Navigation Cards',
     achievements: language === 'pt' ? 'Nível & Conquistas' : 'Level & Achievements',
+    kiss:         language === 'pt' ? 'Mandar Beijinho 💋' : 'Send a Kiss 💋',
   };
   return names[id] ?? id;
 }
@@ -107,6 +108,8 @@ export default function Dashboard() {
         return <NavigationCards layoutStyle={layoutStyle} customTabs={customTabs} t={t} language={language} />;
       case 'achievements':
         return <AchievementsWidget stats={stats} t={t} language={language} />;
+      case 'kiss':
+        return <KissButtonWidget language={language} partnerName={coupleInfo.partnerNames?.[0]} />;
       default:
         return null;
     }
@@ -130,9 +133,6 @@ export default function Dashboard() {
           getWidgetFriendlyName={(id) => getWidgetFriendlyName(id, language)}
         />
       )}
-
-      {/* Widget de Beijinho em Tempo Real */}
-      <KissButtonWidget language={language} partnerName={coupleInfo?.partnerNames?.[0]} />
 
       {/* Barra de Ações Rápidas do Cantinho */}
       <div className="quick-actions-bar">

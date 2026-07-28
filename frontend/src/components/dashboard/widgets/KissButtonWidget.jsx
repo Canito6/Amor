@@ -52,7 +52,9 @@ export default function KissButtonWidget({ language, partnerName }) {
         backdropFilter: 'blur(12px)',
         border: '1px solid rgba(255, 255, 255, 0.25)',
         boxShadow: '0 8px 32px 0 rgba(255, 77, 109, 0.12)',
-        marginBottom: '20px',
+        marginBottom: '0px',
+        width: '100%',
+        boxSizing: 'border-box',
         gap: '16px'
       }}
     >

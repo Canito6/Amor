@@ -8,6 +8,7 @@ import { useConfirm } from '../../context/ConfirmContext';
 // Default widget configuration
 export const DEFAULT_WIDGETS = [
   { id: 'welcome',   visible: true, size: 'stretched' },
+  { id: 'kiss',      visible: true, size: 'stretched' },
   { id: 'love',      visible: true, size: 'normal' },
   { id: 'countdown', visible: true, size: 'normal' },
   { id: 'mood',      visible: true, size: 'normal' },
