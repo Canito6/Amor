@@ -4,7 +4,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import { useTabs } from '../../context/TabContext';
 import { translations } from '../../services/common/translations';
 import { authService } from '../../services/auth/authService';
-import { prefetchRoute } from '../../routes/AppRoutes';
+import { prefetchRoute } from '../../utils/navigation/routePrefetcher';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 import LinkCoupleModal from '../shared/LinkCoupleModal';

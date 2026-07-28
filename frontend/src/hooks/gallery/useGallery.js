@@ -1,6 +1,7 @@
-﻿import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { photoService } from '../../services/gallery/photoService';
 import { validateImageSize } from '../../utils/media/fileValidator';
+import { compressImage } from '../../utils/media/imageCompressor';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmContext';
 
@@ -118,8 +119,11 @@ export default function useGallery(t, navigate) {
       setUploading(true);
       setErro('');
 
+      // Comprime a imagem no cliente antes do upload
+      const fileToUpload = await compressImage(selectedFile);
+
       const formData = new FormData();
-      formData.append('image', selectedFile);
+      formData.append('image', fileToUpload);
       formData.append('caption', caption);
       
       const albumAlvo = currentAlbum ? currentAlbum._id : selectedAlbumId;

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { prefetchRoute } from '../../routes/AppRoutes';
+import { prefetchRoute } from '../../utils/navigation/routePrefetcher';
+import { useHaptic } from '../../hooks/useHaptic';
 import './Sidebar.css';
 
 export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onLogout, t, isOpen, onClose }) {
   const navigate = useNavigate();
+  const { triggerLight } = useHaptic();
 
   const [, setVisibleItems] = React.useState(() => {
     const saved = localStorage.getItem('sidebar_items');
@@ -59,6 +61,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
   ];
 
   const handleNavClick = (path) => {
+    triggerLight();
     navigate(path);
     if (onClose) onClose();
   };
