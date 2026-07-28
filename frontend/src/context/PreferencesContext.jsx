@@ -98,10 +98,11 @@ export const PreferencesProvider = ({ children }) => {
         root.classList.remove('theme-dark');
       }
       
-      // Forçar atualização do gradiente de fundo se houver um tema ativo
-      if (activeTabTheme) {
-        applyTabSpecificTheme(activeTabTheme, isDark);
-      }
+      // Forçar atualização do gradiente de fundo e da cor de destaque.
+      // Nota: applyTabSpecificTheme já trata de activeTabTheme === null (usa o preset 'romance'
+      // por omissão), por isso deve ser sempre chamada — caso contrário, mudar o "Tema de Cores
+      // Global" em páginas sem tema de rota próprio (ex: Definições) não teria qualquer efeito visível.
+      applyTabSpecificTheme(activeTabTheme, isDark);
     };
 
     applyTheme();

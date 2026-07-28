@@ -424,18 +424,37 @@ export default function GeneralSettings({
 
       {/* Push Notifications Toggle */}
       {pushSupported && (
-        <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
-          <label className="input-label" style={{ margin: 0, cursor: 'pointer' }} htmlFor="push-toggle-input">
-            🔔 {language === 'pt' ? 'Notificações Push' : 'Push Notifications'}
-          </label>
-          <input 
-            id="push-toggle-input"
-            type="checkbox" 
-            checked={pushEnabled} 
-            disabled={loadingPush}
-            onChange={(e) => handleTogglePush(e.target.checked)}
-            style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
-          />
+        <div className="form-group" style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <label className="input-label" style={{ margin: 0, cursor: isIOS && !isStandalone ? 'not-allowed' : 'pointer' }} htmlFor="push-toggle-input">
+              🔔 {language === 'pt' ? 'Notificações Push' : 'Push Notifications'}
+            </label>
+            <input 
+              id="push-toggle-input"
+              type="checkbox" 
+              checked={pushEnabled} 
+              disabled={loadingPush || (isIOS && !isStandalone)}
+              onChange={(e) => handleTogglePush(e.target.checked)}
+              style={{ width: '20px', height: '20px', cursor: isIOS && !isStandalone ? 'not-allowed' : 'pointer', accentColor: 'var(--primary-color)' }}
+            />
+          </div>
+          {isIOS && !isStandalone && (
+            <div style={{ marginTop: '10px', padding: '10px 12px', background: 'rgba(255, 193, 7, 0.12)', border: '1px solid rgba(255, 193, 7, 0.35)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              ⚠️ {language === 'pt' 
+                ? 'No iOS (iPhone/iPad), as notificações push só funcionam se instalares a aplicação no Ecrã Principal primeiro.' 
+                : 'On iOS (iPhone/iPad), push notifications only work if you add the app to your Home Screen first.'}
+              <button 
+                type="button"
+                onClick={() => {
+                  showIOSHelp();
+                  if (typeof onClose === 'function') onClose();
+                }} 
+                style={{ background: 'none', border: 'none', color: 'var(--primary-color)', textDecoration: 'underline', cursor: 'pointer', marginLeft: '6px', fontWeight: 'bold' }}
+              >
+                {language === 'pt' ? 'Ver como instalar' : 'See how to install'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

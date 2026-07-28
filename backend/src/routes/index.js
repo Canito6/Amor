@@ -48,6 +48,11 @@ const routePrefixes = {
   'songRoutes.js': '/couple/song'
 };
 
+// Endpoint público leve de health-check para serviços externos de ping (ex: UptimeRobot / cron-job.org)
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 for (const file of routeFiles) {
   const filename = path.basename(file);
   const routeModule = require(file);
