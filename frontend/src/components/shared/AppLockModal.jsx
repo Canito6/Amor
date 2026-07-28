@@ -12,13 +12,8 @@ export default function AppLockModal({ language = 'pt' }) {
     if (isLocked) {
       setInputPin('');
       setError(false);
-      if (biometricsEnabled && isBiometricsSupported) {
-        unlockWithBiometrics().then(success => {
-          if (success) triggerSuccess();
-        });
-      }
     }
-  }, [isLocked, biometricsEnabled, isBiometricsSupported]);
+  }, [isLocked]);
 
   if (!isLocked) return null;
 

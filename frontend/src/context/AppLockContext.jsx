@@ -45,30 +45,27 @@ export function AppLockProvider({ children }) {
     }
   };
 
-  // Bloquear automaticamente quando a app é reaberta ou regressa do segundo plano (minimize/switch em mobile)
+  // Bloquear apenas quando a app regressa de segundo plano (minimize/switch app em mobile)
   useEffect(() => {
-    const handleReopen = () => {
-      const enabled = localStorage.getItem('appLockEnabled') === 'true';
-      const pin = localStorage.getItem('appLockPin');
-      if (enabled && pin) {
-        setIsLocked(true);
-      }
-    };
+    let wasHidden = false;
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        handleReopen();
+      if (document.visibilityState === 'hidden') {
+        wasHidden = true;
+      } else if (document.visibilityState === 'visible' && wasHidden) {
+        wasHidden = false;
+        const enabled = localStorage.getItem('appLockEnabled') === 'true';
+        const pin = localStorage.getItem('appLockPin');
+        if (enabled && pin) {
+          setIsLocked(true);
+        }
       }
     };
 
-    window.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleReopen);
-    window.addEventListener('pageshow', handleReopen);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleReopen);
-      window.removeEventListener('pageshow', handleReopen);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
