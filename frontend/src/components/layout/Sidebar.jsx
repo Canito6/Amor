@@ -41,6 +41,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/dashboard', label: t.dashboard, icon: '🏠' },
     { path: '/perfil-casal', label: t.profile_title ? t.profile_title.replace(' 💖', '') : 'Perfil Casal', icon: '💖' },
     { path: '/mensagens', label: t.messages, icon: '💌' },
+    { path: 'action:open-phrases', label: 'Frases de Carinho', icon: '💋' },
     { path: '/definicoes', label: t.settings || 'Definições', icon: '⚙️' },
   ];
 
