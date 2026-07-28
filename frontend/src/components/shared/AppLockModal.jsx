@@ -12,6 +12,11 @@ export default function AppLockModal({ language = 'pt' }) {
     if (isLocked) {
       setInputPin('');
       setError(false);
+      if (biometricsEnabled && isBiometricsSupported) {
+        unlockWithBiometrics().then(success => {
+          if (success) triggerSuccess();
+        });
+      }
     }
   }, [isLocked]);
 
@@ -54,7 +59,24 @@ export default function AppLockModal({ language = 'pt' }) {
   };
 
   return (
-    <div className="scratch-lightbox-overlay" style={{ zIndex: 99999, background: 'rgba(15, 10, 25, 0.96)', backdropFilter: 'blur(15px)' }}>
+    <div 
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 999999,
+        background: 'rgba(15, 10, 25, 0.98)',
+        backdropFilter: 'blur(25px)',
+        WebkitBackdropFilter: 'blur(25px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
       <div className="glass-panel" style={{ width: '90%', maxWidth: '340px', padding: '30px 20px', textAlign: 'center', borderRadius: '24px' }}>
         <div style={{ fontSize: '42px', marginBottom: '10px' }}>🔒</div>
         <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', color: 'var(--text-main)' }}>
