@@ -1,12 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppLock } from '../../context/AppLockContext';
 import { useHaptic } from '../../hooks/useHaptic';
 
 export default function AppLockModal({ language = 'pt' }) {
-  const { isLocked, unlockApp, unlockWithBiometrics, isBiometricsSupported } = useAppLock();
+  const { isLocked, unlockApp, unlockWithBiometrics, isBiometricsSupported, biometricsEnabled } = useAppLock();
   const { triggerLight, triggerSuccess, triggerWarning } = useHaptic();
   const [inputPin, setInputPin] = useState('');
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (isLocked) {
+      setInputPin('');
+      setError(false);
+      if (biometricsEnabled && isBiometricsSupported) {
+        unlockWithBiometrics().then(success => {
+          if (success) triggerSuccess();
+        });
+      }
+    }
+  }, [isLocked, biometricsEnabled, isBiometricsSupported]);
 
   if (!isLocked) return null;
 

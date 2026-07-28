@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 
 const AppLockContext = createContext();
 
@@ -22,6 +22,7 @@ export function AppLockProvider({ children }) {
       setPinEnabled(true);
       localStorage.setItem('appLockPin', pin);
       localStorage.setItem('appLockEnabled', 'true');
+      setIsLocked(true);
     }
   };
 
@@ -44,8 +45,36 @@ export function AppLockProvider({ children }) {
     }
   };
 
+  // Bloquear automaticamente quando a app é reaberta ou regressa do segundo plano (minimize/switch em mobile)
+  useEffect(() => {
+    const handleReopen = () => {
+      const enabled = localStorage.getItem('appLockEnabled') === 'true';
+      const pin = localStorage.getItem('appLockPin');
+      if (enabled && pin) {
+        setIsLocked(true);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleReopen();
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleReopen);
+    window.addEventListener('pageshow', handleReopen);
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleReopen);
+      window.removeEventListener('pageshow', handleReopen);
+    };
+  }, []);
+
   const unlockApp = (pin) => {
-    if (pin === savedPin) {
+    const currentSavedPin = savedPin || localStorage.getItem('appLockPin');
+    if (pin === currentSavedPin) {
       setIsLocked(false);
       return true;
     }
