@@ -13,10 +13,10 @@ const DEFAULT_PRESETS = [
 ];
 
 export default function KissButtonWidget({ language, partnerName }) {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeDrawerTab, setActiveDrawerTab] = useState('select'); // 'select' ou 'edit'
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('select'); // 'select' ou 'edit'
   
-  // Lista de mensagens salvas
+  // Mensagens guardadas em localStorage
   const [savedMessages, setSavedMessages] = useState(() => {
     const saved = localStorage.getItem('custom_quick_carinhos');
     if (saved) {
@@ -25,7 +25,7 @@ export default function KissButtonWidget({ language, partnerName }) {
     return DEFAULT_PRESETS;
   });
 
-  // Frase atualmente selecionada para o widget do Dashboard
+  // Frase selecionada para o widget do Dashboard
   const [selectedPhrase, setSelectedPhrase] = useState(() => {
     const saved = localStorage.getItem('selected_widget_carinho');
     if (saved) {
@@ -34,8 +34,9 @@ export default function KissButtonWidget({ language, partnerName }) {
     return DEFAULT_PRESETS[0];
   });
 
-  // Estados de edição de frases
+  // Estados de criação e edição
   const [newPhraseText, setNewPhraseText] = useState('');
+  const [newPhraseEmoji, setNewPhraseEmoji] = useState('💖');
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
 
@@ -46,16 +47,16 @@ export default function KissButtonWidget({ language, partnerName }) {
   const { showToast } = useToast();
   const { triggerVibration } = useHaptic();
 
-  // Escutar evento 'openLovePhrasesDrawer' disparado a partir da Sidebar principal
+  // Escutar evento para abrir o modal via menu da Sidebar
   useEffect(() => {
-    const handleOpenDrawer = () => {
-      setIsDrawerOpen(true);
+    const handleOpenModal = () => {
+      setIsModalOpen(true);
     };
-    window.addEventListener('openLovePhrasesDrawer', handleOpenDrawer);
-    return () => window.removeEventListener('openLovePhrasesDrawer', handleOpenDrawer);
+    window.addEventListener('openLovePhrasesDrawer', handleOpenModal);
+    return () => window.removeEventListener('openLovePhrasesDrawer', handleOpenModal);
   }, []);
 
-  // Guardar coleção e frase selecionada no localStorage
+  // Persistir em localStorage
   useEffect(() => {
     localStorage.setItem('custom_quick_carinhos', JSON.stringify(savedMessages));
   }, [savedMessages]);
@@ -104,11 +105,11 @@ export default function KissButtonWidget({ language, partnerName }) {
     setSelectedPhrase(msgItem);
     showToast(
       language === 'pt'
-        ? `Frase "${msgItem.text}" selecionada para o widget!`
-        : `Phrase "${msgItem.text}" selected for widget!`,
+        ? `Frase "${msgItem.text}" definida no Widget! 📌`
+        : `Phrase "${msgItem.text}" set on Widget! 📌`,
       'success'
     );
-    setIsDrawerOpen(false);
+    setIsModalOpen(false);
   };
 
   const handleAddPhrase = (e) => {
@@ -117,7 +118,7 @@ export default function KissButtonWidget({ language, partnerName }) {
 
     const item = {
       id: (new Date()).getTime().toString(),
-      emoji: '💖',
+      emoji: newPhraseEmoji || '💖',
       text: newPhraseText.trim(),
       type: 'quick-love'
     };
@@ -146,109 +147,146 @@ export default function KissButtonWidget({ language, partnerName }) {
     showToast(language === 'pt' ? 'Frase atualizada!' : 'Phrase updated!', 'success');
   };
 
-  // Renderização da Aba Lateral via Portal
-  const renderDrawer = () => {
-    if (!isDrawerOpen) return null;
+  // Renderização do Modal Centralizado com Tema Dark Romantic Glassmorphism
+  const renderCentralModal = () => {
+    if (!isModalOpen) return null;
 
-    const drawerContent = (
+    const modalContent = (
       <div 
         style={{
           position: 'fixed',
           inset: 0,
           zIndex: 999999,
           display: 'flex',
-          justifyContent: 'flex-end',
-          background: 'rgba(0, 0, 0, 0.45)',
-          backdropFilter: 'blur(6px)',
-          animation: 'fadeIn 0.2s ease'
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(10, 5, 12, 0.75)',
+          backdropFilter: 'blur(10px)',
+          padding: '16px',
+          animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
-        onClick={() => setIsDrawerOpen(false)}
+        onClick={() => setIsModalOpen(false)}
       >
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
             width: '100%',
-            maxWidth: '380px',
-            height: '100%',
-            background: 'var(--bg-glass, rgba(255, 255, 255, 0.96))',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.2)',
-            padding: '24px 20px',
+            maxWidth: '460px',
+            maxHeight: '85vh',
+            background: 'linear-gradient(145deg, rgba(32, 14, 28, 0.95), rgba(18, 8, 16, 0.98))',
+            backdropFilter: 'blur(24px)',
+            borderRadius: '24px',
+            border: '1px solid rgba(255, 77, 109, 0.35)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 77, 109, 0.2)',
+            padding: '24px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px',
-            overflowY: 'auto',
+            gap: '18px',
             boxSizing: 'border-box',
-            borderLeft: '1px solid rgba(255, 255, 255, 0.3)'
+            color: '#fff',
+            overflow: 'hidden'
           }}
         >
-          {/* Header da Aba Lateral */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '24px' }}>💖</span>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
-                {language === 'pt' ? 'Frases de Carinho' : 'Love Phrases'}
-              </h3>
+          {/* Header do Modal */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '12px', 
+                background: 'linear-gradient(135deg, rgba(255,77,109,0.25), rgba(255,117,143,0.1))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                border: '1px solid rgba(255,77,109,0.3)'
+              }}>
+                💖
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#fff', letterSpacing: '-0.3px' }}>
+                  {language === 'pt' ? 'Frases de Carinho' : 'Love Phrases'}
+                </h3>
+                <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                  {language === 'pt' ? 'Personaliza e envia mimos em tempo real' : 'Personalize and send real-time love'}
+                </p>
+              </div>
             </div>
             <button
-              onClick={() => setIsDrawerOpen(false)}
+              onClick={() => setIsModalOpen(false)}
               style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '20px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px',
                 cursor: 'pointer',
-                color: 'var(--text-muted)'
+                color: 'rgba(255, 255, 255, 0.7)',
+                transition: 'all 0.15s ease'
               }}
             >
               ✕
             </button>
           </div>
 
-          {/* Navegador Interno */}
-          <div style={{ display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.05)', padding: '4px', borderRadius: '12px' }}>
+          {/* Navegador de Separadores Interno */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '6px', 
+            background: 'rgba(0, 0, 0, 0.3)', 
+            padding: '5px', 
+            borderRadius: '14px',
+            border: '1px solid rgba(255, 255, 255, 0.06)'
+          }}>
             <button
-              onClick={() => setActiveDrawerTab('select')}
+              onClick={() => setActiveTab('select')}
               style={{
                 flex: 1,
-                padding: '8px',
+                padding: '9px 12px',
                 border: 'none',
-                borderRadius: '8px',
-                fontSize: '12.5px',
+                borderRadius: '10px',
+                fontSize: '13px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                background: activeDrawerTab === 'select' ? '#fff' : 'transparent',
-                color: activeDrawerTab === 'select' ? 'var(--text-main)' : 'var(--text-muted)',
-                boxShadow: activeDrawerTab === 'select' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
+                transition: 'all 0.2s ease',
+                background: activeTab === 'select' ? 'linear-gradient(135deg, #ff4d6d, #ff758f)' : 'transparent',
+                color: activeTab === 'select' ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+                boxShadow: activeTab === 'select' ? '0 4px 14px rgba(255, 77, 109, 0.35)' : 'none'
               }}
             >
-              📌 {language === 'pt' ? 'Selecionar Frase' : 'Select Phrase'}
+              📌 {language === 'pt' ? 'Ativar no Widget' : 'Widget Active'}
             </button>
             <button
-              onClick={() => setActiveDrawerTab('edit')}
+              onClick={() => setActiveTab('edit')}
               style={{
                 flex: 1,
-                padding: '8px',
+                padding: '9px 12px',
                 border: 'none',
-                borderRadius: '8px',
-                fontSize: '12.5px',
+                borderRadius: '10px',
+                fontSize: '13px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                background: activeDrawerTab === 'edit' ? '#fff' : 'transparent',
-                color: activeDrawerTab === 'edit' ? 'var(--text-main)' : 'var(--text-muted)',
-                boxShadow: activeDrawerTab === 'edit' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
+                transition: 'all 0.2s ease',
+                background: activeTab === 'edit' ? 'linear-gradient(135deg, #ff4d6d, #ff758f)' : 'transparent',
+                color: activeTab === 'edit' ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+                boxShadow: activeTab === 'edit' ? '0 4px 14px rgba(255, 77, 109, 0.35)' : 'none'
               }}
             >
-              ✏️ {language === 'pt' ? 'Editar Frases' : 'Edit Phrases'}
+              ✏️ {language === 'pt' ? 'Gerir Coleção' : 'Manage List'}
             </button>
           </div>
 
-          {/* VISTA 1: SELEÇÃO DA FRASE ATIVA DO WIDGET */}
-          {activeDrawerTab === 'select' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
-              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+          {/* VISTA 1: SELECIONAR FRASE ATIVA NO WIDGET */}
+          {activeTab === 'select' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingRight: '4px' }}>
+              <p style={{ margin: 0, fontSize: '12.5px', color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.4' }}>
                 {language === 'pt'
-                  ? 'Escolhe a frase pronta que irá aparecer no teu Widget do Dashboard:'
-                  : 'Choose the ready phrase that will appear on your Dashboard Widget:'}
+                  ? 'Toca numa frase para a definir no teu Widget do Dashboard ou enviar já:'
+                  : 'Tap a phrase to set it on your Dashboard Widget or send right now:'}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -259,44 +297,66 @@ export default function KissButtonWidget({ language, partnerName }) {
                       key={item.id}
                       onClick={() => handleSelectPhraseForWidget(item)}
                       style={{
-                        padding: '12px 14px',
-                        borderRadius: '14px',
-                        border: isSelected ? '2px solid var(--primary-color, #ff4d6d)' : '1px solid rgba(255, 255, 255, 0.4)',
-                        background: isSelected ? 'rgba(255, 77, 109, 0.12)' : 'rgba(255, 255, 255, 0.75)',
+                        padding: '14px 16px',
+                        borderRadius: '16px',
+                        border: isSelected 
+                          ? '1.5px solid #ff4d6d' 
+                          : '1px solid rgba(255, 255, 255, 0.08)',
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, rgba(255, 77, 109, 0.2), rgba(255, 117, 143, 0.08))' 
+                          : 'rgba(255, 255, 255, 0.04)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        boxShadow: isSelected ? '0 4px 16px rgba(255, 77, 109, 0.15)' : 'none'
                       }}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>
-                        <span style={{ fontSize: '18px' }}>{item.emoji || '💖'}</span>
-                        {item.text}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '22px' }}>{item.emoji || '💖'}</span>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>
+                          {item.text}
+                        </span>
+                      </div>
                       
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {isSelected && (
-                          <span style={{ fontSize: '11px', background: 'var(--primary-color, #ff4d6d)', color: '#fff', padding: '3px 8px', borderRadius: '10px', fontWeight: '700' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {isSelected ? (
+                          <span style={{ 
+                            fontSize: '11px', 
+                            background: 'linear-gradient(135deg, #ff4d6d, #ff758f)', 
+                            color: '#fff', 
+                            padding: '4px 10px', 
+                            borderRadius: '20px', 
+                            fontWeight: '700',
+                            boxShadow: '0 2px 8px rgba(255, 77, 109, 0.4)'
+                          }}>
                             ✓ {language === 'pt' ? 'Ativa no Widget' : 'Active'}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: '500' }}>
+                            {language === 'pt' ? 'Usar' : 'Use'}
                           </span>
                         )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSendCarinho(item);
-                            setIsDrawerOpen(false);
+                            setIsModalOpen(false);
                           }}
                           title={language === 'pt' ? 'Enviar Agora' : 'Send Now'}
                           style={{
-                            padding: '6px 10px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: 'rgba(0,0,0,0.06)',
+                            padding: '7px 12px',
+                            borderRadius: '10px',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            color: '#fff',
                             fontSize: '12px',
                             fontWeight: '600',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
                           }}
                         >
                           🚀
@@ -309,27 +369,62 @@ export default function KissButtonWidget({ language, partnerName }) {
             </div>
           )}
 
-          {/* VISTA 2: EDITAR FRASES */}
-          {activeDrawerTab === 'edit' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-              {/* Form para Adicionar Nova Frase */}
-              <form onSubmit={handleAddPhrase} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.6)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.06)' }}>
-                <label style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
-                  {language === 'pt' ? '➕ Criar Nova Frase Pronta' : '➕ Create New Ready Phrase'}
+          {/* VISTA 2: GERIR E EDITAR FRASES */}
+          {activeTab === 'edit' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto', paddingRight: '4px' }}>
+              {/* Formulário de Adição de Frase */}
+              <form 
+                onSubmit={handleAddPhrase} 
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '10px', 
+                  background: 'rgba(255, 255, 255, 0.04)', 
+                  padding: '14px', 
+                  borderRadius: '16px', 
+                  border: '1px solid rgba(255, 255, 255, 0.08)' 
+                }}
+              >
+                <label style={{ fontSize: '12.5px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.9)' }}>
+                  {language === 'pt' ? '➕ Criar Nova Frase' : '➕ Create New Phrase'}
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <select
+                    value={newPhraseEmoji}
+                    onChange={(e) => setNewPhraseEmoji(e.target.value)}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'rgba(20, 10, 20, 0.8)',
+                      color: '#fff',
+                      fontSize: '16px',
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="💖">💖</option>
+                    <option value="💋">💋</option>
+                    <option value="❤️">❤️</option>
+                    <option value="🫂">🫂</option>
+                    <option value="☕">☕</option>
+                    <option value="🥺">🥺</option>
+                    <option value="🌹">🌹</option>
+                    <option value="✨">✨</option>
+                  </select>
                   <input
                     type="text"
                     value={newPhraseText}
                     onChange={(e) => setNewPhraseText(e.target.value)}
                     maxLength={50}
-                    placeholder={language === 'pt' ? 'Ex: És o meu mundo! ❤️' : 'Ex: You are my world! ❤️'}
+                    placeholder={language === 'pt' ? 'Ex: És o meu lugar seguro! ❤️' : 'Ex: You are my safe place! ❤️'}
                     style={{
                       flex: 1,
-                      padding: '10px 12px',
+                      padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1px solid rgba(0, 0, 0, 0.15)',
-                      background: '#fff',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      color: '#fff',
                       fontSize: '13px',
                       outline: 'none'
                     }}
@@ -337,12 +432,15 @@ export default function KissButtonWidget({ language, partnerName }) {
                   <button
                     type="submit"
                     disabled={!newPhraseText.trim()}
-                    className="btn btn-primary"
                     style={{
-                      padding: '10px 14px',
+                      padding: '10px 16px',
                       borderRadius: '10px',
+                      border: 'none',
+                      background: newPhraseText.trim() ? 'linear-gradient(135deg, #ff4d6d, #ff758f)' : 'rgba(255,255,255,0.1)',
+                      color: newPhraseText.trim() ? '#fff' : 'rgba(255,255,255,0.4)',
                       fontSize: '13px',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      cursor: newPhraseText.trim() ? 'pointer' : 'not-allowed'
                     }}
                   >
                     {language === 'pt' ? 'Guardar' : 'Save'}
@@ -350,19 +448,20 @@ export default function KissButtonWidget({ language, partnerName }) {
                 </div>
               </form>
 
-              <label style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
-                {language === 'pt' ? '📋 As tuas Frases de Carinho' : '📋 Saved Phrases'}
+              <label style={{ fontSize: '12.5px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.9)' }}>
+                {language === 'pt' ? '📋 Frases Existentes' : '📋 Existing Phrases'}
               </label>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+              {/* Lista para Edição & Eliminação */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {savedMessages.map((msg) => (
                   <div
                     key={msg.id}
                     style={{
-                      padding: '10px 12px',
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.85)',
-                      border: '1px solid rgba(0,0,0,0.08)',
+                      padding: '10px 14px',
+                      borderRadius: '14px',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.07)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -378,28 +477,31 @@ export default function KissButtonWidget({ language, partnerName }) {
                           maxLength={50}
                           style={{
                             flex: 1,
-                            padding: '6px 10px',
+                            padding: '8px 12px',
                             borderRadius: '8px',
-                            border: '1px solid var(--primary-color)',
-                            fontSize: '13px'
+                            border: '1px solid #ff4d6d',
+                            background: 'rgba(20, 10, 20, 0.9)',
+                            color: '#fff',
+                            fontSize: '13px',
+                            outline: 'none'
                           }}
                         />
                         <button
                           onClick={() => handleSaveEdit(msg.id)}
-                          style={{ padding: '6px 10px', borderRadius: '8px', background: '#4caf50', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                          style={{ padding: '6px 12px', borderRadius: '8px', background: '#4caf50', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}
                         >
                           ✓
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
-                          style={{ padding: '6px 10px', borderRadius: '8px', background: '#9e9e9e', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                          style={{ padding: '6px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
                       <>
-                        <span style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text-main)' }}>
+                        <span style={{ fontSize: '13.5px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.9)' }}>
                           {msg.text}
                         </span>
                         <div style={{ display: 'flex', gap: '6px' }}>
@@ -409,14 +511,14 @@ export default function KissButtonWidget({ language, partnerName }) {
                               setEditingText(msg.text);
                             }}
                             title="Editar"
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', padding: '4px' }}
                           >
                             ✏️
                           </button>
                           <button
                             onClick={() => handleDeletePhrase(msg.id)}
                             title="Eliminar"
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', padding: '4px' }}
                           >
                             🗑️
                           </button>
@@ -432,12 +534,12 @@ export default function KissButtonWidget({ language, partnerName }) {
       </div>
     );
 
-    return createPortal(drawerContent, document.body);
+    return createPortal(modalContent, document.body);
   };
 
   return (
     <>
-      {/* Widget Fininho no Dashboard (Apenas 1 Botão Único para a Frase Selecionada) */}
+      {/* Widget Fininho no Dashboard (Botão Central Único com Frase Selecionada) */}
       <div 
         className="glass-panel"
         style={{
@@ -488,8 +590,8 @@ export default function KissButtonWidget({ language, partnerName }) {
         </button>
       </div>
 
-      {/* Aba Lateral Slide-Over via Portal */}
-      {renderDrawer()}
+      {/* Modal Centralizado via Portal */}
+      {renderCentralModal()}
     </>
   );
 }
