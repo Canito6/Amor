@@ -60,8 +60,14 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
     { path: '/estatisticas', label: t.dashboard === 'Dashboard' ? 'Stats' : (t.dashboard === 'Tablero' ? 'Estadísticas' : 'Estatísticas'), icon: '📊' },
   ];
 
-  const handleNavClick = (path) => {
+  const handleNavClick = (target) => {
     triggerLight();
+    const path = typeof target === 'string' ? target : target.path;
+    if (path === 'action:open-phrases') {
+      window.dispatchEvent(new Event('openLovePhrasesDrawer'));
+      if (onClose) onClose();
+      return;
+    }
     navigate(path);
     if (onClose) onClose();
   };
@@ -83,9 +89,9 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
           return (
             <button
               key={item.path}
-              onClick={() => handleNavClick(item.path)}
-              onMouseEnter={() => prefetchRoute(item.path)}
-              onTouchStart={() => prefetchRoute(item.path)}
+              onClick={() => handleNavClick(item)}
+              onMouseEnter={() => item.path.startsWith('/') && prefetchRoute(item.path)}
+              onTouchStart={() => item.path.startsWith('/') && prefetchRoute(item.path)}
               className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
             >
               <span className="sidebar-nav-icon">{item.icon}</span>
