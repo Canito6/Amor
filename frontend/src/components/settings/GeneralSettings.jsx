@@ -3,6 +3,99 @@ import { usePreferences } from '../../context/PreferencesContext';
 import { authService } from '../../services/auth/authService';
 import { useToast } from '../../context/ToastContext';
 import { usePWA } from '../../context/PWAContext';
+import { useAppLock } from '../../context/AppLockContext';
+
+export function SecuritySettings({ language }) {
+  const { pinEnabled, enablePin, disablePin, biometricsEnabled, toggleBiometrics } = useAppLock();
+  const { showToast } = useToast();
+  const [pinInput, setPinInput] = React.useState('');
+  const [isEditingPin, setIsEditingPin] = React.useState(false);
+
+  const handleSavePin = () => {
+    if (pinInput.length === 4) {
+      enablePin(pinInput);
+      setPinInput('');
+      setIsEditingPin(false);
+      showToast(language === 'pt' ? 'PIN de 4 dígitos ativado!' : '4-digit PIN enabled!', 'success');
+    } else {
+      showToast(language === 'pt' ? 'O PIN deve ter exatamente 4 dígitos.' : 'PIN must be exactly 4 digits.', 'error');
+    }
+  };
+
+  return (
+    <section className="settings-section" style={{ marginTop: '30px' }}>
+      <h3>🔒 {language === 'pt' ? 'Segurança & Bloqueio da App' : 'Security & App Lock'}</h3>
+      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '15px' }}>
+        {language === 'pt'
+          ? 'Protege o teu AMORI com um PIN de 4 dígitos e biometria (Face ID / Touch ID / Impressão Digital).'
+          : 'Protect your AMORI with a 4-digit PIN and biometrics (Face ID / Touch ID / Fingerprint).'}
+      </p>
+
+      {/* Switch do PIN */}
+      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <label className="input-label" style={{ margin: 0, cursor: 'pointer' }}>
+          🔑 {language === 'pt' ? 'Ativar Bloqueio por PIN' : 'Enable PIN Lock'}
+        </label>
+        <input
+          type="checkbox"
+          checked={pinEnabled}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setIsEditingPin(true);
+            } else {
+              disablePin();
+              setIsEditingPin(false);
+              showToast(language === 'pt' ? 'Bloqueio por PIN desativado.' : 'PIN Lock disabled.', 'info');
+            }
+          }}
+          style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+        />
+      </div>
+
+      {isEditingPin && (
+        <div style={{ background: 'rgba(255, 77, 109, 0.08)', padding: '15px', borderRadius: '12px', marginBottom: '15px' }}>
+          <label className="input-label" style={{ display: 'block', marginBottom: '8px' }}>
+            {language === 'pt' ? 'Define o novo PIN de 4 dígitos:' : 'Set new 4-digit PIN:'}
+          </label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input
+              type="password"
+              maxLength={4}
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
+              placeholder="1234"
+              className="input-control"
+              style={{ width: '120px', textAlign: 'center', fontSize: '18px', letterSpacing: '4px' }}
+            />
+            <button onClick={handleSavePin} className="btn btn-primary" style={{ padding: '8px 16px', borderRadius: '8px' }}>
+              {language === 'pt' ? 'Guardar PIN' : 'Save PIN'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Switch da Biometria */}
+      {pinEnabled && (
+        <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '15px' }}>
+          <label className="input-label" style={{ margin: 0, cursor: 'pointer' }}>
+            👆 {language === 'pt' ? 'Permitir Face ID / Biometria' : 'Allow Face ID / Biometrics'}
+          </label>
+          <input
+            type="checkbox"
+            checked={biometricsEnabled}
+            onChange={(e) => {
+              toggleBiometrics(e.target.checked);
+              showToast(e.target.checked 
+                ? (language === 'pt' ? 'Biometria ativada!' : 'Biometrics enabled!') 
+                : (language === 'pt' ? 'Biometria desativada.' : 'Biometrics disabled.'), 'info');
+            }}
+            style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-color)' }}
+          />
+        </div>
+      )}
+    </section>
+  );
+}
 
 export function BackupSettings({ language }) {
   const { showToast } = useToast();
@@ -400,6 +493,9 @@ export default function GeneralSettings({
             : 'Controls whether the Menstrual Calendar shortcut appears on your side navigation menu.'}
         </small>
       </div>
+
+      {/* Security & Biometrics Section */}
+      <SecuritySettings language={language} />
     </section>
   );
 }
