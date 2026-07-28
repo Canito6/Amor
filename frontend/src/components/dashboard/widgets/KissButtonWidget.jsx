@@ -14,8 +14,10 @@ const DEFAULT_PRESETS = [
 
 export default function KissButtonWidget({ language, partnerName }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeView, setActiveView] = useState('send'); // 'send' ou 'manage'
-  const [customMessages, setCustomMessages] = useState(() => {
+  const [activeTab, setActiveTab] = useState('send'); // 'send' ou 'edit'
+  
+  // Lista de mensagens guardadas (persistidas em localStorage)
+  const [savedMessages, setSavedMessages] = useState(() => {
     const saved = localStorage.getItem('custom_quick_carinhos');
     if (saved) {
       try { return JSON.parse(saved); } catch { /* erro silenciado */ }
@@ -23,27 +25,30 @@ export default function KissButtonWidget({ language, partnerName }) {
     return DEFAULT_PRESETS;
   });
 
-  const [newMessageText, setNewMessageText] = useState('');
+  // Texto da frase no widget do Dashboard
+  const [widgetInputText, setWidgetInputText] = useState('');
+  // Texto para adicionar nova frase na aba lateral
+  const [newPhraseText, setNewPhraseText] = useState('');
+  
+  // Estado de edição de frases existentes
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
 
-  const [customInputText, setCustomInputText] = useState('');
   const [sending, setSending] = useState(false);
-  const [lastSent, setLastSent] = useState('');
+  const [lastSentText, setLastSentText] = useState('');
   
   const socket = useSocket();
   const { showToast } = useToast();
   const { triggerVibration } = useHaptic();
 
-  // Guardar mensagens no localStorage sempre que mudarem
+  // Atualizar localStorage
   useEffect(() => {
-    localStorage.setItem('custom_quick_carinhos', JSON.stringify(customMessages));
-  }, [customMessages]);
+    localStorage.setItem('custom_quick_carinhos', JSON.stringify(savedMessages));
+  }, [savedMessages]);
 
   const handleSendCarinho = (text, type = 'quick-love') => {
     if (sending) return;
 
-    // Vibração tátil de batimento cardíaco duplo
     triggerVibration([40, 60, 40, 80]);
     setSending(true);
 
@@ -57,7 +62,7 @@ export default function KissButtonWidget({ language, partnerName }) {
       }
     }
 
-    setLastSent(text);
+    setLastSentText(text);
     showToast(
       language === 'pt'
         ? `Enviado a ${partnerName || 'teu amor'}: "${text}" 💖`
@@ -70,53 +75,52 @@ export default function KissButtonWidget({ language, partnerName }) {
     }, 600);
 
     setTimeout(() => {
-      setLastSent('');
+      setLastSentText('');
     }, 3500);
   };
 
-  const handleAddMessage = (e) => {
+  const handleWidgetSubmit = (e) => {
     e.preventDefault();
-    if (!newMessageText.trim()) return;
+    if (!widgetInputText.trim()) return;
+    handleSendCarinho(widgetInputText.trim(), 'quick-love');
+    setWidgetInputText('');
+  };
+
+  const handleAddPhrase = (e) => {
+    e.preventDefault();
+    if (!newPhraseText.trim()) return;
 
     const item = {
       id: (new Date()).getTime().toString(),
       emoji: '💖',
-      text: newMessageText.trim(),
+      text: newPhraseText.trim(),
       type: 'quick-love'
     };
 
-    setCustomMessages(prev => [...prev, item]);
-    setNewMessageText('');
-    showToast(language === 'pt' ? 'Nova frase guardada com sucesso! ✨' : 'New message saved! ✨', 'success');
+    setSavedMessages(prev => [...prev, item]);
+    setNewPhraseText('');
+    showToast(language === 'pt' ? 'Nova frase adicionada à tua coleção! ✨' : 'New message added! ✨', 'success');
   };
 
-  const handleDeleteMessage = (id) => {
-    setCustomMessages(prev => prev.filter(m => m.id !== id));
-    showToast(language === 'pt' ? 'Frase removida.' : 'Message removed.', 'info');
-  };
-
-  const handleStartEdit = (msg) => {
-    setEditingId(msg.id);
-    setEditingText(msg.text);
+  const handleDeletePhrase = (id) => {
+    setSavedMessages(prev => prev.filter(m => m.id !== id));
+    showToast(language === 'pt' ? 'Frase removida.' : 'Message deleted.', 'info');
   };
 
   const handleSaveEdit = (id) => {
     if (!editingText.trim()) return;
-    setCustomMessages(prev => prev.map(m => m.id === id ? { ...m, text: editingText.trim() } : m));
+    setSavedMessages(prev => prev.map(m => m.id === id ? { ...m, text: editingText.trim() } : m));
     setEditingId(null);
     setEditingText('');
-    showToast(language === 'pt' ? 'Frase atualizada! ✏️' : 'Message updated! ✏️', 'success');
+    showToast(language === 'pt' ? 'Frase atualizada!' : 'Message updated!', 'success');
   };
 
-  const handleQuickInputSubmit = (e) => {
-    e.preventDefault();
-    if (!customInputText.trim()) return;
-    handleSendCarinho(customInputText.trim(), 'quick-love');
-    setCustomInputText('');
-    setIsDrawerOpen(false);
+  const handleSelectPhraseForWidget = (msgText) => {
+    setWidgetInputText(msgText);
+    showToast(language === 'pt' ? 'Frase selecionada para o widget!' : 'Phrase selected for widget!', 'info');
   };
 
-  // Renderização da Aba Lateral via Portal para cobrir 100% da janela
+  // Renderização da Aba Lateral via Portal
   const renderDrawer = () => {
     if (!isDrawerOpen) return null;
 
@@ -138,9 +142,9 @@ export default function KissButtonWidget({ language, partnerName }) {
           onClick={(e) => e.stopPropagation()}
           style={{
             width: '100%',
-            maxWidth: '360px',
+            maxWidth: '380px',
             height: '100%',
-            background: 'var(--bg-glass, rgba(255, 255, 255, 0.95))',
+            background: 'var(--bg-glass, rgba(255, 255, 255, 0.96))',
             backdropFilter: 'blur(20px)',
             boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.2)',
             padding: '24px 20px',
@@ -152,14 +156,12 @@ export default function KissButtonWidget({ language, partnerName }) {
             borderLeft: '1px solid rgba(255, 255, 255, 0.3)'
           }}
         >
-          {/* Header */}
+          {/* Header da Aba Lateral */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '24px' }}>💖</span>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
-                {activeView === 'send' 
-                  ? (language === 'pt' ? 'Mandar Carinho' : 'Send Love') 
-                  : (language === 'pt' ? 'Editar Mensagens' : 'Edit Messages')}
+                {language === 'pt' ? 'Carinhos & Mensagens' : 'Love & Messages'}
               </h3>
             </div>
             <button
@@ -176,10 +178,10 @@ export default function KissButtonWidget({ language, partnerName }) {
             </button>
           </div>
 
-          {/* Navegador de Abas Interno */}
+          {/* Abas Superiores: Selecionar/Enviar vs Editar Frases */}
           <div style={{ display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.05)', padding: '4px', borderRadius: '12px' }}>
             <button
-              onClick={() => setActiveView('send')}
+              onClick={() => setActiveTab('send')}
               style={{
                 flex: 1,
                 padding: '8px',
@@ -188,15 +190,15 @@ export default function KissButtonWidget({ language, partnerName }) {
                 fontSize: '12.5px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                background: activeView === 'send' ? '#fff' : 'transparent',
-                color: activeView === 'send' ? 'var(--text-main)' : 'var(--text-muted)',
-                boxShadow: activeView === 'send' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
+                background: activeTab === 'send' ? '#fff' : 'transparent',
+                color: activeTab === 'send' ? 'var(--text-main)' : 'var(--text-muted)',
+                boxShadow: activeTab === 'send' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
               }}
             >
-              🚀 {language === 'pt' ? 'Enviar' : 'Send'}
+              💌 {language === 'pt' ? 'Enviar & Selecionar' : 'Send & Select'}
             </button>
             <button
-              onClick={() => setActiveView('manage')}
+              onClick={() => setActiveTab('edit')}
               style={{
                 flex: 1,
                 padding: '8px',
@@ -205,116 +207,100 @@ export default function KissButtonWidget({ language, partnerName }) {
                 fontSize: '12.5px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                background: activeView === 'manage' ? '#fff' : 'transparent',
-                color: activeView === 'manage' ? 'var(--text-main)' : 'var(--text-muted)',
-                boxShadow: activeView === 'manage' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
+                background: activeTab === 'edit' ? '#fff' : 'transparent',
+                color: activeTab === 'edit' ? 'var(--text-main)' : 'var(--text-muted)',
+                boxShadow: activeTab === 'edit' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
               }}
             >
-              ✏️ {language === 'pt' ? 'Editar Lista' : 'Edit List'}
+              ✏️ {language === 'pt' ? 'Editar Frases' : 'Edit Phrases'}
             </button>
           </div>
 
-          {/* VISTA 1: ENVIAR CARINHO */}
-          {activeView === 'send' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+          {/* VISTA 1: SELECIONAR E ENVIAR MENSAGENS */}
+          {activeTab === 'send' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
-                {language === 'pt' 
-                  ? 'Toca em qualquer mensagem para enviar instantaneamente com vibração tátil:' 
-                  : 'Tap any message to send instantly with haptic feedback:'}
+                {language === 'pt'
+                  ? 'Toca numa frase para ENVIAR imediatamente ou carregar no Widget:'
+                  : 'Tap a phrase to SEND immediately or set into Widget:'}
               </p>
 
-              {/* Lista de Frases Guardadas */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {customMessages.map((item) => (
-                  <button
+                {savedMessages.map((item) => (
+                  <div
                     key={item.id}
-                    onClick={() => {
-                      handleSendCarinho(item.text, item.type);
-                      setIsDrawerOpen(false);
-                    }}
                     style={{
-                      padding: '12px 16px',
+                      padding: '12px',
                       borderRadius: '14px',
                       border: '1px solid rgba(255, 255, 255, 0.4)',
-                      background: 'rgba(255, 255, 255, 0.7)',
+                      background: 'rgba(255, 255, 255, 0.75)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: 'var(--text-main)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                      textAlign: 'left'
+                      gap: '10px',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
                     }}
                   >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '20px' }}>{item.emoji || '💖'}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', fontWeight: '600', color: 'var(--text-main)' }}>
+                      <span>{item.emoji || '💖'}</span>
                       {item.text}
                     </span>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>➔</span>
-                  </button>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        onClick={() => handleSelectPhraseForWidget(item.text)}
+                        title={language === 'pt' ? 'Usar no Widget' : 'Use in Widget'}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(0,0,0,0.1)',
+                          background: 'rgba(255,255,255,0.9)',
+                          fontSize: '11.5px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        📌 {language === 'pt' ? 'No Widget' : 'In Widget'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleSendCarinho(item.text, item.type);
+                          setIsDrawerOpen(false);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: 'var(--primary-color, #ff4d6d)',
+                          color: '#fff',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🚀 {language === 'pt' ? 'Enviar' : 'Send'}
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
-
-              <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.08)', margin: '4px 0' }} />
-
-              {/* Campo Livre de Frase Rápida */}
-              <form onSubmit={handleQuickInputSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--text-main)' }}>
-                  {language === 'pt' ? '✍️ Enviar Frase Curta no Momento' : '✍️ Quick Custom Note'}
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={customInputText}
-                    onChange={(e) => setCustomInputText(e.target.value)}
-                    maxLength={60}
-                    placeholder={language === 'pt' ? 'Ex: Saudades tuas! ❤️' : 'Ex: Miss you! ❤️'}
-                    style={{
-                      flex: 1,
-                      padding: '10px 12px',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(0, 0, 0, 0.15)',
-                      background: 'rgba(255, 255, 255, 0.85)',
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!customInputText.trim()}
-                    className="btn btn-primary"
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '12px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      opacity: !customInputText.trim() ? 0.6 : 1
-                    }}
-                  >
-                    💌
-                  </button>
-                </div>
-              </form>
             </div>
           )}
 
-          {/* VISTA 2: EDITAR / GERIR MENSAGENS GUARDADAS */}
-          {activeView === 'manage' && (
+          {/* VISTA 2: SECÇÃO PARA EDITAR E GERIR FRASES */}
+          {activeTab === 'edit' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-              {/* Formulário para Adicionar Nova Frase */}
-              <form onSubmit={handleAddMessage} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.6)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.06)' }}>
+              {/* Form de Adicionar Frase */}
+              <form onSubmit={handleAddPhrase} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.6)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.06)' }}>
                 <label style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
-                  {language === 'pt' ? '➕ Adicionar Nova Mensagem' : '➕ Add New Message'}
+                  {language === 'pt' ? '➕ Criar Nova Frase' : '➕ Create New Phrase'}
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
                     type="text"
-                    value={newMessageText}
-                    onChange={(e) => setNewMessageText(e.target.value)}
+                    value={newPhraseText}
+                    onChange={(e) => setNewPhraseText(e.target.value)}
                     maxLength={50}
-                    placeholder={language === 'pt' ? 'Ex: Um abraço bem forte! 🫂' : 'Ex: Big hug! 🫂'}
+                    placeholder={language === 'pt' ? 'Ex: Estou com saudades tuas! ❤️' : 'Ex: Thinking of you! ❤️'}
                     style={{
                       flex: 1,
                       padding: '10px 12px',
@@ -327,7 +313,7 @@ export default function KissButtonWidget({ language, partnerName }) {
                   />
                   <button
                     type="submit"
-                    disabled={!newMessageText.trim()}
+                    disabled={!newPhraseText.trim()}
                     className="btn btn-primary"
                     style={{
                       padding: '10px 14px',
@@ -341,19 +327,19 @@ export default function KissButtonWidget({ language, partnerName }) {
                 </div>
               </form>
 
-              <label style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', marginTop: '4px' }}>
-                {language === 'pt' ? '📋 As tuas Frases Guardadas' : '📋 Saved Messages'}
+              <label style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
+                {language === 'pt' ? '📋 As tuas Frases de Carinho' : '📋 Your Saved Phrases'}
               </label>
 
               {/* Lista para Editar e Eliminar */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
-                {customMessages.map((msg) => (
+                {savedMessages.map((msg) => (
                   <div
                     key={msg.id}
                     style={{
                       padding: '10px 12px',
                       borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
+                      background: 'rgba(255, 255, 255, 0.85)',
                       border: '1px solid rgba(0,0,0,0.08)',
                       display: 'flex',
                       alignItems: 'center',
@@ -394,16 +380,19 @@ export default function KissButtonWidget({ language, partnerName }) {
                         <span style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text-main)' }}>
                           {msg.text}
                         </span>
-                        <div style={{ display: 'flex', gap: '4px' }}>
+                        <div style={{ display: 'flex', gap: '6px' }}>
                           <button
-                            onClick={() => handleStartEdit(msg)}
+                            onClick={() => {
+                              setEditingId(msg.id);
+                              setEditingText(msg.text);
+                            }}
                             title="Editar"
                             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px' }}
                           >
                             ✏️
                           </button>
                           <button
-                            onClick={() => handleDeleteMessage(msg.id)}
+                            onClick={() => handleDeletePhrase(msg.id)}
                             title="Eliminar"
                             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px' }}
                           >
@@ -426,11 +415,11 @@ export default function KissButtonWidget({ language, partnerName }) {
 
   return (
     <>
-      {/* Widget Fininho no Dashboard */}
+      {/* Widget Fininho com Input de Texto e Botão de Envio Direto */}
       <div 
         className="glass-panel"
         style={{
-          padding: '8px 14px',
+          padding: '8px 12px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -441,60 +430,97 @@ export default function KissButtonWidget({ language, partnerName }) {
           boxShadow: '0 4px 20px rgba(255, 77, 109, 0.1)',
           width: '100%',
           boxSizing: 'border-box',
-          gap: '10px',
-          minHeight: '44px'
+          gap: '8px',
+          minHeight: '46px'
         }}
       >
+        {/* Botão Rápido de Beijinho */}
         <button
           onClick={() => handleSendCarinho('Beijinho 💋', 'kiss')}
           disabled={sending}
+          title={language === 'pt' ? 'Mandar Beijinho Instantâneo' : 'Send Instant Kiss'}
           style={{
             background: 'none',
             border: 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
             cursor: 'pointer',
-            padding: 0,
-            color: 'var(--text-main)',
-            fontWeight: '600',
-            fontSize: '13px',
-            textAlign: 'left'
+            padding: '4px',
+            fontSize: '20px'
           }}
         >
-          <span style={{ fontSize: '18px', animation: sending ? 'pulse 0.4s infinite' : 'none' }}>
+          <span style={{ animation: sending ? 'pulse 0.4s infinite' : 'none' }}>
             💋
-          </span>
-          <span>
-            {lastSent 
-              ? (language === 'pt' ? `Enviado! 💖` : `Sent! 💖`)
-              : (language === 'pt' ? 'Mandar Beijinho' : 'Send Kiss')}
           </span>
         </button>
 
+        {/* Input de Texto Direto no Widget + Form de Envio */}
+        <form onSubmit={handleWidgetSubmit} style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+          <input
+            type="text"
+            value={widgetInputText}
+            onChange={(e) => setWidgetInputText(e.target.value)}
+            maxLength={60}
+            placeholder={
+              lastSentText
+                ? (language === 'pt' ? `Enviado! 💖` : `Sent! 💖`)
+                : (language === 'pt' ? 'Escreve uma frase rápida...' : 'Type a quick message...')
+            }
+            style={{
+              width: '100%',
+              padding: '6px 12px',
+              borderRadius: '10px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.45)',
+              fontSize: '13px',
+              color: 'var(--text-main)',
+              outline: 'none'
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!widgetInputText.trim() || sending}
+            title={language === 'pt' ? 'Enviar Frase' : 'Send Message'}
+            style={{
+              padding: '6px 10px',
+              borderRadius: '10px',
+              border: 'none',
+              background: widgetInputText.trim() ? 'var(--primary-color, #ff4d6d)' : 'rgba(0,0,0,0.1)',
+              color: widgetInputText.trim() ? '#fff' : 'var(--text-muted)',
+              fontSize: '13px',
+              cursor: widgetInputText.trim() ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            💌
+          </button>
+        </form>
+
+        {/* Botão para Abrir a Aba Lateral de Frases */}
         <button
-          onClick={() => {
-            setActiveView('send');
-            setIsDrawerOpen(true);
-          }}
+          onClick={() => setIsDrawerOpen(true)}
           className="btn btn-secondary"
+          title={language === 'pt' ? 'Abrir Coleção de Frases' : 'Open Phrase Collection'}
           style={{
-            padding: '5px 12px',
+            padding: '6px 10px',
             fontSize: '12px',
             borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
+            gap: '4px',
             background: 'rgba(255, 255, 255, 0.25)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            whiteSpace: 'nowrap'
           }}
         >
-          <span>✨</span> {language === 'pt' ? 'Aba Lateral' : 'Drawer'}
+          <span>✨</span> {language === 'pt' ? 'Frases' : 'Phrases'}
         </button>
       </div>
 
-      {/* Portal para a Aba Lateral */}
+      {/* Aba Lateral Slide-Over via Portal */}
       {renderDrawer()}
     </>
   );
