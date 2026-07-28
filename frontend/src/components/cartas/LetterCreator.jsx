@@ -98,6 +98,44 @@ export default function LetterCreator({
           {conditionType === 'date' && (
             <div className="form-group slide-down">
               <label className="input-label" htmlFor="letterDateVal">Qual a data de abertura?</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ fontSize: '12px', padding: '6px 10px', borderRadius: '12px' }}
+                  onClick={() => {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() + 1);
+                    setConditionValue(d.toISOString().split('T')[0]);
+                  }}
+                >
+                  ⏳ 1 Mês
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ fontSize: '12px', padding: '6px 10px', borderRadius: '12px' }}
+                  onClick={() => {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() + 6);
+                    setConditionValue(d.toISOString().split('T')[0]);
+                  }}
+                >
+                  ⏳ 6 Meses
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ fontSize: '12px', padding: '6px 10px', borderRadius: '12px' }}
+                  onClick={() => {
+                    const d = new Date();
+                    d.setFullYear(d.getFullYear() + 1);
+                    setConditionValue(d.toISOString().split('T')[0]);
+                  }}
+                >
+                  🎂 1 Ano
+                </button>
+              </div>
               <input
                 id="letterDateVal"
                 type="date"

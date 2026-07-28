@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useAppLock } from '../../context/AppLockContext';
+import { useHaptic } from '../../hooks/useHaptic';
 
 export default function AppLockModal({ language = 'pt' }) {
-  const { isLocked, unlockApp } = useAppLock();
+  const { isLocked, unlockApp, unlockWithBiometrics, isBiometricsSupported } = useAppLock();
+  const { triggerLight, triggerSuccess, triggerWarning } = useHaptic();
   const [inputPin, setInputPin] = useState('');
   const [error, setError] = useState(false);
 
   if (!isLocked) return null;
 
   const handleKeyPress = (num) => {
+    triggerLight();
     if (inputPin.length < 4) {
       const newPin = inputPin + num;
       setInputPin(newPin);
@@ -17,7 +20,10 @@ export default function AppLockModal({ language = 'pt' }) {
       if (newPin.length === 4) {
         setTimeout(() => {
           const success = unlockApp(newPin);
-          if (!success) {
+          if (success) {
+            triggerSuccess();
+          } else {
+            triggerWarning();
             setError(true);
             setInputPin('');
           }
@@ -27,8 +33,17 @@ export default function AppLockModal({ language = 'pt' }) {
   };
 
   const handleDelete = () => {
+    triggerLight();
     setInputPin(prev => prev.slice(0, -1));
     setError(false);
+  };
+
+  const handleBiometrics = async () => {
+    triggerLight();
+    const success = await unlockWithBiometrics();
+    if (success) {
+      triggerSuccess();
+    }
   };
 
   return (
@@ -39,11 +54,11 @@ export default function AppLockModal({ language = 'pt' }) {
           AMORI ❤️
         </h2>
         <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--text-muted)' }}>
-          {language === 'pt' ? 'Introduz o teu PIN de 4 dígitos' : 'Enter your 4-digit PIN'}
+          {language === 'pt' ? 'Introduz o teu PIN de 4 dígitos ou usa Biometria' : 'Enter your 4-digit PIN or use Biometrics'}
         </p>
 
         {/* PIN Indicators */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
           {[0, 1, 2, 3].map(i => (
             <div 
               key={i} 
@@ -63,6 +78,28 @@ export default function AppLockModal({ language = 'pt' }) {
           <p style={{ color: '#ff4d4d', fontSize: '13px', marginBottom: '15px', fontWeight: 'bold' }}>
             {language === 'pt' ? 'PIN Incorreto! Tenta novamente.' : 'Incorrect PIN! Try again.'}
           </p>
+        )}
+
+        {/* Botão de Autenticação Biométrica (Face ID / Touch ID) */}
+        {isBiometricsSupported && (
+          <button
+            onClick={handleBiometrics}
+            className="btn btn-primary"
+            style={{
+              width: '100%',
+              marginBottom: '20px',
+              padding: '10px',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              fontWeight: '700'
+            }}
+          >
+            👆 {language === 'pt' ? 'Desbloquear com Face ID / Touch ID' : 'Unlock with Face ID / Touch ID'}
+          </button>
         )}
 
         {/* Numpad */}

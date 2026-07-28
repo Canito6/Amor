@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth/authService';
+import { useHaptic } from '../../../hooks/useHaptic';
 import MoodHistoryPanel from './MoodHistoryPanel';
 import './MoodTracker.css';
 
 const MOOD_EMOJIS = ['💖', '🥰', '😊', '🤪', '🥺', '😴', '😢', '🔥'];
 
 export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language }) {
+  const { triggerLight, triggerSuccess } = useHaptic();
   const meuNome = localStorage.getItem('username') || localStorage.getItem('nome') || '';
   const [updating, setUpdating] = useState(false);
 
@@ -25,11 +27,13 @@ export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language })
 
   const handleSelectMood = async (emoji) => {
     if (updating) return;
+    triggerLight();
     const novoMood = meuMood === emoji ? '' : emoji; // Double click clears it
     try {
       setUpdating(true);
       setMeuMood(novoMood);
       await authService.updateMood(novoMood);
+      triggerSuccess();
       if (loadCoupleInfo) {
         await loadCoupleInfo(); // reload parent stats
       }

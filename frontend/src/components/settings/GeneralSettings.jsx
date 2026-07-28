@@ -73,10 +73,28 @@ export function BackupSettings({ language }) {
       }
       
       const blob = await response.blob();
+      const filename = `album_memorias_${new Date().toISOString().split('T')[0]}.pdf`;
+      const file = new File([blob], filename, { type: 'application/pdf' });
+
+      // Usar Web Share API em telemóveis para partilhar diretamente para WhatsApp ou Guardar em Ficheiros
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Álbum de Memórias AMORI 💖',
+            text: 'O nosso álbum de memórias especial em PDF.'
+          });
+          showToast(language === 'pt' ? 'Álbum partilhado com sucesso!' : 'Album shared successfully!', 'success');
+          return;
+        } catch {
+          // Se o utilizador fechar a folha de partilha nativa sem partilhar
+        }
+      }
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `album_memorias_${new Date().toISOString().split('T')[0]}.pdf`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
