@@ -1,4 +1,5 @@
 
+import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
 export default function BucketCard({
   item,
@@ -26,7 +27,7 @@ export default function BucketCard({
       {/* Polaroid Photo Frame if completed with photo */}
       {item.completed && item.imageUrl && (
         <div className="bucket-polaroid-frame">
-          <img src={item.imageUrl} alt={item.title} className="bucket-polaroid-image" loading="lazy" />
+          <img src={optimizeCloudinaryUrl(item.imageUrl, { width: 400 })} alt={item.title} className="bucket-polaroid-image" loading="lazy" />
           <div className="polaroid-pin">📌</div>
         </div>
       )}

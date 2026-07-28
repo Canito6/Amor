@@ -191,7 +191,7 @@ export default function MainLayout() {
               transition={{ duration: 0.15, ease: 'easeOut' }}
               style={{ width: '100%' }}
             >
-              <Outlet />
+              <Outlet context={{ coupleInfo, refreshCoupleInfo: loadCoupleInfo }} />
             </motion.div>
           </AnimatePresence>
         </div>

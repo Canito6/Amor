@@ -1,5 +1,6 @@
 
 import Skeleton from '../shared/Skeleton';
+import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
 export default function PhotoGrid({
   t,
@@ -60,7 +61,7 @@ export default function PhotoGrid({
                   style={{ '--polaroid-tilt': `${tilt}deg` }}
                 >
                   <div className="polaroid-image-wrapper" style={{ position: 'relative' }}>
-                    <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" decoding="async" />
+                    <img src={optimizeCloudinaryUrl(photo.url, { width: 500 })} alt={photo.caption} className="photo-img" loading="lazy" decoding="async" />
                     <div className="photo-overlay">
                       <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

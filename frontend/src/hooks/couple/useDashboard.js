@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { eventService } from '../../services/couple/eventService';
 import { authService } from '../../services/auth/authService';
 import { useToast } from '../../context/ToastContext';
@@ -38,6 +38,10 @@ export function useDashboard() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { confirm } = useConfirm();
+  // O MainLayout já carrega o coupleInfo uma vez para toda a app (usado no Header/Sidebar).
+  // Reaproveitamos essa informação aqui em vez de a pedir outra vez ao backend,
+  // evitando um pedido GET /api/couple duplicado sempre que o Dashboard é aberto.
+  const outletContext = useOutletContext() || {};
 
   const [nome, setNome] = useState('');
   const [nextEvent, setNextEvent] = useState(null);
@@ -68,34 +72,34 @@ export function useDashboard() {
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
 
-  const loadCoupleInfo = async () => {
-    try {
-      const info = await authService.getCoupleInfo();
-      setCoupleInfo(info);
-      if (info.names) {
-        setNome(info.names);
-      } else if (info.partnerNames && info.partnerNames.length > 0) {
-        setNome(info.partnerNames.join(' & '));
-      } else {
-        setNome(localStorage.getItem('nome') || 'Amor');
-      }
+  // Sincroniza o estado local sempre que o coupleInfo partilhado pelo MainLayout muda
+  // (login inicial, troca de conta, ou depois de guardar alterações no modal de edição).
+  useEffect(() => {
+    const info = outletContext.coupleInfo;
+    if (!info) return;
 
-      if (info.coupleId) {
-        const oldCoupleId = localStorage.getItem('coupleId');
-        if (oldCoupleId !== info.coupleId) {
-          localStorage.setItem('coupleId', info.coupleId);
-          window.dispatchEvent(new Event('authChange'));
-        }
-      }
-
-      setEditNames(info.names || '');
-      if (info.relationshipDate) {
-        const d = new Date(info.relationshipDate);
-        setEditDate(d.toISOString().split('T')[0]);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar informações de casal:', err);
+    setCoupleInfo(info);
+    if (info.names) {
+      setNome(info.names);
+    } else if (info.partnerNames && info.partnerNames.length > 0) {
+      setNome(info.partnerNames.join(' & '));
+    } else {
       setNome(localStorage.getItem('nome') || 'Amor');
+    }
+
+    setEditNames(info.names || '');
+    if (info.relationshipDate) {
+      const d = new Date(info.relationshipDate);
+      setEditDate(d.toISOString().split('T')[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outletContext.coupleInfo]);
+
+  // Mantido por compatibilidade com quem já usa `loadCoupleInfo` (ex: após editar o casal).
+  // Delega no MainLayout, que é a única fonte a pedir /api/couple à API.
+  const loadCoupleInfo = async () => {
+    if (outletContext.refreshCoupleInfo) {
+      await outletContext.refreshCoupleInfo();
     }
   };
 
@@ -134,7 +138,6 @@ export function useDashboard() {
     if (!token) {
       navigate('/');
     } else {
-      loadCoupleInfo();
       loadStats();
       carregarProximoEvento();
 
@@ -163,10 +166,8 @@ export function useDashboard() {
           setWidgets(cleanWidgets);
         });
     }
-
-    const handleRefresh = () => loadCoupleInfo();
-    window.addEventListener('refreshCoupleInfo', handleRefresh);
-    return () => window.removeEventListener('refreshCoupleInfo', handleRefresh);
+    // Nota: não é preciso ouvir 'refreshCoupleInfo' aqui — o MainLayout já o faz e
+    // atualiza o outlet context, que o efeito de sincronização acima já apanha.
   }, [navigate]);
 
   const terminarSessao = () => {

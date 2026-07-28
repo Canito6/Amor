@@ -1,5 +1,6 @@
 
 import './PolaroidFrame.css';
+import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
 /**
  * Calculates a stable, deterministic rotation angle between -4 and 4 degrees
@@ -29,7 +30,7 @@ export default function PolaroidFrame({ imageUrl, title, date, id, children }) {
         {hasImage ? (
           <div className="polaroid-image-wrapper">
             <img 
-              src={imageUrl} 
+              src={optimizeCloudinaryUrl(imageUrl, { width: 500 })} 
               alt={title || 'Polaroid'} 
               className="polaroid-image" 
               loading="lazy"

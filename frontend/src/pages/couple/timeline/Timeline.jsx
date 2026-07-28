@@ -5,6 +5,7 @@ import { memoryService } from '../../../services/fun/memoryService';
 import { eventService } from '../../../services/couple/eventService';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
+import { optimizeCloudinaryUrl } from '../../../utils/media/cloudinaryUrl';
 import './Timeline.css';
 
 export default function Timeline() {
@@ -216,7 +217,7 @@ export default function Timeline() {
 
                   {item.type === 'photo' && item.url && (
                     <div className="timeline-card-media">
-                      <img src={item.url} alt={item.title} className="timeline-image" loading="lazy" />
+                      <img src={optimizeCloudinaryUrl(item.url, { width: 400 })} alt={item.title} className="timeline-image" loading="lazy" />
                     </div>
                   )}
 

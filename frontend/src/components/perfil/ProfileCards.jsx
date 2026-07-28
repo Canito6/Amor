@@ -1,4 +1,5 @@
 
+import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
 export default function ProfileCards({
   me,
@@ -14,7 +15,7 @@ export default function ProfileCards({
       <div className="glass-panel profile-user-card me">
         <div className="profile-avatar-wrapper">
           {me.avatarUrl ? (
-            <img src={me.avatarUrl} alt={me.username} className="profile-avatar-img" />
+            <img src={optimizeCloudinaryUrl(me.avatarUrl, { width: 200 })} alt={me.username} className="profile-avatar-img" />
           ) : (
             <div className="profile-avatar-placeholder">
               {me.username.substring(0, 2).toUpperCase()}
@@ -49,7 +50,7 @@ export default function ProfileCards({
       <div className="glass-panel profile-user-card partner">
         <div className="profile-avatar-wrapper">
           {partner.avatarUrl ? (
-            <img src={partner.avatarUrl} alt={partner.username} className="profile-avatar-img" />
+            <img src={optimizeCloudinaryUrl(partner.avatarUrl, { width: 200 })} alt={partner.username} className="profile-avatar-img" />
           ) : (
             <div className="profile-avatar-placeholder partner-placeholder">
               {partner.username.substring(0, 2).toUpperCase()}

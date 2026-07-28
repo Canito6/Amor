@@ -1,4 +1,5 @@
 
+import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
 export default function LightboxImageArea({
   url,
@@ -39,7 +40,7 @@ export default function LightboxImageArea({
         onClick={(e) => e.stopPropagation()}
       >
         <img 
-          src={url} 
+          src={optimizeCloudinaryUrl(url, { width: 1600 })} 
           alt={caption}
           style={{
             maxWidth: '90%',
