@@ -135,6 +135,11 @@ export function SocketProvider({ children }) {
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
           try { navigator.vibrate([40, 60, 40, 80]); } catch { /* erro silenciado */ }
         }
+      } else if (data.type === 'quick-love') {
+        message = `O teu amor mandou: "${data.value || 'Um gesto carinhoso'}"! 💖`;
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try { navigator.vibrate([40, 60, 40, 80]); } catch { /* erro silenciado */ }
+        }
       }
 
       if (message) {
