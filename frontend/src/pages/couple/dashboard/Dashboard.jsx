@@ -16,6 +16,7 @@ import WidgetSlot from '../../../components/dashboard/layout/WidgetSlot';
 import OnThisDay from '../../../components/dashboard/widgets/OnThisDay';
 import PartnerCycleWidget from '../../../components/dashboard/widgets/PartnerCycleWidget';
 import NavigationCards from '../../../components/dashboard/layout/NavigationCards';
+import KissButtonWidget from '../../../components/dashboard/widgets/KissButtonWidget';
 import { memoryService } from '../../../services/fun/memoryService';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -129,6 +130,9 @@ export default function Dashboard() {
           getWidgetFriendlyName={(id) => getWidgetFriendlyName(id, language)}
         />
       )}
+
+      {/* Widget de Beijinho em Tempo Real */}
+      <KissButtonWidget language={language} partnerName={coupleInfo?.partnerNames?.[0]} />
 
       {/* Barra de Ações Rápidas do Cantinho */}
       <div className="quick-actions-bar">

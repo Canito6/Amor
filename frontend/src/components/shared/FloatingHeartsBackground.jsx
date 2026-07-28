@@ -20,12 +20,26 @@ export default function FloatingHeartsBackground() {
     // Limite máximo dependendo do ecrã para evitar lag
     const maxHearts = width < 768 ? 20 : 45;
 
-    const heartColors = [
-      'rgba(255, 77, 109, 0.22)',
-      'rgba(255, 117, 143, 0.18)',
-      'rgba(114, 9, 183, 0.15)',
-      'rgba(247, 37, 133, 0.16)'
-    ];
+    // Seleção dinâmica e sazonal das cores das partículas conforme o mês do ano
+    const currentMonth = new Date().getMonth(); // 0 a 11
+    let heartColors;
+
+    if (currentMonth === 1) {
+      // Fevereiro (Dia dos Namorados / Romance)
+      heartColors = ['rgba(255, 77, 109, 0.3)', 'rgba(255, 0, 85, 0.25)', 'rgba(255, 117, 143, 0.22)', 'rgba(199, 0, 57, 0.2)'];
+    } else if (currentMonth >= 2 && currentMonth <= 4) {
+      // Primavera (Março a Maio / Rosas & Flor de Cerejeira)
+      heartColors = ['rgba(247, 143, 179, 0.28)', 'rgba(255, 182, 193, 0.25)', 'rgba(255, 105, 180, 0.22)', 'rgba(219, 112, 147, 0.2)'];
+    } else if (currentMonth >= 5 && currentMonth <= 7) {
+      // Verão (Junho a Agosto / Coral Quente & Sol)
+      heartColors = ['rgba(255, 117, 143, 0.26)', 'rgba(255, 154, 162, 0.22)', 'rgba(255, 183, 178, 0.25)', 'rgba(226, 106, 106, 0.2)'];
+    } else if (currentMonth >= 8 && currentMonth <= 10) {
+      // Outono (Setembro a Novembro / Âmbar Quente & Terracota)
+      heartColors = ['rgba(230, 115, 125, 0.25)', 'rgba(212, 91, 107, 0.22)', 'rgba(255, 140, 120, 0.22)', 'rgba(180, 70, 90, 0.2)'];
+    } else {
+      // Inverno / Dezembro / Janeiro (Ouro Festivo & Prata Violeta)
+      heartColors = ['rgba(255, 215, 0, 0.22)', 'rgba(255, 105, 180, 0.22)', 'rgba(186, 85, 211, 0.2)', 'rgba(255, 182, 193, 0.22)'];
+    }
 
     // Criar um coração
     const createHeart = (isInitial = false) => {

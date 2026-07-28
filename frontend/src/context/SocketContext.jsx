@@ -130,6 +130,11 @@ export function SocketProvider({ children }) {
         message = `O teu amor criou uma nova memória: "${data.value}"! ⏳`;
       } else if (data.type === 'message-sent' || data.type === 'message-created') {
         message = `Nova nota no mural do teu amor: "${data.value}"! 💌`;
+      } else if (data.type === 'kiss' || data.type === 'kiss-received') {
+        message = `O teu amor mandou-te um beijinho! 💋❤️`;
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try { navigator.vibrate([40, 60, 40, 80]); } catch { /* erro silenciado */ }
+        }
       }
 
       if (message) {
