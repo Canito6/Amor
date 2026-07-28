@@ -14,8 +14,21 @@ import { sounds } from '../../utils/ui/soundEffects';
 import './Mensagens.css';
 
 export default function Mensagens() {
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cache_messages');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('cache_messages');
+    } catch {
+      return true;
+    }
+  });
   const [error, setError] = useState('');
   
   const [partnerTyping, setPartnerTyping] = useState(false);
@@ -33,10 +46,16 @@ export default function Mensagens() {
 
   const carregarMensagens = async () => {
     try {
-      setLoading(true);
+      // Ativa o loading apenas se não existirem mensagens na memória local
+      if (messages.length === 0) setLoading(true);
       setError('');
       const dados = await messageService.getMessages();
       setMessages(dados);
+      try {
+        localStorage.setItem('cache_messages', JSON.stringify(dados));
+      } catch (err) {
+        console.warn('Erro ao guardar cache de mensagens:', err);
+      }
     } catch {
       setError(t.messages_error_load || 'Erro ao carregar mensagens.');
     } finally {

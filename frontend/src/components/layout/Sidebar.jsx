@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { prefetchRoute } from '../../routes/AppRoutes';
 import './Sidebar.css';
 
 export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, onLogout, t, isOpen, onClose }) {
@@ -80,6 +81,8 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
             <button
               key={item.path}
               onClick={() => handleNavClick(item.path)}
+              onMouseEnter={() => prefetchRoute(item.path)}
+              onTouchStart={() => prefetchRoute(item.path)}
               className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
             >
               <span className="sidebar-nav-icon">{item.icon}</span>

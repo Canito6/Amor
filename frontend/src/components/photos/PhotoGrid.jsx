@@ -60,7 +60,7 @@ export default function PhotoGrid({
                   style={{ '--polaroid-tilt': `${tilt}deg` }}
                 >
                   <div className="polaroid-image-wrapper" style={{ position: 'relative' }}>
-                    <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" />
+                    <img src={photo.url} alt={photo.caption} className="photo-img" loading="lazy" decoding="async" />
                     <div className="photo-overlay">
                       <p className="photo-caption">{photo.caption || (language === 'pt' ? 'Sem legenda' : 'No caption')}</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

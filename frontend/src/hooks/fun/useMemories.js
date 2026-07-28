@@ -8,14 +8,39 @@ import useSocketUpdate from '../shared/useSocketUpdate';
 export default function useMemories(t, language) {
   const { showToast } = useToast();
   const { confirm } = useConfirm();
-  const [memories, setMemories] = useState([]);
+  const [memories, setMemories] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cache_memories');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [erro, setErro] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('cache_memories');
+    } catch {
+      return true;
+    }
+  });
   const [contadorDias, setContadorDias] = useState(0);
-  const [primeiraData, setPrimeiraData] = useState(null);
+  const [primeiraData, setPrimeiraData] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cache_memories');
+      if (cached) {
+        const dados = JSON.parse(cached);
+        if (dados.length > 0) {
+          const ordenadas = [...dados].sort((a, b) => new Date(a.date) - new Date(b.date));
+          return ordenadas[0].date;
+        }
+      }
+    } catch { /* erro silenciado */ }
+    return null;
+  });
   const [isTimeCapsule, setIsTimeCapsule] = useState(false);
   const [unlockDate, setUnlockDate] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -26,13 +51,17 @@ export default function useMemories(t, language) {
 
   const carregarMemoras = async () => {
     try {
-      setLoading(true);
+      if (memories.length === 0) setLoading(true);
       const dados = await memoryService.getMemories();
       setMemories(dados);
+      try {
+        localStorage.setItem('cache_memories', JSON.stringify(dados));
+      } catch (err) {
+        console.warn('Erro ao guardar cache de memórias:', err);
+      }
 
       // Encontrar a memória mais antiga para servir de data de aniversário/início
       if (dados.length > 0) {
-        // Ordenamos cópia para não alterar a ordem do ecrã
         const ordenadas = [...dados].sort((a, b) => new Date(a.date) - new Date(b.date));
         setPrimeiraData(ordenadas[0].date);
       } else {

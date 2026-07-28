@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cantinho-cache-v1';
+const CACHE_NAME = 'cantinho-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -49,16 +49,16 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Devolve o cache mas tenta atualizar em background para o próximo carregamento
+        // Devolve da cache mas revalida em background
         fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
+          if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
           }
         }).catch(() => {});
         return cachedResponse;
       }
       return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+        if (!response || response.status !== 200) {
           return response;
         }
         const responseToCache = response.clone();

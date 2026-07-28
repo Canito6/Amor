@@ -8,32 +8,95 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from '../pages/auth/Login';
 import Registar from '../pages/auth/Registar';
 
-// Carregamento dinâmico (Code-Splitting) para páginas pós-login
-const Dashboard = lazy(() => import('../pages/couple/dashboard/Dashboard'));
-const RecuperarPassword = lazy(() => import('../pages/auth/RecuperarPassword'));
-const AdminDashboard = lazy(() => import('../pages/auth/AdminDashboard'));
-const ForcarMudancaPassword = lazy(() => import('../pages/auth/ForcarMudancaPassword'));
-const Mensagens = lazy(() => import('../pages/chat/Mensagens'));
-const Fotos = lazy(() => import('../pages/gallery/Fotos'));
-const Memorias = lazy(() => import('../pages/fun/memorias/Memorias'));
-const Quizzes = lazy(() => import('../pages/fun/quizzes/Quizzes'));
-const Calendario = lazy(() => import('../pages/couple/calendario/Calendario'));
-const CycleCalendar = lazy(() => import('../pages/cycle/CycleCalendar'));
-const CustomTabViewer = lazy(() => import('../pages/couple/custom-tab/CustomTabViewer'));
-const Raspadinhas = lazy(() => import('../pages/fun/raspadinhas/Raspadinhas'));
-const Roleta = lazy(() => import('../pages/fun/roleta/Roleta'));
-const BucketList = lazy(() => import('../pages/fun/bucket-list/BucketList'));
-const Vales = lazy(() => import('../pages/fun/vales/Vales'));
-const Cartas = lazy(() => import('../pages/fun/cartas/Cartas'));
-const Frasco = lazy(() => import('../pages/fun/frasco/Frasco'));
-const Likely = lazy(() => import('../pages/fun/likely/Likely'));
-const Jogos = lazy(() => import('../pages/fun/jogos/Jogos'));
-const PerfilCasal = lazy(() => import('../pages/couple/perfil/PerfilCasal'));
-const Desenho = lazy(() => import('../pages/fun/desenho/Desenho'));
-const Timeline = lazy(() => import('../pages/couple/timeline/Timeline'));
-const DateNight = lazy(() => import('../pages/fun/date-night/DateNight'));
-const RelationshipStats = lazy(() => import('../pages/couple/stats/RelationshipStats'));
-const Definicoes = lazy(() => import('../pages/couple/definicoes/Definicoes'));
+// Utilitário de resiliência: se o descarregamento do chunk falhar (ex: novo deploy ou perda momentânea de rede), recarrega a página automaticamente
+function lazyWithRetry(componentImport) {
+  return lazy(async () => {
+    const pageAlreadyRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-refreshed') || 'false'
+    );
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('page-has-been-refreshed', 'true');
+        window.location.reload();
+        return { default: () => null };
+      }
+      throw error;
+    }
+  });
+}
+
+// Mapa de imports dinâmicos de rotas para pré-carregamento (Prefetching)
+export const routeImports = {
+  '/dashboard': () => import('../pages/couple/dashboard/Dashboard'),
+  '/recuperar': () => import('../pages/auth/RecuperarPassword'),
+  '/admin': () => import('../pages/auth/AdminDashboard'),
+  '/forcar-password': () => import('../pages/auth/ForcarMudancaPassword'),
+  '/mensagens': () => import('../pages/chat/Mensagens'),
+  '/fotos': () => import('../pages/gallery/Fotos'),
+  '/memorias': () => import('../pages/fun/memorias/Memorias'),
+  '/quizzes': () => import('../pages/fun/quizzes/Quizzes'),
+  '/calendario': () => import('../pages/couple/calendario/Calendario'),
+  '/ciclo': () => import('../pages/cycle/CycleCalendar'),
+  '/tab-viewer': () => import('../pages/couple/custom-tab/CustomTabViewer'),
+  '/raspadinhas': () => import('../pages/fun/raspadinhas/Raspadinhas'),
+  '/roleta': () => import('../pages/fun/roleta/Roleta'),
+  '/bucket-list': () => import('../pages/fun/bucket-list/BucketList'),
+  '/vales': () => import('../pages/fun/vales/Vales'),
+  '/cartas': () => import('../pages/fun/cartas/Cartas'),
+  '/frasco': () => import('../pages/fun/frasco/Frasco'),
+  '/likely': () => import('../pages/fun/likely/Likely'),
+  '/jogos': () => import('../pages/fun/jogos/Jogos'),
+  '/perfil-casal': () => import('../pages/couple/perfil/PerfilCasal'),
+  '/desenho': () => import('../pages/fun/desenho/Desenho'),
+  '/timeline': () => import('../pages/couple/timeline/Timeline'),
+  '/date-night': () => import('../pages/fun/date-night/DateNight'),
+  '/estatisticas': () => import('../pages/couple/stats/RelationshipStats'),
+  '/definicoes': () => import('../pages/couple/definicoes/Definicoes'),
+};
+
+const prefetchedRoutesSet = new Set();
+
+export const prefetchRoute = (path) => {
+  if (!path || prefetchedRoutesSet.has(path)) return;
+  const routeLoader = routeImports[path];
+  if (routeLoader) {
+    prefetchedRoutesSet.add(path);
+    routeLoader().catch(() => {
+      prefetchedRoutesSet.delete(path);
+    });
+  }
+};
+
+// Carregamento dinâmico otimizado (Code-Splitting + Resiliência) para páginas pós-login
+const Dashboard = lazyWithRetry(routeImports['/dashboard']);
+const RecuperarPassword = lazyWithRetry(routeImports['/recuperar']);
+const AdminDashboard = lazyWithRetry(routeImports['/admin']);
+const ForcarMudancaPassword = lazyWithRetry(routeImports['/forcar-password']);
+const Mensagens = lazyWithRetry(routeImports['/mensagens']);
+const Fotos = lazyWithRetry(routeImports['/fotos']);
+const Memorias = lazyWithRetry(routeImports['/memorias']);
+const Quizzes = lazyWithRetry(routeImports['/quizzes']);
+const Calendario = lazyWithRetry(routeImports['/calendario']);
+const CycleCalendar = lazyWithRetry(routeImports['/ciclo']);
+const CustomTabViewer = lazyWithRetry(routeImports['/tab-viewer']);
+const Raspadinhas = lazyWithRetry(routeImports['/raspadinhas']);
+const Roleta = lazyWithRetry(routeImports['/roleta']);
+const BucketList = lazyWithRetry(routeImports['/bucket-list']);
+const Vales = lazyWithRetry(routeImports['/vales']);
+const Cartas = lazyWithRetry(routeImports['/cartas']);
+const Frasco = lazyWithRetry(routeImports['/frasco']);
+const Likely = lazyWithRetry(routeImports['/likely']);
+const Jogos = lazyWithRetry(routeImports['/jogos']);
+const PerfilCasal = lazyWithRetry(routeImports['/perfil-casal']);
+const Desenho = lazyWithRetry(routeImports['/desenho']);
+const Timeline = lazyWithRetry(routeImports['/timeline']);
+const DateNight = lazyWithRetry(routeImports['/date-night']);
+const RelationshipStats = lazyWithRetry(routeImports['/estatisticas']);
+const Definicoes = lazyWithRetry(routeImports['/definicoes']);
 
 // Componente de carregamento elegante enquanto as páginas secundárias são transferidas
 function RouteFallback() {

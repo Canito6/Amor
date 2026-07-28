@@ -4,6 +4,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import { useTabs } from '../../context/TabContext';
 import { translations } from '../../services/common/translations';
 import { authService } from '../../services/auth/authService';
+import { prefetchRoute } from '../../routes/AppRoutes';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 import LinkCoupleModal from '../shared/LinkCoupleModal';
@@ -14,6 +15,15 @@ import './MainLayout.css';
 import '../../pages/couple/dashboard/Dashboard.css';
 
 export default function MainLayout() {
+  // Pré-carregamento inteligente das rotas mais frequentes em tempo inativo
+  useEffect(() => {
+    const primaryRoutes = ['/dashboard', '/mensagens', '/perfil-casal', '/fotos', '/memorias', '/jogos', '/calendario', '/definicoes'];
+    const timer = setTimeout(() => {
+      primaryRoutes.forEach(route => prefetchRoute(route));
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
   const {
     language,
     changeLanguage,
@@ -172,13 +182,13 @@ export default function MainLayout() {
       {/* Main Content Area */}
       <main className="layout-content-wrapper">
         <div className="content-outlet" style={{ position: 'relative' }}>
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
               style={{ width: '100%' }}
             >
               <Outlet />
