@@ -116,6 +116,25 @@ if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     logger.info(`🚀 Servidor a correr na porta ${PORT}`);
   });
+
+  // Encerramento Gracioso (Graceful Shutdown) para SIGINT / SIGTERM
+  const gracefulShutdown = (signal) => {
+    logger.info(`🛑 Sinal ${signal} recebido. A iniciar encerramento gracioso do servidor...`);
+    io.close(() => {
+      logger.info('🔌 Servidor WebSocket (Socket.io) encerrado com sucesso.');
+    });
+    server.close(() => {
+      logger.info('🌐 Servidor HTTP encerrado.');
+      const mongoose = require('mongoose');
+      mongoose.connection.close(false, () => {
+        logger.info('💾 Conexão ao MongoDB encerrada.');
+        process.exit(0);
+      });
+    });
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 module.exports = app;

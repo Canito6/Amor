@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth/authService';
 import { useHaptic } from '../../../hooks/useHaptic';
 import MoodHistoryPanel from './MoodHistoryPanel';
+import { optimizeCloudinaryUrl } from '../../../utils/media/cloudinaryUrl';
 import './MoodTracker.css';
 
 const MOOD_EMOJIS = ['💖', '🥰', '😊', '🤪', '🥺', '😴', '😢', '🔥'];
@@ -150,7 +151,7 @@ export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language })
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
               <div style={{ position: 'relative' }}>
                 <img 
-                  src={meuRegisto?.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${meuNome || 'me'}`} 
+                  src={meuRegisto?.avatarUrl ? optimizeCloudinaryUrl(meuRegisto.avatarUrl, { width: 100 }) : `https://api.dicebear.com/7.x/adventurer/svg?seed=${meuNome || 'me'}`} 
                   alt={meuNome} 
                   style={{ width: '48px', height: '48px', borderRadius: '50%', border: '2px solid var(--primary-color)', background: 'white' }} 
                 />
@@ -212,7 +213,7 @@ export default function MoodTracker({ coupleInfo, loadCoupleInfo, t, language })
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
               <div style={{ position: 'relative' }}>
                 <img 
-                  src={parceiroRegisto?.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${parceiroRegisto?.username || 'partner'}`} 
+                  src={parceiroRegisto?.avatarUrl ? optimizeCloudinaryUrl(parceiroRegisto.avatarUrl, { width: 100 }) : `https://api.dicebear.com/7.x/adventurer/svg?seed=${parceiroRegisto?.username || 'partner'}`} 
                   alt={parceiroRegisto?.username || 'Partner'} 
                   style={{ width: '48px', height: '48px', borderRadius: '50%', border: '2px solid var(--secondary-color)', background: 'white' }} 
                 />

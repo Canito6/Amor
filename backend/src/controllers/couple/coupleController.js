@@ -155,6 +155,7 @@ exports.linkCouple = async (req, res, next) => {
 exports.exportData = async (req, res, next) => {
   try {
     const coupleId = req.coupleId;
+    const toLean = (q) => (q && typeof q.lean === 'function' ? q.lean() : q);
 
     // 1. Obter todos os dados do casal em paralelo (excluindo dados de segurança/sensíveis)
     const [
@@ -166,13 +167,13 @@ exports.exportData = async (req, res, next) => {
       events,
       photos
     ] = await Promise.all([
-      Couple.findById(coupleId),
-      User.find({ coupleId }).select('-password -loginAttempts -lockUntil -resetPasswordToken -resetPasswordExpires -loginVerificationCode -loginVerificationExpires -loginVerificationAttempts -resetPasswordAttempts -trustedDevices -cycleTracking -__v'),
-      Memory.find({ coupleId }).sort({ date: -1 }).select('-coupleId -__v'),
-      Message.find({ coupleId }).sort({ createdAt: 1 }).select('-coupleId -__v'),
-      BucketItem.find({ coupleId }).sort({ createdAt: -1 }).select('-coupleId -__v'),
-      Event.find({ coupleId }).sort({ date: 1 }).select('-coupleId -__v'),
-      Photo.find({ coupleId }).sort({ createdAt: -1 }).select('-coupleId -__v')
+      toLean(Couple.findById(coupleId)),
+      toLean(User.find({ coupleId }).select('-password -loginAttempts -lockUntil -resetPasswordToken -resetPasswordExpires -loginVerificationCode -loginVerificationExpires -loginVerificationAttempts -resetPasswordAttempts -trustedDevices -cycleTracking -__v')),
+      toLean(Memory.find({ coupleId }).sort({ date: -1 }).select('-coupleId -__v')),
+      toLean(Message.find({ coupleId }).sort({ createdAt: 1 }).select('-coupleId -__v')),
+      toLean(BucketItem.find({ coupleId }).sort({ createdAt: -1 }).select('-coupleId -__v')),
+      toLean(Event.find({ coupleId }).sort({ date: 1 }).select('-coupleId -__v')),
+      toLean(Photo.find({ coupleId }).sort({ createdAt: -1 }).select('-coupleId -__v'))
     ]);
 
     // 2. Agregar estatísticas do casal (reutilizando a lógica do statsController.js)
@@ -202,10 +203,10 @@ exports.exportData = async (req, res, next) => {
       Memory.countDocuments({ coupleId }),
       Photo.countDocuments({ coupleId }),
       Coupon.countDocuments({ coupleId, status: 'redeemed' }),
-      LikelyQuestion.find({ coupleId }),
-      Message.find({ coupleId }).sort({ createdAt: -1 }).limit(200).select('createdAt'),
-      ScratchCard.find({ coupleId, isScratched: true }).select('scratchedAt'),
-      Memory.find({ coupleId }).select('date'),
+      toLean(LikelyQuestion.find({ coupleId })),
+      toLean(Message.find({ coupleId }).sort({ createdAt: -1 }).limit(200).select('createdAt')),
+      toLean(ScratchCard.find({ coupleId, isScratched: true }).select('scratchedAt')),
+      toLean(Memory.find({ coupleId }).select('date')),
       Memory.countDocuments({ coupleId, isTimeCapsule: true }),
       DecisionWheel.countDocuments({ coupleId })
     ]);

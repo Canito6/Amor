@@ -60,4 +60,6 @@ cycleEntrySchema.pre('save', function() {
   }
 });
 
+cycleEntrySchema.index({ userId: 1, startDate: -1 });
+
 module.exports = mongoose.model('CycleEntry', cycleEntrySchema);

@@ -18,4 +18,7 @@ const coupleSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+coupleSchema.index({ partner1: 1 });
+coupleSchema.index({ partner2: 1 });
+
 module.exports = mongoose.model('Couple', coupleSchema);

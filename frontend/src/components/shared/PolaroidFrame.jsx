@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import './PolaroidFrame.css';
 import { optimizeCloudinaryUrl } from '../../utils/media/cloudinaryUrl';
 
@@ -18,8 +19,9 @@ export const getDeterministicRotation = (id) => {
 };
 
 export default function PolaroidFrame({ imageUrl, title, date, id, children }) {
+  const [imgError, setImgError] = useState(false);
   const rotation = getDeterministicRotation(id);
-  const hasImage = !!imageUrl;
+  const hasImage = !!imageUrl && !imgError;
 
   return (
     <div 
@@ -34,6 +36,8 @@ export default function PolaroidFrame({ imageUrl, title, date, id, children }) {
               alt={title || 'Polaroid'} 
               className="polaroid-image" 
               loading="lazy"
+              decoding="async"
+              onError={() => setImgError(true)}
             />
           </div>
         ) : (

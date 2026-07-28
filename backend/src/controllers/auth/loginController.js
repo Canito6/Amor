@@ -82,12 +82,21 @@ exports.login = async (req, res, next) => {
       });
     }
 
+    // Limpeza automática de dispositivos expirados no perfil do utilizador
+    if (user.trustedDevices && user.trustedDevices.length > 0) {
+      const initialCount = user.trustedDevices.length;
+      user.trustedDevices = user.trustedDevices.filter(d => d.expiresAt && new Date(d.expiresAt).getTime() > Date.now());
+      if (user.trustedDevices.length !== initialCount) {
+        await user.save();
+      }
+    }
+
     // Check if verification is needed (not direct and device not trusted)
     const needs2FA = user.loginSecurityMethod && user.loginSecurityMethod !== 'direct';
     let isDeviceTrusted = false;
 
     if (needs2FA && trustedDeviceToken) {
-      const found = user.trustedDevices.find(d => d.deviceToken === trustedDeviceToken && d.expiresAt > Date.now());
+      const found = user.trustedDevices.find(d => d.deviceToken === trustedDeviceToken && new Date(d.expiresAt).getTime() > Date.now());
       if (found) {
         isDeviceTrusted = true;
       }

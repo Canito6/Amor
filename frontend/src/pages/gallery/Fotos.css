@@ -21,6 +21,8 @@
   cursor: pointer;
   position: relative;
   overflow: visible;
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
 }
 
 .theme-dark .photo-card.polaroid-style-card {

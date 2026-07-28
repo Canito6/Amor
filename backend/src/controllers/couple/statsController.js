@@ -11,6 +11,8 @@ const { calculateActivityStreak } = require('../../utils/streakCalculator');
 const Couple = require('../../models/couple/coupleModel');
 const User = require('../../models/auth/userModel');
 
+const toLean = (q) => (q && typeof q.lean === 'function' ? q.lean() : q);
+
 exports.getCoupleStats = async (req, res, next) => {
   try {
     const coupleId = req.coupleId;
@@ -43,16 +45,16 @@ exports.getCoupleStats = async (req, res, next) => {
       Memory.countDocuments({ coupleId }),
       Photo.countDocuments({ coupleId }),
       Coupon.countDocuments({ coupleId, status: 'redeemed' }),
-      LikelyQuestion.find({ coupleId }),
+      toLean(LikelyQuestion.find({ coupleId })),
       // Streak sources:
-      Message.find({ coupleId }).sort({ createdAt: -1 }).limit(200).select('createdAt'),
-      ScratchCard.find({ coupleId, isScratched: true }).select('scratchedAt'),
-      Memory.find({ coupleId }).select('date'),
+      toLean(Message.find({ coupleId }).sort({ createdAt: -1 }).limit(200).select('createdAt')),
+      toLean(ScratchCard.find({ coupleId, isScratched: true }).select('scratchedAt')),
+      toLean(Memory.find({ coupleId }).select('date')),
       // Counts for badges:
       Memory.countDocuments({ coupleId, isTimeCapsule: true }),
       DecisionWheel.countDocuments({ coupleId }),
-      Couple.findById(coupleId),
-      User.find({ coupleId })
+      toLean(Couple.findById(coupleId)),
+      toLean(User.find({ coupleId }))
     ]);
 
     // Calculate Likely match rate

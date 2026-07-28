@@ -57,6 +57,15 @@ const generalLimiter = rateLimit({
   },
 });
 
+// Limitador específico para envios/uploads de fotos e ficheiros
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  limit: process.env.NODE_ENV === 'test' ? 50 : 30, // 30 uploads por 15 min
+  message: { error: 'Limite de envios/uploads excedido. Por favor, aguarde alguns minutos antes de enviar mais fotos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const configureSecurity = (app) => {
   // 1. Configuração de CORS com Credenciais em primeiro lugar (garante headers CORS mesmo em respostas 429/erros)
   const corsOptions = {
@@ -90,6 +99,7 @@ const configureSecurity = (app) => {
   app.use('/api/auth/forgot-password', authLimiter);
   app.use('/api/auth/reset-password', authLimiter);
   app.use('/api/auth/forcar-mudanca-password', authLimiter);
+  app.use('/api/photos/upload', uploadLimiter);
   app.use('/api', generalLimiter);
 
   // 5. Sanitizador de inputs contra XSS

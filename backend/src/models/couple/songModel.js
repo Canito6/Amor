@@ -35,4 +35,6 @@ const songSchema = new mongoose.Schema({
   }
 });
 
+songSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('DailySong', songSchema);

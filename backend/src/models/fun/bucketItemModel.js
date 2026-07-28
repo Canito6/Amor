@@ -39,4 +39,6 @@ const bucketItemSchema = new mongoose.Schema({
   timestamps: true
 });
 
+bucketItemSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('BucketItem', bucketItemSchema);

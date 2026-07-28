@@ -17,6 +17,18 @@ app.set('trust proxy', 1); // Confiar no primeiro proxy (ex: ngrok)
 setupSwagger(app);
 
 // 1. Middlewares base
+app.use((req, res, next) => {
+  const start = Date.now();
+  const originalEnd = res.end;
+  res.end = function (...args) {
+    if (!res.headersSent) {
+      const duration = Date.now() - start;
+      res.setHeader('X-Response-Time', `${duration}ms`);
+    }
+    return originalEnd.apply(this, args);
+  };
+  next();
+});
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json());

@@ -8,6 +8,7 @@ import { prefetchRoute } from '../../utils/navigation/routePrefetcher';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 import LinkCoupleModal from '../shared/LinkCoupleModal';
+import NetworkStatusToast from '../shared/NetworkStatusToast';
 import Header from './Header';
 import FloatingHeartsBackground from '../shared/FloatingHeartsBackground';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -148,6 +149,9 @@ export default function MainLayout() {
     <div className={`layout-root layout-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <FloatingHeartsBackground />
       
+      {/* Indicador de Estado de Rede (Online/Offline) */}
+      <NetworkStatusToast />
+
       {/* Global Topbar Header */}
       <Header
         nome={nome}

@@ -24,4 +24,6 @@ const jarNoteSchema = new mongoose.Schema({
   timestamps: true
 });
 
+jarNoteSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('JarNote', jarNoteSchema);

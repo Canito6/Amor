@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { formatDateTime } from '../../utils/formatting/dateFormatter';
 import PostItEditForm from './PostItEditForm';
 import PostItEmojiPicker from './PostItEmojiPicker';
@@ -11,7 +11,7 @@ const CORES_POST_IT = [
   { bg: 'linear-gradient(135deg, #f8f6ff 0%, #f3f0ff 100%)', border: '#d0bfff' }  // Roxo Alfazema
 ];
 
-export default function PostItCard({ msg, index, meuNome, minhaRole, language, t, onUpdate, onDelete, onReact }) {
+function PostItCard({ msg, index, meuNome, minhaRole, language, t, onUpdate, onDelete, onReact }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(msg.content);
   const [isEmojiPanelOpen, setIsEmojiPanelOpen] = useState(false);
@@ -148,3 +148,5 @@ export default function PostItCard({ msg, index, meuNome, minhaRole, language, t
     </div>
   );
 }
+
+export default memo(PostItCard);

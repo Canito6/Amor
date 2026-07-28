@@ -122,6 +122,8 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+userSchema.index({ coupleId: 1 });
+
 // MAGIA DE SEGURANÇA (Sem o problemático "next")
 userSchema.pre('save', async function() {
   if (!this.isModified('password')) {

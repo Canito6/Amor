@@ -40,4 +40,6 @@ const openWhenLetterSchema = new mongoose.Schema({
   timestamps: true
 });
 
+openWhenLetterSchema.index({ coupleId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('OpenWhenLetter', openWhenLetterSchema);

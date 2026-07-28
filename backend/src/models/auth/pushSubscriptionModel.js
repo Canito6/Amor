@@ -23,4 +23,6 @@ const pushSubscriptionSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+pushSubscriptionSchema.index({ userId: 1 });
+
 module.exports = mongoose.model('PushSubscription', pushSubscriptionSchema);
