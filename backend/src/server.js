@@ -114,14 +114,9 @@ io.on('connection', (socket) => {
     const coupleId = socket.user?.coupleId;
     if (!coupleId) return;
 
-    // Notifica instantaneamente o parceiro que já está ligado (em tempo real)
-    socket.to(coupleId).emit('update', {
-      type: 'kiss',
-      user: socket.user.username,
-      value: ''
-    });
-
-    // Garante entrega mesmo com a app fechada/em segundo plano (push notification)
+    // O eventBus já trata de retransmitir 'update' a toda a sala (ver
+    // notificationListener.js) e de disparar a push notification — não repetir
+    // o emit aqui para não duplicar a notificação no lado do parceiro.
     eventBus.emit('socket:emit-update', {
       room: coupleId,
       type: 'kiss',
@@ -136,12 +131,6 @@ io.on('connection', (socket) => {
     if (!coupleId) return;
 
     const value = (data && typeof data.value === 'string') ? data.value.slice(0, 100) : '';
-
-    socket.to(coupleId).emit('update', {
-      type: 'quick-love',
-      user: socket.user.username,
-      value
-    });
 
     eventBus.emit('socket:emit-update', {
       room: coupleId,
