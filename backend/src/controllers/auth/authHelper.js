@@ -6,10 +6,15 @@ const isProd = process.env.NODE_ENV === 'production';
 // anterior), o cookie era sempre rejeitado em produção (login com token via cookie,
 // verify-login, logout, refresh-token). Em desenvolvimento local mantém-se 'lax'
 // porque 'none' exige HTTPS, que normalmente não existe em localhost.
+// [FIX] Adicionar 'partitioned' em produção (CHIPS - Cookies Having Independent
+// Partitioned State): os browsers estão a passar a exigir este atributo em cookies
+// de terceiros (cross-site) como este, ou vão passar a rejeitá-lo por completo.
+// Requer sempre Secure=true e SameSite=None, por isso só faz sentido em produção.
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: isProd ? 'none' : 'lax'
+  sameSite: isProd ? 'none' : 'lax',
+  ...(isProd ? { partitioned: true } : {})
 };
 
 const setTokenCookie = (res, token) => {
