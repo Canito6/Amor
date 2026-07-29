@@ -50,6 +50,16 @@ eventBus.on('socket:emit-update', async ({ room, type, user, value }) => {
         body = 'O teu amor ofereceu-te um vale!';
         url = '/vales';
         break;
+      case 'kiss':
+        title = 'Recebeste um beijinho! 💋';
+        body = 'O teu amor mandou-te um beijinho!';
+        url = '/dashboard';
+        break;
+      case 'quick-love':
+        title = 'Nova frase de carinho! 💖';
+        body = value ? `O teu amor mandou: "${value}"` : 'O teu amor mandou-te um gesto carinhoso!';
+        url = '/dashboard';
+        break;
       default:
         return; // Ignorar outros eventos
     }

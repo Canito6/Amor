@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const logger = require('./utils/logger');
 const connectDB = require('./config/db');
 const app = require('./app');
+const eventBus = require('./utils/eventBus');
 
 const PORT = process.env.PORT || 5000;
 
@@ -106,6 +107,48 @@ io.on('connection', (socket) => {
     if (data.room && (socket.user.coupleId === data.room || socket.user.role === 'admin')) {
       socket.to(data.room).emit('partner-update-canvas-image', data);
     }
+  });
+
+  // [FIX] Enviar beijinho instantâneo ao parceiro (Widget "Frases de Carinho")
+  socket.on('send-kiss', () => {
+    const coupleId = socket.user?.coupleId;
+    if (!coupleId) return;
+
+    // Notifica instantaneamente o parceiro que já está ligado (em tempo real)
+    socket.to(coupleId).emit('update', {
+      type: 'kiss',
+      user: socket.user.username,
+      value: ''
+    });
+
+    // Garante entrega mesmo com a app fechada/em segundo plano (push notification)
+    eventBus.emit('socket:emit-update', {
+      room: coupleId,
+      type: 'kiss',
+      user: socket.user.username,
+      value: ''
+    });
+  });
+
+  // [FIX] Enviar frase de carinho instantânea ao parceiro (Widget "Frases de Carinho")
+  socket.on('send-quick-love', (data) => {
+    const coupleId = socket.user?.coupleId;
+    if (!coupleId) return;
+
+    const value = (data && typeof data.value === 'string') ? data.value.slice(0, 100) : '';
+
+    socket.to(coupleId).emit('update', {
+      type: 'quick-love',
+      user: socket.user.username,
+      value
+    });
+
+    eventBus.emit('socket:emit-update', {
+      room: coupleId,
+      type: 'quick-love',
+      user: socket.user.username,
+      value
+    });
   });
 });
 

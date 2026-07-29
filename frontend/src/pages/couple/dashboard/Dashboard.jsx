@@ -108,8 +108,12 @@ export default function Dashboard() {
         return <NavigationCards layoutStyle={layoutStyle} customTabs={customTabs} t={t} language={language} />;
       case 'achievements':
         return <AchievementsWidget stats={stats} t={t} language={language} />;
-      case 'kiss':
-        return <KissButtonWidget language={language} partnerName={coupleInfo.partnerNames?.[0]} />;
+      case 'kiss': {
+        const meuNome = localStorage.getItem('nome') || '';
+        const partnerName = coupleInfo.partnerNames?.find((nome) => nome !== meuNome)
+          || coupleInfo.partnerNames?.[0];
+        return <KissButtonWidget language={language} partnerName={partnerName} />;
+      }
       default:
         return null;
     }
