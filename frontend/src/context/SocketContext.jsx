@@ -72,9 +72,13 @@ export function SocketProvider({ children }) {
     const socketUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' && window.location.port === '5173' ? 'http://localhost:5000' : '');
     
     // Conectar ao socket
+    // [FIX] Enviar o token explicitamente via 'auth' - o cookie de sessão não chega
+    // ao handshake do socket quando frontend e backend estão em domínios diferentes
+    // (Vercel + Render), pois é bloqueado pela política SameSite=Lax em pedidos cross-site.
     const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling'],
-      withCredentials: true
+      withCredentials: true,
+      auth: { token }
     });
 
     newSocket.on('connect', () => {
@@ -85,6 +89,11 @@ export function SocketProvider({ children }) {
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
       }
+    });
+
+    // [FIX] Tornar visível qualquer falha de autenticação/ligação do socket
+    newSocket.on('connect_error', (err) => {
+      console.error('Erro de ligação ao Socket.io:', err.message);
     });
 
     const triggerBrowserNotification = (title, body) => {
