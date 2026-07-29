@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const eventBus = require('../../utils/eventBus');
 const User = require('../../models/auth/userModel');
 const ApiError = require('../../utils/apiError');
-const { setTokenCookie } = require('./authHelper');
+const { setTokenCookie, cookieOptions } = require('./authHelper');
 const TokenBlacklist = require('../../models/auth/tokenBlacklistModel');
 
 exports.login = async (req, res, next) => {
@@ -274,11 +274,7 @@ exports.logout = async (req, res, next) => {
       }
     }
 
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    });
+    res.clearCookie('token', cookieOptions);
     res.json({ message: 'Sessão terminada com sucesso!' });
   } catch (error) {
     next(error);
