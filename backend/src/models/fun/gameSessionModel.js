@@ -47,6 +47,14 @@ const gameSessionSchema = new mongoose.Schema({
       type: String,
       enum: ['X', 'O'],
       default: 'X'
+    },
+    // Personalização (emoji/cor) de cada jogador, indexada por username.
+    // Tem de ser declarada explicitamente (Mixed), senão o Mongoose ignora
+    // silenciosamente este campo ao gravar (modo strict por defeito),
+    // fazendo com que a personalização "desapareça" após um reload.
+    customizations: {
+      type: mongoose.Schema.Types.Mixed,
+      default: () => ({})
     }
   },
   updatedAt: {

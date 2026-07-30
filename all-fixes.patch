@@ -1,0 +1,181 @@
+diff --git a/backend/scripts/checkDbTarget.js b/backend/scripts/checkDbTarget.js
+new file mode 100644
+index 0000000..ba7ac7c
+--- /dev/null
++++ b/backend/scripts/checkDbTarget.js
+@@ -0,0 +1,72 @@
++/**
++ * Diagnóstico de Ambiente / Base de Dados
++ * -----------------------------------------
++ * Corre este script em CADA sítio onde o backend existe (o teu computador
++ * local, e depois via Shell do Render no serviço em produção) e compara
++ * os resultados. Se o "Host" ou os totais de documentos forem diferentes,
++ * confirma que estás a apontar para bases de dados DIFERENTES — o que
++ * explica passwords/definições que "não pegam" em produção.
++ *
++ * COMO USAR:
++ *   Localmente:      cd backend && node scripts/checkDbTarget.js
++ *   Em produção:      abre o "Shell" do serviço no painel do Render e corre
++ *                     o mesmo comando lá dentro.
++ *
++ * Não imprime a MONGO_URI completa (evita expor a password da BD nos logs),
++ * só o host e o nome da base de dados, que já chega para comparar.
++ */
++
++const path = require('path');
++require('dotenv').config({ path: path.join(__dirname, '../.env') });
++const mongoose = require('mongoose');
++
++function redactUri(uri) {
++  try {
++    const url = new URL(uri);
++    return `${url.protocol}//${url.hostname}${url.pathname}`;
++  } catch {
++    return '(não foi possível interpretar a URI)';
++  }
++}
++
++async function main() {
++  if (!process.env.MONGO_URI) {
++    console.error('❌ MONGO_URI não encontrada nas variáveis de ambiente deste processo.');
++    process.exit(1);
++  }
++
++  console.log('🔎 A ligar usando:', redactUri(process.env.MONGO_URI));
++
++  try {
++    await mongoose.connect(process.env.MONGO_URI);
++    const conn = mongoose.connection;
++
++    console.log('\n=== ALVO DA LIGAÇÃO ===');
++    console.log('Host:           ', conn.host);
++    console.log('Nome da BD:     ', conn.name);
++
++    const collections = await conn.db.collections();
++    console.log(`\n=== COLEÇÕES (${collections.length}) ===`);
++
++    for (const col of collections) {
++      const count = await col.countDocuments();
++      console.log(`  ${col.collectionName.padEnd(20)} → ${count} documento(s)`);
++    }
++
++    // Mostrar utilizadores só por username/email (nunca a password) para
++    // confirmar se é a mesma pessoa/conta que aparece nos dois sítios
++    const users = await conn.db.collection('users').find({}, { projection: { username: 1, email: 1 } }).toArray();
++    console.log('\n=== UTILIZADORES NESTA BASE DE DADOS ===');
++    users.forEach(u => console.log(`  • ${u.username} <${u.email}>`));
++
++    console.log('\n✅ Agora compara este output com o mesmo script corrido no outro ambiente.');
++    console.log('   Se o "Nome da BD" ou a lista de utilizadores for diferente, são bases de dados distintas!');
++  } catch (error) {
++    console.error('❌ Erro ao ligar/consultar a base de dados:', error.message);
++  } finally {
++    await mongoose.disconnect();
++    process.exit(0);
++  }
++}
++
++main();
+diff --git a/backend/src/models/fun/gameSessionModel.js b/backend/src/models/fun/gameSessionModel.js
+index 864e536..97226fb 100644
+--- a/backend/src/models/fun/gameSessionModel.js
++++ b/backend/src/models/fun/gameSessionModel.js
+@@ -47,6 +47,14 @@ const gameSessionSchema = new mongoose.Schema({
+       type: String,
+       enum: ['X', 'O'],
+       default: 'X'
++    },
++    // Personalização (emoji/cor) de cada jogador, indexada por username.
++    // Tem de ser declarada explicitamente (Mixed), senão o Mongoose ignora
++    // silenciosamente este campo ao gravar (modo strict por defeito),
++    // fazendo com que a personalização "desapareça" após um reload.
++    customizations: {
++      type: mongoose.Schema.Types.Mixed,
++      default: () => ({})
+     }
+   },
+   updatedAt: {
+diff --git a/backend/tests/gameSessionSchema.test.js b/backend/tests/gameSessionSchema.test.js
+new file mode 100644
+index 0000000..14f24fb
+--- /dev/null
++++ b/backend/tests/gameSessionSchema.test.js
+@@ -0,0 +1,78 @@
++const GameSession = require('../src/models/fun/gameSessionModel');
++
++/**
++ * Estes testes NÃO precisam de ligação real ao MongoDB.
++ *
++ * Usam a API interna do Mongoose (`$__delta()`) para inspecionar exatamente
++ * a operação `$set` que seria enviada à base de dados num `.save()` — o que
++ * permite apanhar um tipo de bug muito traiçoeiro: campos que são atribuídos
++ * em memória com sucesso (ex.: `session.state.customizations = {...}`) mas
++ * que o Mongoose descarta silenciosamente ao gravar, por não estarem
++ * declarados no schema (modo `strict`, ligado por defeito).
++ *
++ * Este exato cenário foi a causa raiz do bug em que os dois jogadores do
++ * "4 em Linha" viam a personalização (cor/emoji) um do outro a "desaparecer"
++ * depois de um refresh — a validação de duplicados funcionava em memória
++ * durante um pedido, mas nunca sobrevivia a um reload a partir da BD.
++ */
++describe('GameSession schema - persistência de campos do state', () => {
++  const buildExistingSession = (overrides = {}) => {
++    const session = new GameSession({
++      coupleId: 'couple-test',
++      gameType: 'connect-four',
++      players: [
++        { username: 'canito', symbol: 'X' },
++        { username: 'lara', symbol: 'O' }
++      ],
++      ...overrides
++    });
++    // Simular um documento já existente na BD (como acontece sempre em
++    // updateCustomization/makeMove/resetSession, que fazem load + save)
++    session.isNew = false;
++    return session;
++  };
++
++  const getSetPayload = (session) => {
++    const delta = session.$__delta();
++    return delta ? delta[1].$set : null;
++  };
++
++  it('declara "state.customizations" no schema (regressão do bug de personalização)', () => {
++    const path = GameSession.schema.path('state.customizations');
++    expect(path).toBeDefined();
++  });
++
++  it('persiste state.customizations num save() real (não fica só em memória)', () => {
++    const session = buildExistingSession();
++
++    session.state.customizations = {};
++    session.state.customizations['lara'] = { emoji: '💙', color: 'blue' };
++    session.markModified('state');
++
++    const setPayload = getSetPayload(session);
++
++    expect(setPayload).toBeTruthy();
++    expect(setPayload.state).toBeDefined();
++    expect(setPayload.state.customizations).toBeDefined();
++    expect(setPayload.state.customizations.lara).toEqual({ emoji: '💙', color: 'blue' });
++  });
++
++  it('mantém as personalizações de AMBOS os jogadores após uma segunda gravação', () => {
++    const session = buildExistingSession();
++
++    session.state.customizations = { lara: { emoji: '💙', color: 'blue' } };
++    session.markModified('state');
++    let setPayload = getSetPayload(session);
++    expect(setPayload.state.customizations).toEqual({ lara: { emoji: '💙', color: 'blue' } });
++
++    // Segunda gravação (ex.: o Canito escolhe a personalização dele a seguir)
++    session.state.customizations.canito = { emoji: '💖', color: 'pink' };
++    session.markModified('state');
++    setPayload = getSetPayload(session);
++
++    expect(setPayload.state.customizations).toEqual({
++      lara: { emoji: '💙', color: 'blue' },
++      canito: { emoji: '💖', color: 'pink' }
++    });
++  });
++});
