@@ -7,131 +7,184 @@
   flex-direction: column;
 }
 
+/* Header Responsivo */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .headerTitle {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: 1.85rem;
+  font-weight: 900;
   color: var(--primary-color, #ff6b9d);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.6rem;
+  text-shadow: 0 0 16px rgba(255, 107, 157, 0.35);
+  white-space: nowrap;
 }
 
 .headerSpacer {
-  width: 90px;
+  width: 100px;
 }
 
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: center;
+  }
+  .headerSpacer {
+    display: none;
+  }
+  .headerTitle {
+    font-size: 1.5rem;
+  }
+}
+
+/* Score Banner Glassmorphic */
 .scoreBanner {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: var(--card-bg, rgba(255, 255, 255, 0.15));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255, 107, 157, 0.2));
-  border-radius: 18px;
-  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 240, 245, 0.95) 100%);
+  backdrop-filter: blur(14px);
+  border: 2px solid rgba(255, 107, 157, 0.3);
+  border-radius: 22px;
+  padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(255, 107, 157, 0.15);
+}
+
+:global(.theme-dark) .scoreBanner {
+  background: linear-gradient(135deg, rgba(35, 18, 38, 0.95) 0%, rgba(22, 10, 24, 0.95) 100%);
+  border-color: rgba(255, 107, 157, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .scoreBox {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  min-width: 75px;
 }
 
 .scoreSymbol {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .symbolX {
-  color: #ff6b9d;
-  text-shadow: 0 0 10px rgba(255, 107, 157, 0.4);
+  color: #ff4d8d;
+  text-shadow: 0 0 12px rgba(255, 77, 141, 0.5);
 }
 
 .symbolO {
   color: #00bbf9;
-  text-shadow: 0 0 10px rgba(0, 187, 249, 0.4);
+  text-shadow: 0 0 12px rgba(0, 187, 249, 0.5);
 }
 
 .scorePlayerName {
   font-size: 0.85rem;
   color: var(--text-muted, #718096);
-  font-weight: 600;
-  max-width: 110px;
+  font-weight: 700;
+  max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+:global(.theme-dark) .scorePlayerName {
+  color: #a0aec0;
+}
+
 .scoreValue {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-main, #2d3748);
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ff6b9d;
+  line-height: 1;
+}
+
+:global(.theme-dark) .scoreValue {
+  color: #ffffff;
 }
 
 .scoreDivider {
-  width: 1px;
-  height: 40px;
-  background: var(--border-color, rgba(0, 0, 0, 0.1));
+  width: 2px;
+  height: 42px;
+  background: linear-gradient(180deg, rgba(255, 107, 157, 0.1), rgba(255, 107, 157, 0.35), rgba(255, 107, 157, 0.1));
 }
 
+/* Indicador de Turno */
 .turnIndicator {
   text-align: center;
   margin-bottom: 1.5rem;
   padding: 0.85rem 1.25rem;
   border-radius: 30px;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .myTurn {
-  background: rgba(42, 157, 143, 0.15);
-  border: 1px solid rgba(42, 157, 143, 0.4);
+  background: linear-gradient(135deg, rgba(42, 157, 143, 0.2) 0%, rgba(42, 157, 143, 0.1) 100%);
+  border: 1.5px solid rgba(42, 157, 143, 0.6);
   color: #2a9d8f;
   animation: pulseGlow 2s infinite ease-in-out;
 }
 
+:global(.theme-dark) .myTurn {
+  color: #4fe0b5;
+  background: rgba(42, 157, 143, 0.25);
+  border-color: rgba(79, 224, 181, 0.6);
+}
+
 .partnerTurn {
-  background: rgba(255, 180, 162, 0.2);
-  border: 1px solid rgba(255, 180, 162, 0.5);
+  background: linear-gradient(135deg, rgba(231, 111, 81, 0.15) 0%, rgba(231, 111, 81, 0.08) 100%);
+  border: 1.5px solid rgba(231, 111, 81, 0.5);
   color: #e76f51;
 }
 
+:global(.theme-dark) .partnerTurn {
+  color: #ff9b85;
+  background: rgba(231, 111, 81, 0.2);
+  border-color: rgba(255, 155, 133, 0.5);
+}
+
 .waitingPartner {
-  background: rgba(235, 94, 85, 0.15);
-  border: 1px solid rgba(235, 94, 85, 0.4);
-  color: #eb5e55;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.15) 0%, rgba(255, 107, 157, 0.05) 100%);
+  border: 1.5px solid rgba(255, 107, 157, 0.4);
+  color: #ff6b9d;
 }
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(42, 157, 143, 0.2);
+    box-shadow: 0 0 8px rgba(42, 157, 143, 0.2);
   }
   50% {
-    box-shadow: 0 0 18px rgba(42, 157, 143, 0.5);
+    box-shadow: 0 0 20px rgba(42, 157, 143, 0.5);
   }
 }
 
+/* Tabuleiro 3x3 */
 .boardGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  max-width: 420px;
+  max-width: 400px;
   width: 100%;
   aspect-ratio: 1 / 1;
   margin: 0 auto 2rem auto;
@@ -139,9 +192,9 @@
 }
 
 .cell {
-  background: var(--card-bg, rgba(255, 255, 255, 0.5));
-  border: 2px solid var(--border-color, rgba(255, 107, 157, 0.2));
-  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 245, 248, 0.85) 100%);
+  border: 2px solid rgba(255, 107, 157, 0.25);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,13 +203,20 @@
   cursor: pointer;
   user-select: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 18px rgba(255, 107, 157, 0.08);
+}
+
+:global(.theme-dark) .cell {
+  background: linear-gradient(135deg, rgba(45, 25, 48, 0.8) 0%, rgba(28, 14, 30, 0.9) 100%);
+  border-color: rgba(255, 107, 157, 0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 .cell:hover:not(:disabled) {
-  background: rgba(255, 107, 157, 0.1);
+  background: rgba(255, 107, 157, 0.15);
   border-color: #ff6b9d;
-  transform: scale(1.04);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(255, 107, 157, 0.25);
 }
 
 .cell:disabled {
@@ -164,7 +224,7 @@
 }
 
 .winningCell {
-  background: rgba(255, 215, 0, 0.25) !important;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(255, 180, 0, 0.25) 100%) !important;
   border-color: #ffd700 !important;
   box-shadow: 0 0 25px rgba(255, 215, 0, 0.6) !important;
   animation: winScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate;
@@ -176,14 +236,14 @@
 }
 
 .cellTextX {
-  color: #ff6b9d;
-  text-shadow: 0 0 12px rgba(255, 107, 157, 0.5);
+  color: #ff4d8d;
+  text-shadow: 0 0 14px rgba(255, 77, 141, 0.6);
   animation: popIn 0.25s ease-out;
 }
 
 .cellTextO {
   color: #00bbf9;
-  text-shadow: 0 0 12px rgba(0, 187, 249, 0.5);
+  text-shadow: 0 0 14px rgba(0, 187, 249, 0.6);
   animation: popIn 0.25s ease-out;
 }
 
@@ -201,6 +261,7 @@
   }
 }
 
+/* Área de Ações */
 .actionsArea {
   display: flex;
   flex-direction: column;
@@ -211,22 +272,22 @@
 .resetBtn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.85rem 2rem;
+  gap: 0.6rem;
+  padding: 0.9rem 2.2rem;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 30px;
   background: linear-gradient(135deg, #ff6b9d 0%, #c589e8 100%);
   color: #ffffff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(255, 107, 157, 0.45);
+  transition: all 0.25s ease;
 }
 
 .resetBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.6);
 }
 
 .resetBtn:disabled {
@@ -235,17 +296,23 @@
 }
 
 .rewardInfoCard {
-  background: var(--card-bg, rgba(255, 255, 255, 0.2));
-  border: 1px dashed var(--border-color, rgba(0, 0, 0, 0.15));
-  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px dashed rgba(255, 107, 157, 0.3);
+  border-radius: 16px;
   padding: 0.85rem 1.25rem;
   text-align: center;
   font-size: 0.85rem;
   color: var(--text-muted, #718096);
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+:global(.theme-dark) .rewardInfoCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #a0aec0;
 }
 
 .rewardHighlight {
   color: #ff6b9d;
-  font-weight: 700;
+  font-weight: 800;
 }
