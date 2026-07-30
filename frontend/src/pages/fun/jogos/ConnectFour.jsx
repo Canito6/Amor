@@ -391,15 +391,16 @@ export default function ConnectFour() {
 
       {/* Botões de Ação */}
       <div className={styles.actionsArea}>
-        {status === 'finished' && (
-          <button
-            className={styles.resetBtn}
-            onClick={handleResetGame}
-            disabled={submitting}
-          >
-            🔄 {language === 'pt' ? 'Jogar Novamente' : 'Play Again'}
-          </button>
-        )}
+        <button
+          className={styles.resetBtn}
+          onClick={handleResetGame}
+          disabled={submitting}
+          title={language === 'pt' ? 'Limpar o tabuleiro e começar de novo' : 'Clear board and start fresh'}
+        >
+          🔄 {status === 'finished'
+            ? (language === 'pt' ? 'Jogar Novamente' : 'Play Again')
+            : (language === 'pt' ? 'Reiniciar Tabuleiro' : 'Reset Board')}
+        </button>
 
         <div className={styles.rewardInfoCard}>
           🏆 {language === 'pt' ? 'Vitória: ' : 'Victory: '}
