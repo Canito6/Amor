@@ -204,12 +204,18 @@ export default function ConnectFour() {
   const customO = getPlayerCustomization(playerO, 'O');
 
   const partnerPlayer = players.find(p => p.username !== meuNome);
-  const partnerCustom = partnerPlayer
-    ? (customizations[partnerPlayer.username] || (partnerPlayer.symbol === 'X' ? { emoji: '💖', color: 'pink' } : { emoji: '💙', color: 'blue' }))
-    : null;
+  const mySymbol = myPlayer?.symbol || 'X';
+  const partnerDefaultSymbol = mySymbol === 'X' ? 'O' : 'X';
+  const partnerDefaultCustom = partnerDefaultSymbol === 'X'
+    ? { emoji: '💖', color: 'pink' }
+    : { emoji: '💙', color: 'blue' };
 
-  const partnerEmoji = partnerCustom?.emoji;
-  const partnerColor = partnerCustom?.color;
+  const partnerCustom = partnerPlayer
+    ? (customizations[partnerPlayer.username] || partnerDefaultCustom)
+    : partnerDefaultCustom;
+
+  const partnerEmoji = partnerCustom.emoji;
+  const partnerColor = partnerCustom.color;
 
   const isMyTurn = myPlayer && myPlayer.symbol === currentTurn && status === 'playing';
   const currentTurnUsername = currentTurn === 'X' ? playerX?.username : playerO?.username;
