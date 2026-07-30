@@ -183,7 +183,7 @@
 }
 
 .heartConnector {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   animation: heartPulse 1.5s infinite ease-in-out;
 }
 
@@ -279,8 +279,19 @@
     height: 2px;
   }
   .partnersPointsContainer {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    width: 100%;
+    gap: 0.4rem;
+  }
+  .userPointPill {
+    width: 100%;
+    max-width: 220px;
+    justify-content: center;
+  }
+  .heartConnector {
+    margin: 2px 0;
   }
   .bannerFooterBar {
     justify-content: center;
