@@ -46,7 +46,7 @@ export default function JogoMemoria() {
           }));
         }
       } catch (err) {
-        console.warn('Usar emojis fallback para Jogo da Memória');
+        console.warn('Usar emojis fallback para Jogo da Memória:', err.message);
       }
 
       if (itemsToUse.length < 6) {
@@ -67,6 +67,7 @@ export default function JogoMemoria() {
       const shuffled = deck.sort(() => Math.random() - 0.5);
       setCards(shuffled);
     } catch (err) {
+      console.error(err);
       showToast('Erro ao iniciar jogo da memória', 'error');
     } finally {
       setLoading(false);
@@ -148,6 +149,7 @@ export default function JogoMemoria() {
       });
       showToast(`Parabéns! Ganhaste +${points} pontos para o casal! 🏆`, 'success');
     } catch (err) {
+      console.error(err);
       showToast('Jogo concluído!', 'info');
     }
   };
