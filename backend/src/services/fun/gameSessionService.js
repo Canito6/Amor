@@ -16,7 +16,11 @@ class GameSessionService {
     [0, 4, 8], [2, 4, 6]             // Diagonais
   ];
 
-  static checkWinner(board) {
+  static checkWinner(board, gameType = 'tic-tac-toe') {
+    if (gameType === 'connect-four') {
+      return GameSessionService.checkConnectFourWinner(board);
+    }
+
     for (const combo of GameSessionService.WINNING_COMBINATIONS) {
       const [a, b, c] = combo;
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
@@ -31,15 +35,84 @@ class GameSessionService {
     return null;
   }
 
+  // Deteção de 4 em linha (7 colunas x 6 linhas = 42 posições)
+  static checkConnectFourWinner(board) {
+    const ROWS = 6;
+    const COLS = 7;
+
+    const getCell = (r, c) => board[r * COLS + c];
+    const getIndex = (r, c) => r * COLS + c;
+
+    // 1. Horizontal (↔️)
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c <= COLS - 4; c++) {
+        const val = getCell(r, c);
+        if (val && val === getCell(r, c + 1) && val === getCell(r, c + 2) && val === getCell(r, c + 3)) {
+          return {
+            winner: val,
+            winningLine: [getIndex(r, c), getIndex(r, c + 1), getIndex(r, c + 2), getIndex(r, c + 3)]
+          };
+        }
+      }
+    }
+
+    // 2. Vertical (↕️)
+    for (let r = 0; r <= ROWS - 4; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const val = getCell(r, c);
+        if (val && val === getCell(r + 1, c) && val === getCell(r + 2, c) && val === getCell(r + 3, c)) {
+          return {
+            winner: val,
+            winningLine: [getIndex(r, c), getIndex(r + 1, c), getIndex(r + 2, c), getIndex(r + 3, c)]
+          };
+        }
+      }
+    }
+
+    // 3. Diagonal Descendente ↘️
+    for (let r = 0; r <= ROWS - 4; r++) {
+      for (let c = 0; c <= COLS - 4; c++) {
+        const val = getCell(r, c);
+        if (val && val === getCell(r + 1, c + 1) && val === getCell(r + 2, c + 2) && val === getCell(r + 3, c + 3)) {
+          return {
+            winner: val,
+            winningLine: [getIndex(r, c), getIndex(r + 1, c + 1), getIndex(r + 2, c + 2), getIndex(r + 3, c + 3)]
+          };
+        }
+      }
+    }
+
+    // 4. Diagonal Ascendente ↗️
+    for (let r = 3; r < ROWS; r++) {
+      for (let c = 0; c <= COLS - 4; c++) {
+        const val = getCell(r, c);
+        if (val && val === getCell(r - 1, c + 1) && val === getCell(r - 2, c + 2) && val === getCell(r - 3, c + 3)) {
+          return {
+            winner: val,
+            winningLine: [getIndex(r, c), getIndex(r - 1, c + 1), getIndex(r - 2, c + 2), getIndex(r - 3, c + 3)]
+          };
+        }
+      }
+    }
+
+    // Empate
+    if (board.every(cell => cell !== null)) {
+      return { winner: 'draw', winningLine: null };
+    }
+
+    return null;
+  }
+
   async getOrCreateSession(coupleId, gameType = 'tic-tac-toe') {
     let session = await this.gameSessionRepository.findByCoupleAndGame(coupleId, gameType);
     if (!session) {
+      const boardSize = gameType === 'connect-four' ? 42 : 9;
       session = await this.gameSessionRepository.create({
         coupleId,
         gameType,
         players: [],
         state: {
-          board: Array(9).fill(null),
+          board: Array(boardSize).fill(null),
           currentTurn: 'X',
           status: 'waiting',
           winner: null,
@@ -59,7 +132,6 @@ class GameSessionService {
 
     if (!player) {
       if (session.players.length >= 2) {
-        // Se o jogo já tiver 2 jogadores de outro nome, reatribuir se for um dos parceiros
         throw new ApiError(400, 'A sessão de jogo já tem 2 jogadores registados.');
       }
 
@@ -74,13 +146,12 @@ class GameSessionService {
       await session.save();
     }
 
-    // Transmitir atualização de estado via Socket.io ao casal
-    this._broadcastState(coupleId, session);
+    this._broadcastState(coupleId, session, gameType);
 
     return session;
   }
 
-  async makeMove(coupleId, username, index, gameType = 'tic-tac-toe') {
+  async makeMove(coupleId, username, colOrIndex, gameType = 'tic-tac-toe') {
     const session = await this.getOrCreateSession(coupleId, gameType);
 
     if (session.state.status !== 'playing') {
@@ -96,15 +167,39 @@ class GameSessionService {
       throw new ApiError(400, 'Não é o teu turno de jogar!');
     }
 
-    if (index < 0 || index > 8 || session.state.board[index] !== null) {
-      throw new ApiError(400, 'Célula inválida ou já ocupada.');
+    let boardIndex = -1;
+
+    if (gameType === 'connect-four') {
+      const col = Number(colOrIndex);
+      if (isNaN(col) || col < 0 || col > 6) {
+        throw new ApiError(400, 'Coluna inválida para o 4 em Linha.');
+      }
+
+      // Encontrar a linha livre mais baixa (linha 5 -> linha 0)
+      const COLS = 7;
+      for (let r = 5; r >= 0; r--) {
+        if (session.state.board[r * COLS + col] === null) {
+          boardIndex = r * COLS + col;
+          break;
+        }
+      }
+
+      if (boardIndex === -1) {
+        throw new ApiError(400, 'Esta coluna já está cheia!');
+      }
+    } else {
+      const index = Number(colOrIndex);
+      if (isNaN(index) || index < 0 || index > 8 || session.state.board[index] !== null) {
+        throw new ApiError(400, 'Célula inválida ou já ocupada.');
+      }
+      boardIndex = index;
     }
 
     // Aplicar a jogada
-    session.state.board[index] = player.symbol;
+    session.state.board[boardIndex] = player.symbol;
 
-    // Verificar se a jogada resultou em vitória ou empate
-    const result = GameSessionService.checkWinner(session.state.board);
+    // Verificar vitória ou empate
+    const result = GameSessionService.checkWinner(session.state.board, gameType);
 
     if (result) {
       session.state.status = 'finished';
@@ -113,13 +208,10 @@ class GameSessionService {
 
       if (result.winner === 'draw') {
         session.state.scores.draws += 1;
-        // Atribuir 20 pontos de empate a cada um dos jogadores
         for (const p of session.players) {
           try {
-            await this.gameScoreService.recordScore(coupleId, p.username, 'tic-tac-toe', 20, { result: 'draw' });
-          } catch (err) {
-            // Ignorar erro se falhar registo de pontos individual
-          }
+            await this.gameScoreService.recordScore(coupleId, p.username, gameType, 20, { result: 'draw' });
+          } catch (err) { /* ignore */ }
         }
       } else {
         const winningSymbol = result.winner;
@@ -131,12 +223,12 @@ class GameSessionService {
 
         if (winnerPlayer) {
           try {
-            await this.gameScoreService.recordScore(coupleId, winnerPlayer.username, 'tic-tac-toe', 50, { result: 'win' });
+            await this.gameScoreService.recordScore(coupleId, winnerPlayer.username, gameType, 50, { result: 'win' });
           } catch (err) { /* ignore */ }
         }
         if (loserPlayer) {
           try {
-            await this.gameScoreService.recordScore(coupleId, loserPlayer.username, 'tic-tac-toe', 10, { result: 'loss_consolation' });
+            await this.gameScoreService.recordScore(coupleId, loserPlayer.username, gameType, 10, { result: 'loss_consolation' });
           } catch (err) { /* ignore */ }
         }
       }
@@ -149,7 +241,7 @@ class GameSessionService {
     session.updatedAt = new Date();
     await session.save();
 
-    this._broadcastState(coupleId, session);
+    this._broadcastState(coupleId, session, gameType);
 
     return session;
   }
@@ -157,14 +249,13 @@ class GameSessionService {
   async resetSession(coupleId, username, gameType = 'tic-tac-toe') {
     const session = await this.getOrCreateSession(coupleId, gameType);
 
-    // O jogador que perdeu começa a partida seguinte (ou alterna quem começa se empate)
     let nextStarter = session.state.lastStarter === 'X' ? 'O' : 'X';
     if (session.state.winner && session.state.winner !== 'draw') {
-      // Quem perdeu começa
       nextStarter = session.state.winner === 'X' ? 'O' : 'X';
     }
 
-    session.state.board = Array(9).fill(null);
+    const boardSize = gameType === 'connect-four' ? 42 : 9;
+    session.state.board = Array(boardSize).fill(null);
     session.state.currentTurn = nextStarter;
     session.state.lastStarter = nextStarter;
     session.state.winner = null;
@@ -175,20 +266,21 @@ class GameSessionService {
     session.updatedAt = new Date();
     await session.save();
 
-    this._broadcastState(coupleId, session);
+    this._broadcastState(coupleId, session, gameType);
 
     return session;
   }
 
-  _broadcastState(coupleId, session) {
+  _broadcastState(coupleId, session, gameType = 'tic-tac-toe') {
     try {
+      const eventName = `${gameType}-update`;
       eventBus.emit('socket:emit', {
         room: coupleId,
-        event: 'tic-tac-toe-update',
+        event: eventName,
         data: session.toObject ? session.toObject() : session
       });
     } catch (err) {
-      console.error('Erro ao emitir evento tic-tac-toe-update:', err);
+      console.error(`Erro ao emitir evento ${gameType}-update:`, err);
     }
   }
 }

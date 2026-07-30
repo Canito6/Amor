@@ -113,6 +113,15 @@ export default function Jogos() {
       countLabel: language === 'pt' ? 'Ao Vivo!' : 'Live!'
     },
     {
+      path: '/jogos/4-em-linha',
+      title: language === 'pt' ? '4 em Linha de Casal' : 'Connect 4 (Real-time)',
+      desc: language === 'pt' ? 'Joguem o viciante 4 em Linha em tempo real e ganhem +50 pontos!' : 'Play addictive real-time Connect 4 and win +50 points!',
+      icon: '🟡🔵',
+      accentColor: '#c589e8',
+      count: 0,
+      countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
+    },
+    {
       path: '/desenho',
       title: language === 'pt' ? 'Quadro de Desenho' : 'Drawing Board',
       desc: language === 'pt' ? 'Desenhem e rabisquem juntos em tempo real.' : 'Draw and doodle together in real-time.',
