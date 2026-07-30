@@ -232,6 +232,36 @@ class GameSessionService {
           } catch (err) { /* ignore */ }
         }
       }
+
+      // Determinar quem perdeu para ser o primeiro a jogar na próxima partida
+      let nextStarter = session.state.lastStarter === 'X' ? 'O' : 'X';
+      if (result.winner && result.winner !== 'draw') {
+        nextStarter = result.winner === 'X' ? 'O' : 'X';
+      }
+      session.state.lastStarter = nextStarter;
+
+      // Agendar limpeza automática do tabuleiro e início de nova partida após 3.5s
+      setTimeout(async () => {
+        try {
+          const freshSession = await this.gameSessionRepository.findByCoupleAndGame(coupleId, gameType);
+          if (freshSession && freshSession.state.status === 'finished') {
+            const boardSize = gameType === 'connect-four' ? 42 : 9;
+            freshSession.state.board = Array(boardSize).fill(null);
+            freshSession.state.currentTurn = nextStarter;
+            freshSession.state.winner = null;
+            freshSession.state.winningLine = null;
+            freshSession.state.status = freshSession.players.length === 2 ? 'playing' : 'waiting';
+
+            freshSession.markModified('state');
+            freshSession.updatedAt = new Date();
+            await freshSession.save();
+
+            this._broadcastState(coupleId, freshSession, gameType);
+          }
+        } catch (err) {
+          console.error('Erro na limpeza automática do tabuleiro:', err);
+        }
+      }, 3500);
     } else {
       // Alternar turno
       session.state.currentTurn = session.state.currentTurn === 'X' ? 'O' : 'X';
