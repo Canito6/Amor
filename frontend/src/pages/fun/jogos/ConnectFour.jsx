@@ -40,13 +40,22 @@ export default function ConnectFour() {
       setLoading(true);
       const data = await gameSessionService.joinSession('connect-four');
       setSession(data);
+
+      // Sincronizar preferências locais guardadas com a sessão no servidor
+      const savedEmoji = localStorage.getItem(`c4_emoji_${meuNome}`) || myEmoji;
+      const savedColor = localStorage.getItem(`c4_color_${meuNome}`) || myColor;
+      const updated = await gameSessionService.updateCustomization('connect-four', {
+        emoji: savedEmoji,
+        color: savedColor
+      });
+      setSession(updated);
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Erro ao carregar o 4 em Linha', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, meuNome, myEmoji, myColor]);
 
   useEffect(() => {
     loadSession();
@@ -77,11 +86,13 @@ export default function ConnectFour() {
   }, [socket, meuNome]);
 
   const handleUpdateCustomization = async (newEmoji, newColor) => {
+    // 1. Atualizar imediatamente o estado local (0ms de atraso visual!)
     setMyEmoji(newEmoji);
     setMyColor(newColor);
     localStorage.setItem(`c4_emoji_${meuNome}`, newEmoji);
     localStorage.setItem(`c4_color_${meuNome}`, newColor);
 
+    // 2. Transmitir ao parceiro via Socket.io no backend
     try {
       const updated = await gameSessionService.updateCustomization('connect-four', {
         emoji: newEmoji,
@@ -159,9 +170,23 @@ export default function ConnectFour() {
   const scores = session?.state?.scores || { X: 0, O: 0, draws: 0 };
   const customizations = session?.state?.customizations || {};
 
-  // Personalizações de cada jogador
-  const customX = (playerX && customizations[playerX.username]) || { emoji: '💖', color: 'pink' };
-  const customO = (playerO && customizations[playerO.username]) || { emoji: '💙', color: 'blue' };
+  // Obter personalização de um jogador (se for o próprio utilizador, dá resposta local instantânea a 0ms!)
+  const getPlayerCustomization = (player, defaultSymbol) => {
+    const defaultCustom = defaultSymbol === 'X'
+      ? { emoji: '💖', color: 'pink' }
+      : { emoji: '💙', color: 'blue' };
+
+    if (!player) return defaultCustom;
+
+    if (player.username === meuNome) {
+      return { emoji: myEmoji, color: myColor };
+    }
+
+    return customizations[player.username] || defaultCustom;
+  };
+
+  const customX = getPlayerCustomization(playerX, 'X');
+  const customO = getPlayerCustomization(playerO, 'O');
 
   const isMyTurn = myPlayer && myPlayer.symbol === currentTurn && status === 'playing';
   const currentTurnUsername = currentTurn === 'X' ? playerX?.username : playerO?.username;
