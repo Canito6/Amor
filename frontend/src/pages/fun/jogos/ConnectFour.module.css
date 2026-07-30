@@ -298,6 +298,16 @@
   transform: scale(1.12);
 }
 
+.optionDisabled {
+  opacity: 0.22 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
 /* Tabuleiro 4 em Linha */
 .boardContainer {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 235, 243, 0.95) 100%);

@@ -37,11 +37,10 @@ export default function ConnectFour() {
 
   const loadSession = useCallback(async () => {
     try {
-      setLoading(true);
       const data = await gameSessionService.joinSession('connect-four');
       setSession(data);
 
-      // Sincronizar preferências locais guardadas com a sessão no servidor
+      // Sincronizar preferências locais guardadas com a sessão no servidor (sem chamar setLoading(true))
       const savedEmoji = localStorage.getItem(`c4_emoji_${meuNome}`) || myEmoji;
       const savedColor = localStorage.getItem(`c4_color_${meuNome}`) || myColor;
       const updated = await gameSessionService.updateCustomization('connect-four', {
@@ -52,14 +51,20 @@ export default function ConnectFour() {
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Erro ao carregar o 4 em Linha', 'error');
-    } finally {
-      setLoading(false);
     }
   }, [showToast, meuNome, myEmoji, myColor]);
 
+  // Carregar sessão apenas na montagem inicial (uma única vez)
   useEffect(() => {
-    loadSession();
-  }, [loadSession]);
+    let isMounted = true;
+    const init = async () => {
+      setLoading(true);
+      await loadSession();
+      if (isMounted) setLoading(false);
+    };
+    init();
+    return () => { isMounted = false; };
+  }, [meuNome, showToast]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Escutar atualizações do socket em tempo real
   useEffect(() => {
@@ -86,13 +91,23 @@ export default function ConnectFour() {
   }, [socket, meuNome]);
 
   const handleUpdateCustomization = async (newEmoji, newColor) => {
-    // 1. Atualizar imediatamente o estado local (0ms de atraso visual!)
+    // 1. Verificar se a cor ou emoji já está a ser usado pelo parceiro
+    if (partnerColor && newColor === partnerColor) {
+      showToast(language === 'pt' ? 'Esta cor já está em uso pelo teu parceiro! Escolhe outra.' : 'Color used by partner!', 'warning');
+      return;
+    }
+    if (partnerEmoji && newEmoji === partnerEmoji) {
+      showToast(language === 'pt' ? 'Este emoji já está em uso pelo teu parceiro! Escolhe outro.' : 'Emoji used by partner!', 'warning');
+      return;
+    }
+
+    // 2. Atualizar imediatamente o estado local (0ms de atraso visual, sem ecrã de carregamento!)
     setMyEmoji(newEmoji);
     setMyColor(newColor);
     localStorage.setItem(`c4_emoji_${meuNome}`, newEmoji);
     localStorage.setItem(`c4_color_${meuNome}`, newColor);
 
-    // 2. Transmitir ao parceiro via Socket.io no backend
+    // 3. Transmitir ao parceiro via Socket.io no backend
     try {
       const updated = await gameSessionService.updateCustomization('connect-four', {
         emoji: newEmoji,
@@ -187,6 +202,14 @@ export default function ConnectFour() {
 
   const customX = getPlayerCustomization(playerX, 'X');
   const customO = getPlayerCustomization(playerO, 'O');
+
+  const partnerPlayer = players.find(p => p.username !== meuNome);
+  const partnerCustom = partnerPlayer
+    ? (customizations[partnerPlayer.username] || (partnerPlayer.symbol === 'X' ? { emoji: '💖', color: 'pink' } : { emoji: '💙', color: 'blue' }))
+    : null;
+
+  const partnerEmoji = partnerCustom?.emoji;
+  const partnerColor = partnerCustom?.color;
 
   const isMyTurn = myPlayer && myPlayer.symbol === currentTurn && status === 'playing';
   const currentTurnUsername = currentTurn === 'X' ? playerX?.username : playerO?.username;
@@ -292,15 +315,19 @@ export default function ConnectFour() {
               {language === 'pt' ? 'Escolhe a Cor da tua Ficha:' : 'Choose Token Color:'}
             </label>
             <div className={styles.colorPickerGrid}>
-              {COLOR_OPTIONS.map(c => (
-                <button
-                  key={c.id}
-                  className={`${styles.colorDotBtn} ${myColor === c.id ? styles.colorDotActive : ''}`}
-                  style={{ background: c.bg }}
-                  title={c.name}
-                  onClick={() => handleUpdateCustomization(myEmoji, c.id)}
-                />
-              ))}
+              {COLOR_OPTIONS.map(c => {
+                const isPartnerColor = partnerColor === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    className={`${styles.colorDotBtn} ${myColor === c.id ? styles.colorDotActive : ''} ${isPartnerColor ? styles.optionDisabled : ''}`}
+                    style={{ background: c.bg }}
+                    title={isPartnerColor ? (language === 'pt' ? 'Cor em uso pelo teu parceiro' : 'Color used by partner') : c.name}
+                    disabled={isPartnerColor}
+                    onClick={() => handleUpdateCustomization(myEmoji, c.id)}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -309,15 +336,20 @@ export default function ConnectFour() {
               {language === 'pt' ? 'Escolhe o teu Emoji:' : 'Choose Your Emoji:'}
             </label>
             <div className={styles.emojiPickerGrid}>
-              {EMOJI_OPTIONS.map(emoji => (
-                <button
-                  key={emoji}
-                  className={`${styles.emojiBtn} ${myEmoji === emoji ? styles.emojiActive : ''}`}
-                  onClick={() => handleUpdateCustomization(emoji, myColor)}
-                >
-                  {emoji}
-                </button>
-              ))}
+              {EMOJI_OPTIONS.map(emoji => {
+                const isPartnerEmoji = partnerEmoji === emoji;
+                return (
+                  <button
+                    key={emoji}
+                    className={`${styles.emojiBtn} ${myEmoji === emoji ? styles.emojiActive : ''} ${isPartnerEmoji ? styles.optionDisabled : ''}`}
+                    title={isPartnerEmoji ? (language === 'pt' ? 'Emoji em uso pelo teu parceiro' : 'Emoji used by partner') : emoji}
+                    disabled={isPartnerEmoji}
+                    onClick={() => handleUpdateCustomization(emoji, myColor)}
+                  >
+                    {emoji}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
