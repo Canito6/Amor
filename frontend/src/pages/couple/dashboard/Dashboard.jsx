@@ -143,14 +143,14 @@ export default function Dashboard() {
         <button className="quick-action-btn" onClick={() => navigate('/mensagens')}>
           💌 <span>{language === 'pt' ? 'Mandar Mensagem' : 'Send Message'}</span>
         </button>
-        <button className="quick-action-btn" onClick={() => navigate('/fotos')}>
-          📸 <span>{language === 'pt' ? 'Adicionar Foto' : 'Add Photo'}</span>
-        </button>
-        <button className="quick-action-btn" onClick={() => navigate('/frasco')}>
-          🏺 <span>{language === 'pt' ? 'Tirar Papelinho' : 'Draw Note'}</span>
+        <button className="quick-action-btn" onClick={() => navigate('/mimos')}>
+          🎁 <span>{language === 'pt' ? 'Mimos & Surpresas' : 'Surprises & Gifts'}</span>
         </button>
         <button className="quick-action-btn" onClick={() => navigate('/jogos')}>
-          🎮 <span>{language === 'pt' ? 'Jogos & Diversão' : 'Games & Fun'}</span>
+          🎮 <span>{language === 'pt' ? 'Jogos & Pontos' : 'Games & Points'}</span>
+        </button>
+        <button className="quick-action-btn" onClick={() => navigate('/fotos')}>
+          📸 <span>{language === 'pt' ? 'Fotos' : 'Photos'}</span>
         </button>
       </div>
 

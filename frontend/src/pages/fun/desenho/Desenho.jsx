@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { translations } from '../../../services/common/translations';
@@ -8,10 +7,9 @@ import QuadroSettings from './components/QuadroSettings';
 import useCanvasDrawing from '../../../hooks/fun/useCanvasDrawing';
 import './Desenho.css';
 
-// Templates de fundo premium
+// Templates de fundo premium (sem o Jogo do Galo, que agora tem página dedicada)
 const TEMPLATES = [
   { id: 'branco', label: 'Em Branco ⚪' },
-  { id: 'galo', label: 'Jogo do Galo ❌⭕' },
   { id: 'coracao', label: 'Colorir Coração ❤️' },
   { id: 'quadricula', label: 'Quadrícula 🗺️' }
 ];
@@ -26,30 +24,14 @@ const COLORS = [
   { value: '#2a9d8f', name: 'Verde Carinho' },
   { value: '#ff9f1c', name: 'Laranja Sol' },
   { value: '#2b2d42', name: 'Preto' },
-  { value: '#ffffff', name: 'Borracha 🧽' } // Branco serve de borracha
+  { value: '#ffffff', name: 'Borracha 🧽' }
 ];
 
 const drawTemplate = (templateName, width, height, ctx) => {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
 
-  if (templateName === 'galo') {
-    ctx.strokeStyle = 'rgba(255, 77, 109, 0.3)'; // Rosa suave
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    // Linhas verticais
-    ctx.moveTo(width / 3, 20);
-    ctx.lineTo(width / 3, height - 20);
-    ctx.moveTo((width * 2) / 3, 20);
-    ctx.lineTo((width * 2) / 3, height - 20);
-    // Linhas horizontais
-    ctx.moveTo(20, height / 3);
-    ctx.lineTo(width - 20, height / 3);
-    ctx.moveTo(20, (height * 2) / 3);
-    ctx.lineTo(width - 20, (height * 2) / 3);
-    ctx.stroke();
-    ctx.closePath();
-  } else if (templateName === 'coracao') {
+  if (templateName === 'coracao') {
     ctx.strokeStyle = 'rgba(255, 77, 109, 0.25)';
     ctx.lineWidth = 5;
     ctx.fillStyle = 'rgba(255, 77, 109, 0.03)';
@@ -64,8 +46,8 @@ const drawTemplate = (templateName, width, height, ctx) => {
     ctx.fill();
     ctx.closePath();
   } else if (templateName === 'quadricula') {
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 107, 157, 0.28)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     const step = 25;
     for (let x = step; x < width; x += step) {
@@ -116,7 +98,7 @@ export default function Desenho() {
       </div>
 
       <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '30px' }}>
-        Desenha algo fofo, joga ao galo ou deixa uma mensagem no quadro em tempo real com o teu amor! 🎨
+        Desenha algo fofo ou deixa uma mensagem no quadro em tempo real com o teu amor! 🎨
       </p>
 
       <div className="canvas-layout">

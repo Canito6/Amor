@@ -12,7 +12,7 @@ export default function NavigationCards({ customTabs, t, language }) {
         return JSON.parse(saved);
       } catch { /* erro silenciado intencionalmente */ }
     }
-    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
+    return ['/perfil-casal', '/mensagens', '/fotos', '/memorias', '/jogos', '/mimos', '/calendario', '/bucket-list', '/cartas', '/frasco', '/estatisticas'];
   });
 
   useEffect(() => {
@@ -38,7 +38,8 @@ export default function NavigationCards({ customTabs, t, language }) {
     { path: '/mensagens', label: t.messages, icon: '💌', desc: language === 'pt' ? 'Deixa mensagens de carinho e cartas românticas' : 'Leave sweet messages and love letters', preset: 'romance' },
     { path: '/fotos', label: t.photos, icon: '📸', desc: language === 'pt' ? 'Guarda e recorda os nossos momentos felizes' : 'Save and recall our happy moments', preset: 'sunset' },
     { path: '/memorias', label: t.memories, icon: '⏳', desc: language === 'pt' ? 'A nossa linha do tempo e contadores especiais' : 'Our timeline and special counters', preset: 'lavender' },
-    { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : (language === 'pt' ? 'Jogos' : 'Games'), icon: '🎮', desc: language === 'pt' ? 'Diverte-te com quizzes, raspadinhas, roleta e muito mais!' : 'Have fun with quizzes, scratch cards, roulette, and more!', preset: 'mint' },
+    { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : (language === 'pt' ? 'Jogos' : 'Games'), icon: '🎮', desc: language === 'pt' ? 'Diverte-te com Jogo do Galo, Quizzes, Memória, Roleta e muito mais!' : 'Have fun with Tic-Tac-Toe, Quizzes, Memory, Roulette, and more!', preset: 'mint' },
+    { path: '/mimos', label: 'Mimos & Surpresas', icon: '🎁', desc: language === 'pt' ? 'Oferece vales, cartas, raspadinhas e surpresas carinhosas' : 'Offer coupons, letters, scratch cards and sweet surprises', preset: 'romance' },
     { path: '/calendario', label: t.calendar, icon: '📅', desc: language === 'pt' ? 'Marca datas importantes e jantares de casal' : 'Mark important dates and couple dinners', preset: 'ocean' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝', desc: language === 'pt' ? 'A vossa lista de desejos e metas românticas com fotos' : 'Your bucket list and romantic goals with photos', preset: 'lavender' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️', desc: language === 'pt' ? 'Mensagens surpresa para ler em momentos específicos' : 'Surprise messages to read in specific moments', preset: 'romance' },

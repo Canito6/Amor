@@ -51,6 +51,9 @@ const Cartas = lazyWithRetry(routeImports['/cartas']);
 const Frasco = lazyWithRetry(routeImports['/frasco']);
 const Likely = lazyWithRetry(routeImports['/likely']);
 const Jogos = lazyWithRetry(routeImports['/jogos']);
+const Mimos = lazyWithRetry(routeImports['/mimos']);
+const TicTacToe = lazyWithRetry(routeImports['/jogos/tic-tac-toe']);
+const JogoMemoria = lazyWithRetry(routeImports['/jogos/memoria']);
 const PerfilCasal = lazyWithRetry(routeImports['/perfil-casal']);
 const Desenho = lazyWithRetry(routeImports['/desenho']);
 const Timeline = lazyWithRetry(routeImports['/timeline']);
@@ -112,6 +115,9 @@ export default function AppRoutes() {
             <Route path="/frasco" element={<Frasco />} />
             <Route path="/likely" element={<Likely />} />
             <Route path="/jogos" element={<Jogos />} />
+            <Route path="/mimos" element={<Mimos />} />
+            <Route path="/jogos/tic-tac-toe" element={<TicTacToe />} />
+            <Route path="/jogos/memoria" element={<JogoMemoria />} />
             <Route path="/date-night" element={<DateNight />} />
             <Route path="/perfil-casal" element={<PerfilCasal />} />
             <Route path="/desenho" element={<Desenho />} />

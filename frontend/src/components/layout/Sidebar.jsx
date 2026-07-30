@@ -47,6 +47,7 @@ export default function Sidebar({ nome, roleGuardado, customTabs, currentPath, o
 
   const funGroup = [
     { path: '/jogos', label: t.games_title ? t.games_title.replace(' 🎮', '') : 'Jogos', icon: '🎮' },
+    { path: '/mimos', label: 'Mimos & Surpresas', icon: '🎁' },
     { path: '/bucket-list', label: t.bucket_title || 'Bucket List', icon: '📝' },
     { path: '/cartas', label: t.letter_title ? t.letter_title.replace(' ✉️', '').replace("'Abrir Quando...'", 'Abrir Quando') : 'Cartas', icon: '✉️' },
     { path: '/frasco', label: t.jar_title ? t.jar_title.replace(' 🏺', '') : 'Frasco', icon: '🏺' },

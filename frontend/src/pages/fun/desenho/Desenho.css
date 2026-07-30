@@ -119,6 +119,7 @@
 .brush-slider {
   width: 100%;
   -webkit-appearance: none;
+  appearance: none;
   height: 6px;
   border-radius: 3px;
   background: var(--bg-body, #fff0f3);
@@ -212,3 +213,26 @@
   font-weight: 700;
   margin-top: 5px;
 }
+
+/* Suporte de Alta Legibilidade para Tema Escuro */
+.theme-dark .canvas-toolbox h3 {
+  color: var(--text-primary, #ffffff);
+}
+
+.theme-dark .brush-slider-header {
+  color: var(--text-secondary, #a0aec0);
+}
+
+.theme-dark .btn-template-select {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.theme-dark .btn-template-select:hover,
+.theme-dark .btn-template-select.active {
+  background: var(--primary-color, #ff4d6d);
+  color: #ffffff;
+  border-color: var(--primary-color, #ff4d6d);
+}
+

@@ -2,7 +2,7 @@ const { Resend } = require('resend');
 const User = require('../../models/auth/userModel');
 
 // Inicializar cliente do Resend com a chave de API das variáveis de ambiente
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_dev');
 
 // Helper genérico para enviar e-mails
 const sendEmail = async (to, subject, text, html) => {

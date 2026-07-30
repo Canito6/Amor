@@ -1,0 +1,56 @@
+.mimosContainer {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem 1rem;
+}
+
+.mimosHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.mimosTitle {
+  color: #ff6b9d;
+  margin: 0;
+  font-size: 28px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.headerSpacerRight {
+  width: 120px;
+}
+
+@media (max-width: 600px) {
+  .mimosHeader {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  .headerSpacerRight {
+    display: none;
+  }
+  .mimosTitle {
+    font-size: 24px;
+  }
+}
+
+.mimosSubtitle {
+  font-family: var(--font-title);
+  color: var(--text-muted, #6b586e);
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+
+.theme-dark .mimosSubtitle {
+  color: #a0aec0;
+}
+
+.mimosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+}

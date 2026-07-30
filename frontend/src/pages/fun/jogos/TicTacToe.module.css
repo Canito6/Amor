@@ -1,0 +1,251 @@
+.ticTacToeContainer {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem 1rem;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.headerTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--primary-color, #ff6b9d);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerSpacer {
+  width: 90px;
+}
+
+.scoreBanner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--card-bg, rgba(255, 255, 255, 0.15));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color, rgba(255, 107, 157, 0.2));
+  border-radius: 18px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.scoreBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.scoreSymbol {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.symbolX {
+  color: #ff6b9d;
+  text-shadow: 0 0 10px rgba(255, 107, 157, 0.4);
+}
+
+.symbolO {
+  color: #00bbf9;
+  text-shadow: 0 0 10px rgba(0, 187, 249, 0.4);
+}
+
+.scorePlayerName {
+  font-size: 0.85rem;
+  color: var(--text-muted, #718096);
+  font-weight: 600;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scoreValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main, #2d3748);
+}
+
+.scoreDivider {
+  width: 1px;
+  height: 40px;
+  background: var(--border-color, rgba(0, 0, 0, 0.1));
+}
+
+.turnIndicator {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.myTurn {
+  background: rgba(42, 157, 143, 0.15);
+  border: 1px solid rgba(42, 157, 143, 0.4);
+  color: #2a9d8f;
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.partnerTurn {
+  background: rgba(255, 180, 162, 0.2);
+  border: 1px solid rgba(255, 180, 162, 0.5);
+  color: #e76f51;
+}
+
+.waitingPartner {
+  background: rgba(235, 94, 85, 0.15);
+  border: 1px solid rgba(235, 94, 85, 0.4);
+  color: #eb5e55;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(42, 157, 143, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(42, 157, 143, 0.5);
+  }
+}
+
+.boardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 420px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 2rem auto;
+  position: relative;
+}
+
+.cell {
+  background: var(--card-bg, rgba(255, 255, 255, 0.5));
+  border: 2px solid var(--border-color, rgba(255, 107, 157, 0.2));
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.25rem;
+  font-weight: 900;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.cell:hover:not(:disabled) {
+  background: rgba(255, 107, 157, 0.1);
+  border-color: #ff6b9d;
+  transform: scale(1.04);
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+}
+
+.winningCell {
+  background: rgba(255, 215, 0, 0.25) !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6) !important;
+  animation: winScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate;
+}
+
+@keyframes winScale {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.06); }
+}
+
+.cellTextX {
+  color: #ff6b9d;
+  text-shadow: 0 0 12px rgba(255, 107, 157, 0.5);
+  animation: popIn 0.25s ease-out;
+}
+
+.cellTextO {
+  color: #00bbf9;
+  text-shadow: 0 0 12px rgba(0, 187, 249, 0.5);
+  animation: popIn 0.25s ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.actionsArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #ff6b9d 0%, #c589e8 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+  transition: all 0.2s ease;
+}
+
+.resetBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+}
+
+.resetBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rewardInfoCard {
+  background: var(--card-bg, rgba(255, 255, 255, 0.2));
+  border: 1px dashed var(--border-color, rgba(0, 0, 0, 0.15));
+  border-radius: 14px;
+  padding: 0.85rem 1.25rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted, #718096);
+  margin-top: 1rem;
+}
+
+.rewardHighlight {
+  color: #ff6b9d;
+  font-weight: 700;
+}
