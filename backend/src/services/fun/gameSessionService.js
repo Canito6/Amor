@@ -271,6 +271,27 @@ class GameSessionService {
     return session;
   }
 
+  async updateCustomization(coupleId, username, gameType = 'tic-tac-toe', { emoji, color }) {
+    const session = await this.getOrCreateSession(coupleId, gameType);
+
+    if (!session.state.customizations) {
+      session.state.customizations = {};
+    }
+
+    session.state.customizations[username] = {
+      emoji: emoji || '💖',
+      color: color || 'pink'
+    };
+
+    session.markModified('state');
+    session.updatedAt = new Date();
+    await session.save();
+
+    this._broadcastState(coupleId, session, gameType);
+
+    return session;
+  }
+
   _broadcastState(coupleId, session, gameType = 'tic-tac-toe') {
     try {
       const eventName = `${gameType}-update`;

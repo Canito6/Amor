@@ -7,6 +7,18 @@ import { gameSessionService } from '../../../services/fun/gameSessionService';
 import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
 import styles from './ConnectFour.module.css';
 
+const EMOJI_OPTIONS = ['💖', '💙', '⭐', '👑', '🐱', '🐶', '🔥', '🍓', '🦄', '💎', '⚡', '🥑', '🍕', '🐻', '🌸'];
+
+const COLOR_OPTIONS = [
+  { id: 'pink', name: 'Rosa Néon', bg: 'radial-gradient(circle at 35% 35%, #ff7aa8, #ff2a70)' },
+  { id: 'blue', name: 'Azul Elétrico', bg: 'radial-gradient(circle at 35% 35%, #4cc9f0, #0096c7)' },
+  { id: 'purple', name: 'Roxo Mágico', bg: 'radial-gradient(circle at 35% 35%, #c77dff, #7b2cbf)' },
+  { id: 'green', name: 'Verde Esmeralda', bg: 'radial-gradient(circle at 35% 35%, #52b788, #1b4332)' },
+  { id: 'gold', name: 'Dourado Brilhante', bg: 'radial-gradient(circle at 35% 35%, #ffe066, #f59e0b)' },
+  { id: 'orange', name: 'Laranja Sol', bg: 'radial-gradient(circle at 35% 35%, #ff9e00, #e85d04)' },
+  { id: 'dark', name: 'Preto Galáctico', bg: 'radial-gradient(circle at 35% 35%, #6c757d, #212529)' }
+];
+
 export default function ConnectFour() {
   const navigate = useNavigate();
   const socket = useSocket();
@@ -16,8 +28,12 @@ export default function ConnectFour() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   const meuNome = localStorage.getItem('nome') || '';
+
+  const [myEmoji, setMyEmoji] = useState(() => localStorage.getItem(`c4_emoji_${meuNome}`) || '💖');
+  const [myColor, setMyColor] = useState(() => localStorage.getItem(`c4_color_${meuNome}`) || 'pink');
 
   const loadSession = useCallback(async () => {
     try {
@@ -25,6 +41,7 @@ export default function ConnectFour() {
       const data = await gameSessionService.joinSession('connect-four');
       setSession(data);
     } catch (err) {
+      console.error(err);
       showToast(err.message || 'Erro ao carregar o 4 em Linha', 'error');
     } finally {
       setLoading(false);
@@ -42,7 +59,6 @@ export default function ConnectFour() {
     const handleUpdate = (updatedState) => {
       if (updatedState && updatedState.gameType === 'connect-four') {
         setSession(updatedState);
-        // Disparar confetes se o jogador atual venceu
         if (updatedState.state?.status === 'finished' && updatedState.state?.winner) {
           const players = updatedState.players || [];
           const winnerPlayer = players.find(p => p.symbol === updatedState.state.winner);
@@ -59,6 +75,23 @@ export default function ConnectFour() {
       socket.off('connect-four-update', handleUpdate);
     };
   }, [socket, meuNome]);
+
+  const handleUpdateCustomization = async (newEmoji, newColor) => {
+    setMyEmoji(newEmoji);
+    setMyColor(newColor);
+    localStorage.setItem(`c4_emoji_${meuNome}`, newEmoji);
+    localStorage.setItem(`c4_color_${meuNome}`, newColor);
+
+    try {
+      const updated = await gameSessionService.updateCustomization('connect-four', {
+        emoji: newEmoji,
+        color: newColor
+      });
+      setSession(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleDropPiece = async (colIndex) => {
     if (!session || session.state.status !== 'playing' || submitting) return;
@@ -124,6 +157,11 @@ export default function ConnectFour() {
   const winningLine = session?.state?.winningLine || [];
   const board = session?.state?.board || Array(42).fill(null);
   const scores = session?.state?.scores || { X: 0, O: 0, draws: 0 };
+  const customizations = session?.state?.customizations || {};
+
+  // Personalizações de cada jogador
+  const customX = (playerX && customizations[playerX.username]) || { emoji: '💖', color: 'pink' };
+  const customO = (playerO && customizations[playerO.username]) || { emoji: '💙', color: 'blue' };
 
   const isMyTurn = myPlayer && myPlayer.symbol === currentTurn && status === 'playing';
   const currentTurnUsername = currentTurn === 'X' ? playerX?.username : playerO?.username;
@@ -149,7 +187,6 @@ export default function ConnectFour() {
     }
   }
 
-  // Verificar se coluna está cheia (linha 0 occupied)
   const isColFull = (col) => board[0 * 7 + col] !== null;
 
   return (
@@ -168,7 +205,9 @@ export default function ConnectFour() {
       {/* Placares e Jogadores */}
       <div className={styles.scoreBanner}>
         <div className={styles.scoreBox}>
-          <span className={`${styles.scoreSymbol} ${styles.symbolX}`}>💖</span>
+          <span className={`${styles.scoreSymbol} ${styles[`token_${customX.color}`]}`}>
+            {customX.emoji}
+          </span>
           <span className={styles.scorePlayerName}>
             {playerX ? playerX.username : '---'}
           </span>
@@ -187,7 +226,9 @@ export default function ConnectFour() {
         <div className={styles.scoreDivider}></div>
 
         <div className={styles.scoreBox}>
-          <span className={`${styles.scoreSymbol} ${styles.symbolO}`}>💙</span>
+          <span className={`${styles.scoreSymbol} ${styles[`token_${customO.color}`]}`}>
+            {customO.emoji}
+          </span>
           <span className={styles.scorePlayerName}>
             {playerO ? playerO.username : '---'}
           </span>
@@ -205,6 +246,57 @@ export default function ConnectFour() {
       }`}>
         {turnMessage}
       </div>
+
+      {/* Botão para Abrir Personalizador */}
+      <button
+        className={styles.customizeToggleBtn}
+        onClick={() => setShowCustomizer(!showCustomizer)}
+      >
+        🎨 {showCustomizer ? (language === 'pt' ? 'Fechar Personalização' : 'Close Customization') : (language === 'pt' ? 'Personalizar Minha Ficha' : 'Customize My Piece')}
+      </button>
+
+      {/* Painel de Personalização */}
+      {showCustomizer && (
+        <div className={styles.customizationPanel}>
+          <div className={styles.customTitle}>
+            <span>🎨</span> {language === 'pt' ? 'Personaliza a tua Ficha' : 'Customize Your Piece'}
+          </div>
+
+          <div className={styles.customSection}>
+            <label className={styles.customLabel}>
+              {language === 'pt' ? 'Escolhe a Cor da tua Ficha:' : 'Choose Token Color:'}
+            </label>
+            <div className={styles.colorPickerGrid}>
+              {COLOR_OPTIONS.map(c => (
+                <button
+                  key={c.id}
+                  className={`${styles.colorDotBtn} ${myColor === c.id ? styles.colorDotActive : ''}`}
+                  style={{ background: c.bg }}
+                  title={c.name}
+                  onClick={() => handleUpdateCustomization(myEmoji, c.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.customSection}>
+            <label className={styles.customLabel}>
+              {language === 'pt' ? 'Escolhe o teu Emoji:' : 'Choose Your Emoji:'}
+            </label>
+            <div className={styles.emojiPickerGrid}>
+              {EMOJI_OPTIONS.map(emoji => (
+                <button
+                  key={emoji}
+                  className={`${styles.emojiBtn} ${myEmoji === emoji ? styles.emojiActive : ''}`}
+                  onClick={() => handleUpdateCustomization(emoji, myColor)}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabuleiro 4 em Linha */}
       <div className={styles.boardContainer}>
@@ -228,14 +320,24 @@ export default function ConnectFour() {
           {board.map((symbol, idx) => {
             const isWinning = winningLine.includes(idx);
             const colIndex = idx % 7;
+            const custom = symbol === 'X' ? customX : customO;
+
             return (
               <div
                 key={`c4-cell-${idx}`}
                 className={`${styles.c4Cell} ${symbol ? styles.occupied : ''} ${isWinning ? styles.winningCell : ''}`}
                 onClick={() => isMyTurn && !isColFull(colIndex) && handleDropPiece(colIndex)}
               >
-                {symbol === 'X' && <div className={styles.tokenX}>💖</div>}
-                {symbol === 'O' && <div className={styles.tokenO}>💙</div>}
+                {symbol === 'X' && (
+                  <div className={`${styles.tokenX} ${styles[`token_${custom.color || 'pink'}`]}`}>
+                    {custom.emoji || '💖'}
+                  </div>
+                )}
+                {symbol === 'O' && (
+                  <div className={`${styles.tokenO} ${styles[`token_${custom.color || 'blue'}`]}`}>
+                    {custom.emoji || '💙'}
+                  </div>
+                )}
               </div>
             );
           })}

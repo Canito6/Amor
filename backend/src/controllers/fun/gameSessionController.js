@@ -57,6 +57,19 @@ class GameSessionController extends BaseController {
       next(this.handleError(error));
     }
   }
+
+  async updateCustomization(req, res, next) {
+    try {
+      const gameType = req.params.gameType || 'tic-tac-toe';
+      const username = req.user.username;
+      const { emoji, color } = req.body;
+
+      const session = await this.gameSessionService.updateCustomization(req.coupleId, username, gameType, { emoji, color });
+      res.json(session);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  }
 }
 
 module.exports = GameSessionController;

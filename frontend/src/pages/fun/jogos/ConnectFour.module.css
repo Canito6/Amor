@@ -126,7 +126,7 @@
 /* Indicador de Turno */
 .turnIndicator {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding: 0.85rem 1.25rem;
   border-radius: 30px;
   font-weight: 800;
@@ -175,7 +175,130 @@
   50% { box-shadow: 0 0 20px rgba(42, 157, 143, 0.5); }
 }
 
-/* Tabuleiro 4 em Linha (7 Colunas x 6 Linhas) */
+/* Painel & Botão de Personalização */
+.customizeToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255, 107, 157, 0.12);
+  border: 1.5px solid rgba(255, 107, 157, 0.35);
+  color: #ff6b9d;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin: 0 auto 1.25rem auto;
+}
+
+.customizeToggleBtn:hover {
+  background: #ff6b9d;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+.customizationPanel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 245, 0.95) 100%);
+  border: 2px solid rgba(255, 107, 157, 0.4);
+  border-radius: 20px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 24px rgba(255, 107, 157, 0.2);
+  animation: fadeIn 0.3s ease-out;
+}
+
+:global(.theme-dark) .customizationPanel {
+  background: linear-gradient(135deg, rgba(38, 20, 42, 0.95) 0%, rgba(22, 10, 26, 0.95) 100%);
+  border-color: rgba(255, 107, 157, 0.4);
+}
+
+.customTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--primary-color, #ff6b9d);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customSection {
+  margin-bottom: 1rem;
+}
+
+.customLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted, #718096);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+:global(.theme-dark) .customLabel {
+  color: #a0aec0;
+}
+
+.colorPickerGrid {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.colorDotBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.colorDotBtn:hover {
+  transform: scale(1.18);
+}
+
+.colorDotActive {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 3px #ff6b9d;
+  transform: scale(1.18);
+}
+
+.emojiPickerGrid {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.emojiBtn {
+  font-size: 1.25rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 107, 157, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:global(.theme-dark) .emojiBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.emojiBtn:hover {
+  transform: scale(1.18);
+  background: rgba(255, 107, 157, 0.2);
+}
+
+.emojiActive {
+  background: #ff6b9d !important;
+  color: #ffffff !important;
+  border-color: #ff6b9d !important;
+  transform: scale(1.12);
+}
+
+/* Tabuleiro 4 em Linha */
 .boardContainer {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 235, 243, 0.95) 100%);
   border: 2px solid rgba(255, 107, 157, 0.35);
@@ -266,12 +389,11 @@
   background: rgba(255, 107, 157, 0.15);
 }
 
-.tokenX {
+/* Estilos Dinâmicos de Fichas por Cor */
+.tokenX, .tokenO {
   width: 90%;
   height: 90%;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ff7aa8, #ff2a70);
-  box-shadow: 0 0 14px rgba(255, 42, 112, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -279,17 +401,39 @@
   animation: dropPiece 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.tokenO {
-  width: 90%;
-  height: 90%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #4cc9f0, #0096c7);
-  box-shadow: 0 0 14px rgba(0, 150, 199, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  animation: dropPiece 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+.token_pink {
+  background: radial-gradient(circle at 35% 35%, #ff7aa8, #ff2a70) !important;
+  box-shadow: 0 0 14px rgba(255, 42, 112, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_blue {
+  background: radial-gradient(circle at 35% 35%, #4cc9f0, #0096c7) !important;
+  box-shadow: 0 0 14px rgba(0, 150, 199, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_purple {
+  background: radial-gradient(circle at 35% 35%, #c77dff, #7b2cbf) !important;
+  box-shadow: 0 0 14px rgba(123, 44, 191, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_green {
+  background: radial-gradient(circle at 35% 35%, #52b788, #1b4332) !important;
+  box-shadow: 0 0 14px rgba(45, 106, 79, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_gold {
+  background: radial-gradient(circle at 35% 35%, #ffe066, #f59e0b) !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_orange {
+  background: radial-gradient(circle at 35% 35%, #ff9e00, #e85d04) !important;
+  box-shadow: 0 0 14px rgba(232, 93, 4, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.token_dark {
+  background: radial-gradient(circle at 35% 35%, #6c757d, #212529) !important;
+  box-shadow: 0 0 14px rgba(33, 37, 41, 0.7), inset 0 -3px 6px rgba(0, 0, 0, 0.3) !important;
 }
 
 @keyframes dropPiece {
