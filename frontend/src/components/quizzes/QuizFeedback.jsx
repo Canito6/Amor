@@ -131,7 +131,6 @@ export default function QuizFeedback({
           maxHeight: '90vh', 
           overflowY: 'auto', 
           padding: '30px', 
-          background: '#fff',
           position: 'relative',
           zIndex: 10001 // above the canvas so buttons remain clickable!
         }}
