@@ -161,6 +161,46 @@ export default function ConnectFour() {
     }
   };
 
+  const handleDropPiece = async (colIndex) => {
+    if (!session || session.state.status !== 'playing' || submitting) return;
+
+    const myPlayer = session.players.find(p => p.username === meuNome);
+    if (!myPlayer) {
+      showToast('Estás em modo visualização.', 'warning');
+      return;
+    }
+
+    if (myPlayer.symbol !== session.state.currentTurn) {
+      showToast('Aguarde pelo turno do teu parceiro!', 'warning');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const updated = await gameSessionService.makeMove('connect-four', colIndex);
+      setSession(updated);
+    } catch (err) {
+      showToast(err.message || 'Erro ao jogar na coluna', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleResetGame = async () => {
+    if (submitting) return;
+    try {
+      setSubmitting(true);
+      const reseted = await gameSessionService.resetSession('connect-four');
+      setSession(reseted);
+      showToast('Nova partida iniciada! 🚀', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao reiniciar partida', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={`app-container fade-in ${styles.connectFourContainer}`}>
