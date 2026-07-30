@@ -278,6 +278,18 @@ class GameSessionService {
       session.state.customizations = {};
     }
 
+    // Verificar se o parceiro já está a usar esta cor ou emoji
+    const partnerUsername = Object.keys(session.state.customizations).find(u => u !== username);
+    if (partnerUsername) {
+      const partnerCustom = session.state.customizations[partnerUsername];
+      if (emoji && partnerCustom.emoji === emoji) {
+        throw new ApiError(400, 'Este emoji já está em uso pelo teu parceiro! Escolhe outro.');
+      }
+      if (color && partnerCustom.color === color) {
+        throw new ApiError(400, 'Esta cor já está em uso pelo teu parceiro! Escolhe outra.');
+      }
+    }
+
     session.state.customizations[username] = {
       emoji: emoji || '💖',
       color: color || 'pink'

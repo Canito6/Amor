@@ -32,22 +32,37 @@ export default function ConnectFour() {
 
   const meuNome = localStorage.getItem('nome') || '';
 
-  const [myEmoji, setMyEmoji] = useState(() => localStorage.getItem(`c4_emoji_${meuNome}`) || '💖');
-  const [myColor, setMyColor] = useState(() => localStorage.getItem(`c4_color_${meuNome}`) || 'pink');
+  const [myEmoji, setMyEmoji] = useState(() => localStorage.getItem(`c4_emoji_${meuNome}`) || null);
+  const [myColor, setMyColor] = useState(() => localStorage.getItem(`c4_color_${meuNome}`) || null);
 
   const loadSession = useCallback(async () => {
     try {
       const data = await gameSessionService.joinSession('connect-four');
       setSession(data);
 
-      // Sincronizar preferências locais guardadas com a sessão no servidor (sem chamar setLoading(true))
-      const savedEmoji = localStorage.getItem(`c4_emoji_${meuNome}`) || myEmoji;
-      const savedColor = localStorage.getItem(`c4_color_${meuNome}`) || myColor;
-      const updated = await gameSessionService.updateCustomization('connect-four', {
-        emoji: savedEmoji,
-        color: savedColor
-      });
-      setSession(updated);
+      const players = data?.players || [];
+      const myPlayer = players.find(p => p.username === meuNome);
+      const mySymbol = myPlayer?.symbol || 'X';
+
+      // Determinar padrões corretos por símbolo se não houver no localStorage
+      const defaultEmoji = mySymbol === 'X' ? '💖' : '💙';
+      const defaultColor = mySymbol === 'X' ? 'pink' : 'blue';
+
+      const savedEmoji = localStorage.getItem(`c4_emoji_${meuNome}`) || defaultEmoji;
+      const savedColor = localStorage.getItem(`c4_color_${meuNome}`) || defaultColor;
+
+      if (!myEmoji) setMyEmoji(savedEmoji);
+      if (!myColor) setMyColor(savedColor);
+
+      // Sincronizar com a sessão no servidor apenas se necessário
+      const serverCustom = data?.state?.customizations?.[meuNome];
+      if (!serverCustom || serverCustom.emoji !== savedEmoji || serverCustom.color !== savedColor) {
+        const updated = await gameSessionService.updateCustomization('connect-four', {
+          emoji: savedEmoji,
+          color: savedColor
+        });
+        setSession(updated);
+      }
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Erro ao carregar o 4 em Linha', 'error');
@@ -90,6 +105,32 @@ export default function ConnectFour() {
     };
   }, [socket, meuNome]);
 
+  const players = session?.players || [];
+  const playerX = players.find(p => p.symbol === 'X');
+  const playerO = players.find(p => p.symbol === 'O');
+  const myPlayer = players.find(p => p.username === meuNome);
+  const mySymbol = myPlayer?.symbol || 'X';
+
+  const defaultMyEmoji = mySymbol === 'X' ? '💖' : '💙';
+  const defaultMyColor = mySymbol === 'X' ? 'pink' : 'blue';
+
+  const activeMyEmoji = myEmoji || defaultMyEmoji;
+  const activeMyColor = myColor || defaultMyColor;
+
+  const partnerPlayer = players.find(p => p.username !== meuNome);
+  const partnerSymbol = mySymbol === 'X' ? 'O' : 'X';
+  const partnerDefaultCustom = partnerSymbol === 'X'
+    ? { emoji: '💖', color: 'pink' }
+    : { emoji: '💙', color: 'blue' };
+
+  const customizations = session?.state?.customizations || {};
+  const partnerCustom = partnerPlayer
+    ? (customizations[partnerPlayer.username] || partnerDefaultCustom)
+    : partnerDefaultCustom;
+
+  const partnerEmoji = partnerCustom.emoji;
+  const partnerColor = partnerCustom.color;
+
   const handleUpdateCustomization = async (newEmoji, newColor) => {
     // 1. Verificar se a cor ou emoji já está a ser usado pelo parceiro
     if (partnerColor && newColor === partnerColor) {
@@ -101,7 +142,7 @@ export default function ConnectFour() {
       return;
     }
 
-    // 2. Atualizar imediatamente o estado local (0ms de atraso visual, sem ecrã de carregamento!)
+    // 2. Atualizar imediatamente o estado local
     setMyEmoji(newEmoji);
     setMyColor(newColor);
     localStorage.setItem(`c4_emoji_${meuNome}`, newEmoji);
@@ -116,46 +157,7 @@ export default function ConnectFour() {
       setSession(updated);
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleDropPiece = async (colIndex) => {
-    if (!session || session.state.status !== 'playing' || submitting) return;
-
-    const myPlayer = session.players.find(p => p.username === meuNome);
-    if (!myPlayer) {
-      showToast('Estás em modo visualização.', 'warning');
-      return;
-    }
-
-    if (myPlayer.symbol !== session.state.currentTurn) {
-      showToast('Aguarde pelo turno do teu parceiro!', 'warning');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const updated = await gameSessionService.makeMove('connect-four', colIndex);
-      setSession(updated);
-    } catch (err) {
-      showToast(err.message || 'Erro ao jogar na coluna', 'error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleResetGame = async () => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      const reseted = await gameSessionService.resetSession('connect-four');
-      setSession(reseted);
-      showToast('Nova partida iniciada! 🚀', 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('Erro ao reiniciar partida', 'error');
-    } finally {
-      setSubmitting(false);
+      showToast(err.message || 'Erro ao atualizar personalização', 'error');
     }
   };
 
@@ -172,20 +174,14 @@ export default function ConnectFour() {
     );
   }
 
-  const players = session?.players || [];
-  const playerX = players.find(p => p.symbol === 'X');
-  const playerO = players.find(p => p.symbol === 'O');
-  const myPlayer = players.find(p => p.username === meuNome);
-
   const status = session?.state?.status || 'waiting';
   const currentTurn = session?.state?.currentTurn || 'X';
   const winner = session?.state?.winner;
   const winningLine = session?.state?.winningLine || [];
   const board = session?.state?.board || Array(42).fill(null);
   const scores = session?.state?.scores || { X: 0, O: 0, draws: 0 };
-  const customizations = session?.state?.customizations || {};
 
-  // Obter personalização de um jogador (se for o próprio utilizador, dá resposta local instantânea a 0ms!)
+  // Obter personalização de um jogador
   const getPlayerCustomization = (player, defaultSymbol) => {
     const defaultCustom = defaultSymbol === 'X'
       ? { emoji: '💖', color: 'pink' }
@@ -194,7 +190,7 @@ export default function ConnectFour() {
     if (!player) return defaultCustom;
 
     if (player.username === meuNome) {
-      return { emoji: myEmoji, color: myColor };
+      return { emoji: activeMyEmoji, color: activeMyColor };
     }
 
     return customizations[player.username] || defaultCustom;
@@ -202,20 +198,6 @@ export default function ConnectFour() {
 
   const customX = getPlayerCustomization(playerX, 'X');
   const customO = getPlayerCustomization(playerO, 'O');
-
-  const partnerPlayer = players.find(p => p.username !== meuNome);
-  const mySymbol = myPlayer?.symbol || 'X';
-  const partnerDefaultSymbol = mySymbol === 'X' ? 'O' : 'X';
-  const partnerDefaultCustom = partnerDefaultSymbol === 'X'
-    ? { emoji: '💖', color: 'pink' }
-    : { emoji: '💙', color: 'blue' };
-
-  const partnerCustom = partnerPlayer
-    ? (customizations[partnerPlayer.username] || partnerDefaultCustom)
-    : partnerDefaultCustom;
-
-  const partnerEmoji = partnerCustom.emoji;
-  const partnerColor = partnerCustom.color;
 
   const isMyTurn = myPlayer && myPlayer.symbol === currentTurn && status === 'playing';
   const currentTurnUsername = currentTurn === 'X' ? playerX?.username : playerO?.username;

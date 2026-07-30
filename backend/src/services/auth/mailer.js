@@ -1,6 +1,10 @@
 const { Resend } = require('resend');
 const User = require('../../models/auth/userModel');
 
+if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 're_dummy_key_for_dev') {
+  console.warn('⚠️ ATENÇÃO: RESEND_API_KEY não definida no .env! Os e-mails do Resend não serão entregues até adicionar uma chave válida (re_...).');
+}
+
 // Inicializar cliente do Resend com a chave de API das variáveis de ambiente
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_dev');
 
@@ -19,14 +23,18 @@ const sendEmail = async (to, subject, text, html) => {
     const { data, error } = await resend.emails.send(payload);
 
     if (error) {
-      console.error('❌ Erro ao enviar email via Resend:', error);
-      return;
+      console.error('❌ Erro ao enviar email via Resend:', JSON.stringify(error, null, 2));
+      if (fromAddress.includes('onboarding@resend.dev')) {
+        console.warn('💡 Nota: O remetente onboarding@resend.dev apenas permite enviar e-mails para a conta proprietária do Resend no plano de testes.');
+      }
+      return null;
     }
 
     console.log(`✉️ Email enviado com sucesso para ${to}`);
     return data;
   } catch (error) {
-    console.error('❌ Erro ao enviar email:', error);
+    console.error('❌ Erro inesperado ao enviar email:', error);
+    return null;
   }
 };
 

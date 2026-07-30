@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "jest --runInBand --detectOpenHandles",
-    "db:clear": "node scripts/clearDatabase.js"
+    "db:clear": "node scripts/clearDatabase.js",
+    "user:manage": "node scripts/resetUserAccount.js"
   },
   "keywords": [],
   "author": "",
