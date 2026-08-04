@@ -25,6 +25,20 @@ export const wordleService = {
     });
   },
 
+  setDuelWord: (word, hint) => {
+    return apiFetch('/api/fun/wordle/duel/set-word', {
+      method: 'POST',
+      body: { word, hint }
+    });
+  },
+
+  makeDuelGuess: (guessWord) => {
+    return apiFetch('/api/fun/wordle/duel/guess', {
+      method: 'POST',
+      body: { guessWord }
+    });
+  },
+
   updateSettings: (mode) => {
     return apiFetch('/api/fun/wordle/settings', {
       method: 'POST',

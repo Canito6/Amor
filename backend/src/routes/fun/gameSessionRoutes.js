@@ -12,5 +12,6 @@ router.post('/:gameType/join', (req, res, next) => gameSessionController.joinSes
 router.post('/:gameType/move', (req, res, next) => gameSessionController.makeMove(req, res, next));
 router.post('/:gameType/reset', (req, res, next) => gameSessionController.resetSession(req, res, next));
 router.post('/:gameType/customization', (req, res, next) => gameSessionController.updateCustomization(req, res, next));
+router.post('/:gameType/settings', (req, res, next) => gameSessionController.updateGameSettings(req, res, next));
 
 module.exports = router;

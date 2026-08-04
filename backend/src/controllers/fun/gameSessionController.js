@@ -70,6 +70,19 @@ class GameSessionController extends BaseController {
       next(this.handleError(error));
     }
   }
+
+  async updateGameSettings(req, res, next) {
+    try {
+      const gameType = req.params.gameType || 'tic-tac-toe';
+      const username = req.user.username;
+      const { consequencesEnabled, consequenceLevel } = req.body;
+
+      const session = await this.gameSessionService.updateGameSettings(req.coupleId, username, gameType, { consequencesEnabled, consequenceLevel });
+      res.json(session);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  }
 }
 
 module.exports = GameSessionController;

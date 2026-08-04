@@ -18,6 +18,7 @@ export default function Battleship() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Estado local para a fase de posicionamento de navios
   const [selectedHeart, setSelectedHeart] = useState([]); // 3 células
@@ -133,6 +134,15 @@ export default function Battleship() {
     }
   };
 
+  const handleUpdateLevel = async (level) => {
+    try {
+      const updated = await battleshipService.updateSettings(level);
+      setSession(updated);
+    } catch (err) {
+      showToast(err.message || 'Erro ao atualizar dificuldade', 'error');
+    }
+  };
+
   const handleResetGame = async () => {
     if (submitting) return;
     try {
@@ -176,6 +186,7 @@ export default function Battleship() {
   const myBoard = (state.boards && state.boards[meuNome]) || Array(36).fill(null);
   const myAttacks = (state.attacks && state.attacks[meuNome]) || {};
   const isReady = state.ready && state.ready[meuNome];
+  const level = state.level || 'medium';
 
   return (
     <div className={`app-container fade-in ${styles.bsContainer}`}>
@@ -187,8 +198,46 @@ export default function Battleship() {
         <h1 className={styles.headerTitle}>
           <span>⚓</span> {language === 'pt' ? 'Batalha Naval do Amor' : 'Love Battleship'}
         </h1>
-        <InvitePartnerButton gameName="Batalha Naval" gameRoute="/jogos/batalha-naval" />
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-dark"
+            onClick={() => setShowSettings(s => !s)}
+            title={language === 'pt' ? 'Dificuldade dos Desafios' : 'Challenge Difficulty'}
+          >
+            ⚙️
+          </button>
+          <InvitePartnerButton gameName="Batalha Naval" gameRoute="/jogos/batalha-naval" />
+        </div>
       </div>
+
+      {/* Painel de Definições: Dificuldade do Desafio ao Afundar um Navio */}
+      {showSettings && (
+        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.25rem', borderRadius: '20px', width: '100%', maxWidth: '450px', marginBottom: '1rem' }}>
+          <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>
+            😈 {language === 'pt' ? 'Dificuldade do Desafio ao Afundar' : 'Difficulty of the Sinking Challenge'}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {['easy', 'medium', 'hard'].map(lvl => (
+              <button
+                key={lvl}
+                className="btn btn-dark"
+                style={{
+                  flex: 1,
+                  background: level === lvl ? (lvl === 'hard' ? '#ef4444' : lvl === 'medium' ? '#f59e0b' : '#10b981') : undefined,
+                  opacity: level === lvl ? 1 : 0.6
+                }}
+                onClick={() => handleUpdateLevel(lvl)}
+              >
+                {lvl === 'easy' ? '🌸' : lvl === 'medium' ? '🌶️' : '🔥🔞'} {lvl === 'easy'
+                  ? (language === 'pt' ? 'Fácil' : 'Easy')
+                  : lvl === 'medium'
+                    ? (language === 'pt' ? 'Médio' : 'Medium')
+                    : (language === 'pt' ? 'Difícil' : 'Hard')}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Banner de Estado */}
       <div className={styles.statusBanner}>

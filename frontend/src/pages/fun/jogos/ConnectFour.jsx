@@ -31,6 +31,7 @@ export default function ConnectFour() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const meuNome = localStorage.getItem('nome') || '';
 
@@ -204,6 +205,15 @@ export default function ConnectFour() {
     }
   };
 
+  const handleUpdateSettings = async (newSettings) => {
+    try {
+      const updated = await gameSessionService.updateGameSettings('connect-four', newSettings);
+      setSession(updated);
+    } catch (err) {
+      showToast(err.message || 'Erro ao atualizar definições', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className={`app-container fade-in ${styles.connectFourContainer}`}>
@@ -223,6 +233,8 @@ export default function ConnectFour() {
   const winningLine = session?.state?.winningLine || [];
   const board = session?.state?.board || Array(42).fill(null);
   const scores = session?.state?.scores || { X: 0, O: 0, draws: 0 };
+  const consequencesEnabled = session?.state?.consequencesEnabled !== false;
+  const consequenceLevel = session?.state?.consequenceLevel || 'medium';
 
   // Obter personalização de um jogador
   const getPlayerCustomization = (player, defaultSymbol) => {
@@ -278,8 +290,69 @@ export default function ConnectFour() {
         <h1 className={styles.headerTitle}>
           <span>🟡🔵</span> {language === 'pt' ? '4 em Linha de Casal' : 'Connect 4'}
         </h1>
-        <InvitePartnerButton gameName="4 em Linha" gameRoute="/jogos/4-em-linha" />
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-dark"
+            onClick={() => setShowSettings(s => !s)}
+            title={language === 'pt' ? 'Definições de Consequências' : 'Consequence Settings'}
+          >
+            ⚙️
+          </button>
+          <InvitePartnerButton gameName="4 em Linha" gameRoute="/jogos/4-em-linha" />
+        </div>
       </div>
+
+      {/* Painel de Definições: Consequências para o Derrotado */}
+      {showSettings && (
+        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.25rem', borderRadius: '20px', width: '100%', maxWidth: '450px', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: consequencesEnabled ? '1rem' : 0 }}>
+            <span style={{ fontWeight: 700 }}>
+              😈 {language === 'pt' ? 'Consequências para o Derrotado' : 'Consequences for the Loser'}
+            </span>
+            <label style={{ position: 'relative', display: 'inline-block', width: '46px', height: '26px' }}>
+              <input
+                type="checkbox"
+                checked={consequencesEnabled}
+                onChange={(e) => handleUpdateSettings({ consequencesEnabled: e.target.checked })}
+                style={{ opacity: 0, width: 0, height: 0 }}
+              />
+              <span style={{
+                position: 'absolute', cursor: 'pointer', inset: 0,
+                background: consequencesEnabled ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                borderRadius: '999px', transition: '0.2s'
+              }}>
+                <span style={{
+                  position: 'absolute', height: '20px', width: '20px', left: consequencesEnabled ? '23px' : '3px', bottom: '3px',
+                  background: 'white', borderRadius: '50%', transition: '0.2s'
+                }} />
+              </span>
+            </label>
+          </div>
+
+          {consequencesEnabled && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {['easy', 'medium', 'hard'].map(lvl => (
+                <button
+                  key={lvl}
+                  className="btn btn-dark"
+                  style={{
+                    flex: 1,
+                    background: consequenceLevel === lvl ? (lvl === 'hard' ? '#ef4444' : lvl === 'medium' ? '#f59e0b' : '#10b981') : undefined,
+                    opacity: consequenceLevel === lvl ? 1 : 0.6
+                  }}
+                  onClick={() => handleUpdateSettings({ consequenceLevel: lvl })}
+                >
+                  {lvl === 'easy' ? '🌸' : lvl === 'medium' ? '🌶️' : '🔥🔞'} {lvl === 'easy'
+                    ? (language === 'pt' ? 'Fácil' : 'Easy')
+                    : lvl === 'medium'
+                      ? (language === 'pt' ? 'Médio' : 'Medium')
+                      : (language === 'pt' ? 'Difícil' : 'Hard')}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Placares e Jogadores */}
       <div className={styles.scoreBanner}>
@@ -445,7 +518,7 @@ export default function ConnectFour() {
             : (language === 'pt' ? 'Reiniciar Tabuleiro' : 'Reset Board')}
         </button>
 
-        {session?.state?.activeChallenge && (
+        {consequencesEnabled && session?.state?.activeChallenge && (
           <div style={{
             background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)',
             border: '2px solid #ef4444',

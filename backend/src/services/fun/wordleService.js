@@ -192,10 +192,24 @@ class WordleService {
 
   async updateSettings(coupleId, username, { mode }) {
     const session = await this.getOrCreateSession(coupleId);
-    if (mode && ['ai', 'manual'].includes(mode)) {
+    if (mode && ['ai', 'manual', 'duel'].includes(mode)) {
       session.state.mode = mode;
       if (mode === 'manual') {
         session.state.status = 'setting';
+      } else if (mode === 'duel') {
+        // Modo Duelo: cada jogador define uma palavra secreta para o parceiro
+        // adivinhar, em simultâneo. Reinicia sempre um duelo limpo ao ativar o modo.
+        session.state.status = 'setting-duel';
+        session.state.duel = {
+          wordFor: {},
+          hintFor: {},
+          attemptsFor: {},
+          finishedFor: {},
+          winnerOverall: null
+        };
+      } else if (mode === 'ai') {
+        // Voltar ao modo conjunto: garante que não fica preso num duelo antigo
+        session.state.status = 'playing';
       }
     }
     if (typeof session.markModified === 'function') session.markModified('state');
@@ -204,8 +218,137 @@ class WordleService {
     return session;
   }
 
+  async setDuelWord(coupleId, username, { word, hint }) {
+    const session = await this.getOrCreateSession(coupleId);
+
+    if (session.state.mode !== 'duel') {
+      throw new ApiError(400, 'O modo Duelo não está ativo.');
+    }
+    if (session.players.length < 2) {
+      throw new ApiError(400, 'É preciso os dois jogadores na sessão para jogar em Duelo.');
+    }
+
+    const partner = session.players.find(p => p.username !== username);
+    if (!partner) {
+      throw new ApiError(400, 'Parceiro ainda não entrou na sessão.');
+    }
+
+    const cleanWord = word.trim().toUpperCase();
+    if (cleanWord.length < 4 || cleanWord.length > 8) {
+      throw new ApiError(400, 'A palavra secreta deve ter entre 4 e 8 letras.');
+    }
+
+    if (!session.state.duel) {
+      session.state.duel = { wordFor: {}, hintFor: {}, attemptsFor: {}, finishedFor: {}, winnerOverall: null };
+    }
+
+    // A palavra que EU escolho é para o MEU PARCEIRO adivinhar
+    session.state.duel.wordFor[partner.username] = cleanWord;
+    session.state.duel.hintFor[partner.username] = hint || 'Palavra escolhida pelo teu par';
+    session.state.duel.attemptsFor[partner.username] = session.state.duel.attemptsFor[partner.username] || [];
+    session.state.duel.finishedFor[partner.username] = false;
+
+    // Assim que AMBOS os jogadores tiverem definido uma palavra para o outro, o duelo começa
+    const bothWordsSet = session.players.every(p => !!session.state.duel.wordFor[p.username]);
+    if (bothWordsSet) {
+      session.state.status = 'playing';
+    }
+
+    if (typeof session.markModified === 'function') session.markModified('state');
+    session.updatedAt = new Date();
+    await session.save();
+
+    this._broadcastState(coupleId, session);
+    return session;
+  }
+
+  async makeDuelGuess(coupleId, username, guessWord) {
+    const session = await this.getOrCreateSession(coupleId);
+
+    if (session.state.mode !== 'duel' || session.state.status !== 'playing') {
+      throw new ApiError(400, 'O duelo não está em curso.');
+    }
+
+    const duel = session.state.duel;
+    const myWord = duel?.wordFor?.[username];
+    if (!myWord) {
+      throw new ApiError(400, 'O teu parceiro ainda não definiu a tua palavra secreta.');
+    }
+    if (duel.finishedFor?.[username]) {
+      throw new ApiError(400, 'Já terminaste o teu lado do duelo. Aguarda pelo teu parceiro.');
+    }
+
+    const cleanGuess = guessWord.trim().toUpperCase();
+    if (cleanGuess.length !== myWord.length) {
+      throw new ApiError(400, `A palavra deve ter exatamente ${myWord.length} letras.`);
+    }
+
+    const evalResult = WordleService.evaluateGuess(myWord, cleanGuess);
+    if (!Array.isArray(duel.attemptsFor[username])) duel.attemptsFor[username] = [];
+    duel.attemptsFor[username].push({ word: cleanGuess, result: evalResult });
+
+    const isWin = evalResult.every(r => r === 'correct');
+    const maxAttempts = session.state.maxAttempts || 6;
+
+    if (isWin || duel.attemptsFor[username].length >= maxAttempts) {
+      duel.finishedFor[username] = true;
+      if (isWin) {
+        session.state.scores[username] = (session.state.scores[username] || 0) + 50;
+      }
+    }
+
+    // Verificar se o duelo terminou (ambos os jogadores concluíram o seu lado)
+    const everyoneFinished = session.players.every(p => duel.finishedFor?.[p.username]);
+    if (everyoneFinished) {
+      session.state.status = 'finished';
+
+      const results = session.players.map(p => {
+        const attempts = duel.attemptsFor[p.username] || [];
+        const solved = attempts.length > 0 && attempts[attempts.length - 1].result.every(r => r === 'correct');
+        return { username: p.username, solved, attemptsUsed: attempts.length };
+      });
+
+      const solvers = results.filter(r => r.solved);
+      if (solvers.length === 0) {
+        duel.winnerOverall = 'draw';
+      } else if (solvers.length === 1) {
+        duel.winnerOverall = solvers[0].username;
+      } else {
+        // Ambos acertaram: ganha quem usou menos tentativas; empate se for igual
+        solvers.sort((a, b) => a.attemptsUsed - b.attemptsUsed);
+        duel.winnerOverall = solvers[0].attemptsUsed === solvers[1].attemptsUsed
+          ? 'draw'
+          : solvers[0].username;
+      }
+    }
+
+    if (typeof session.markModified === 'function') session.markModified('state');
+    session.updatedAt = new Date();
+    await session.save();
+
+    this._broadcastState(coupleId, session);
+    return session;
+  }
+
   async resetGame(coupleId, username) {
     const session = await this.getOrCreateSession(coupleId);
+
+    if (session.state.mode === 'duel') {
+      session.state.status = 'setting-duel';
+      session.state.duel = {
+        wordFor: {},
+        hintFor: {},
+        attemptsFor: {},
+        finishedFor: {},
+        winnerOverall: null
+      };
+      if (typeof session.markModified === 'function') session.markModified('state');
+      session.updatedAt = new Date();
+      await session.save();
+      this._broadcastState(coupleId, session);
+      return session;
+    }
+
     const newWord = DEFAULT_ROMANTIC_WORDS[Math.floor(Math.random() * DEFAULT_ROMANTIC_WORDS.length)];
 
     session.state.secretWord = newWord;

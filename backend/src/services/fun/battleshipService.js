@@ -257,6 +257,13 @@ class BattleshipService {
   async resetGame(coupleId, username) {
     const session = await this.getOrCreateSession(coupleId);
 
+    // O derrotado da partida anterior começa a seguinte (mais justo do que
+    // manter sempre o mesmo jogador com vantagem de iniciar primeiro).
+    const previousWinner = session.state.winner;
+    const previousLoser = previousWinner
+      ? session.players.find(p => p.username !== previousWinner)?.username
+      : null;
+
     session.state.status = 'setup';
     session.state.ready = {};
     session.state.boards = {};
@@ -264,6 +271,7 @@ class BattleshipService {
     session.state.attacks = {};
     session.state.activeChallenge = null;
     session.state.winner = null;
+    session.state.currentTurn = previousLoser || session.state.currentTurn || null;
 
     session.players.forEach(p => {
       session.state.ready[p.username] = false;

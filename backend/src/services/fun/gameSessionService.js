@@ -118,7 +118,12 @@ class GameSessionService {
           winner: null,
           winningLine: null,
           scores: { X: 0, O: 0, draws: 0 },
-          lastStarter: 'X'
+          lastStarter: 'X',
+          // Consequências para o derrotado: opcionais, com dificuldade escolhível.
+          // Mantido a 'true'/'medium' por defeito para preservar o comportamento
+          // já existente (a punição da IA sempre aparecia antes de ser configurável).
+          consequencesEnabled: true,
+          consequenceLevel: 'medium'
         }
       });
     }
@@ -207,6 +212,7 @@ class GameSessionService {
       session.state.winningLine = result.winningLine;
 
       if (result.winner === 'draw') {
+        session.state.activeChallenge = null;
         session.state.scores.draws += 1;
         for (const p of session.players) {
           try {
@@ -227,22 +233,29 @@ class GameSessionService {
           } catch (err) { /* ignore */ }
 
           // Gerar punição divertida com a IA Gemini para o derrotado ao vencer!
-          try {
-            const geminiService = require('../ai/geminiService');
-            const coupleNames = session.players.map(p => p.username);
-            const challengeData = await geminiService.generateTruthOrDare({
-              level: 'medium',
-              type: 'dare',
-              coupleNames
-            });
-            session.state.activeChallenge = {
-              winner: winnerPlayer.username,
-              loser: loserPlayer ? loserPlayer.username : 'Parceiro',
-              challengeText: challengeData.content,
-              aiGenerated: challengeData.aiGenerated
-            };
-          } catch (err) {
-            console.error('Erro ao gerar punição IA no fim do jogo:', err.message);
+          // Só quando o casal tiver as consequências ativadas (opcional, por defeito ligado
+          // para preservar o comportamento anterior, quando isto não era configurável).
+          if (session.state.consequencesEnabled !== false) {
+            try {
+              const geminiService = require('../ai/geminiService');
+              const coupleNames = session.players.map(p => p.username);
+              const challengeData = await geminiService.generateTruthOrDare({
+                level: session.state.consequenceLevel || 'medium',
+                type: 'dare',
+                coupleNames
+              });
+              session.state.activeChallenge = {
+                winner: winnerPlayer.username,
+                loser: loserPlayer ? loserPlayer.username : 'Parceiro',
+                challengeText: challengeData.content,
+                level: session.state.consequenceLevel || 'medium',
+                aiGenerated: challengeData.aiGenerated
+              };
+            } catch (err) {
+              console.error('Erro ao gerar punição IA no fim do jogo:', err.message);
+            }
+          } else {
+            session.state.activeChallenge = null;
           }
         }
         if (loserPlayer) {
@@ -269,6 +282,7 @@ class GameSessionService {
             freshSession.state.currentTurn = nextStarter;
             freshSession.state.winner = null;
             freshSession.state.winningLine = null;
+            freshSession.state.activeChallenge = null;
             freshSession.state.status = freshSession.players.length === 2 ? 'playing' : 'waiting';
 
             freshSession.markModified('state');
@@ -309,6 +323,7 @@ class GameSessionService {
     session.state.lastStarter = nextStarter;
     session.state.winner = null;
     session.state.winningLine = null;
+    session.state.activeChallenge = null;
     session.state.status = session.players.length === 2 ? 'playing' : 'waiting';
 
     session.markModified('state');
@@ -343,6 +358,26 @@ class GameSessionService {
       emoji: emoji || '💖',
       color: color || 'pink'
     };
+
+    session.markModified('state');
+    session.updatedAt = new Date();
+    await session.save();
+
+    this._broadcastState(coupleId, session, gameType);
+
+    return session;
+  }
+
+  async updateGameSettings(coupleId, username, gameType = 'tic-tac-toe', { consequencesEnabled, consequenceLevel } = {}) {
+    const session = await this.getOrCreateSession(coupleId, gameType);
+
+    if (typeof consequencesEnabled === 'boolean') {
+      session.state.consequencesEnabled = consequencesEnabled;
+    }
+
+    if (consequenceLevel && ['easy', 'medium', 'hard'].includes(consequenceLevel)) {
+      session.state.consequenceLevel = consequenceLevel;
+    }
 
     session.markModified('state');
     session.updatedAt = new Date();

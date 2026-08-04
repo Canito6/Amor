@@ -29,5 +29,12 @@ export const gameSessionService = {
       method: 'POST',
       body: { emoji, color }
     });
+  },
+
+  updateGameSettings: (gameType = 'tic-tac-toe', { consequencesEnabled, consequenceLevel }) => {
+    return apiFetch(`/api/fun/game-sessions/${gameType}/settings`, {
+      method: 'POST',
+      body: { consequencesEnabled, consequenceLevel }
+    });
   }
 };

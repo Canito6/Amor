@@ -58,6 +58,38 @@ class WordleController extends BaseController {
     }
   }
 
+  async setDuelWord(req, res, next) {
+    try {
+      const username = req.user.username;
+      const { word, hint } = req.body;
+
+      if (!word || typeof word !== 'string') {
+        throw new ApiError(400, 'Palavra secreta obrigatória.');
+      }
+
+      const session = await this.wordleService.setDuelWord(req.coupleId, username, { word, hint });
+      res.json(session);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  }
+
+  async makeDuelGuess(req, res, next) {
+    try {
+      const username = req.user.username;
+      const { guessWord } = req.body;
+
+      if (!guessWord || typeof guessWord !== 'string') {
+        throw new ApiError(400, 'Palavra de tentativa obrigatória.');
+      }
+
+      const session = await this.wordleService.makeDuelGuess(req.coupleId, username, guessWord);
+      res.json(session);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  }
+
   async updateSettings(req, res, next) {
     try {
       const username = req.user.username;

@@ -94,4 +94,37 @@ describe('BattleshipService (Ponto 4)', () => {
     expect(session.state.activeChallenge).not.toBeNull();
     expect(session.state.activeChallenge.shipName).toContain('Ilha Secreta');
   });
+
+  test('Deve dar a próxima primeira jogada ao derrotado da partida anterior, ao reiniciar (Ponto de justiça)', async () => {
+    await service.joinSession('couple-bs', 'Canito');
+    await service.joinSession('couple-bs', 'Lara');
+
+    // Lara só tem 1 navio (Ilha, tamanho 1) para simplificar o teste de vitória total
+    await service.placeShips('couple-bs', 'Canito', [
+      { id: 'heart', indices: [0, 1, 2] },
+      { id: 'boat', indices: [10, 11] },
+      { id: 'island', indices: [20] }
+    ]);
+    await service.placeShips('couple-bs', 'Lara', [
+      { id: 'heart', indices: [5, 6, 7] },
+      { id: 'boat', indices: [25, 26] },
+      { id: 'island', indices: [35] }
+    ]);
+
+    // Canito afunda todos os navios da Lara (vence a partida)
+    await service.attack('couple-bs', 'Canito', 5);
+    await service.attack('couple-bs', 'Canito', 6);
+    await service.attack('couple-bs', 'Canito', 7);
+    await service.attack('couple-bs', 'Canito', 25);
+    await service.attack('couple-bs', 'Canito', 26);
+    const finished = await service.attack('couple-bs', 'Canito', 35);
+
+    expect(finished.state.status).toBe('finished');
+    expect(finished.state.winner).toBe('Canito');
+
+    const afterReset = await service.resetGame('couple-bs', 'Canito');
+    // Lara perdeu a partida anterior, por isso é ela quem começa a seguinte
+    expect(afterReset.state.currentTurn).toBe('Lara');
+    expect(afterReset.state.status).toBe('setup');
+  });
 });
