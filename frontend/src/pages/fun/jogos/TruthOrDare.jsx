@@ -154,6 +154,32 @@ export default function TruthOrDare() {
     }
   };
 
+  const handleResetGame = async () => {
+    if (submitting) return;
+
+    const confirmReset = window.confirm(
+      language === 'pt'
+        ? 'Tens a certeza que queres reiniciar o jogo e limpar todas as estatísticas e histórico?'
+        : 'Are you sure you want to reset the game and clear all stats and history?'
+    );
+    if (!confirmReset) return;
+
+    try {
+      setSubmitting(true);
+      triggerHapticFeedback('medium');
+      const updated = await truthOrDareService.resetGame();
+      setSession(updated);
+      showToast(
+        language === 'pt' ? 'Jogo reiniciado com sucesso! 🔄' : 'Game reset successfully! 🔄',
+        'info'
+      );
+    } catch (err) {
+      showToast(err.message || 'Erro ao reiniciar o jogo', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={`app-container fade-in ${styles.todContainer}`}>
@@ -265,6 +291,19 @@ export default function TruthOrDare() {
               ✍️ {language === 'pt' ? 'Manual' : 'Manual'}
             </button>
           </div>
+        </div>
+
+        <div className={styles.controlRow}>
+          <span className={styles.controlLabel}>
+            🔄 {language === 'pt' ? 'Novo Jogo:' : 'New Game:'}
+          </span>
+          <button
+            className={styles.btnReset}
+            onClick={handleResetGame}
+            disabled={submitting}
+          >
+            🧹 {language === 'pt' ? 'Limpar tudo e recomeçar' : 'Reset game'}
+          </button>
         </div>
       </div>
 

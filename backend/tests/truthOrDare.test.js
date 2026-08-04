@@ -102,4 +102,21 @@ describe('TruthOrDareService (Ponto 3)', () => {
     expect(updated.state.activeCard.content).toBe('Desafio secreto!');
     expect(updated.state.activeCard.level).toBe('hard');
   });
+
+  test('Deve reiniciar o jogo e limpar cartas ativas, pontuações, verdades e histórico', async () => {
+    await service.joinSession('couple-1', 'Canito');
+    await service.joinSession('couple-1', 'Lara');
+
+    await service.drawCard('couple-1', 'Canito', { type: 'truth' });
+    await service.completeCard('couple-1', 'Canito');
+
+    const reset = await service.resetGame('couple-1', 'Canito');
+
+    expect(reset.state.activeCard).toBeNull();
+    expect(reset.state.truthsCount['Canito']).toBe(0);
+    expect(reset.state.truthsCount['Lara']).toBe(0);
+    expect(reset.state.scores['Canito']).toBe(0);
+    expect(reset.state.scores['Lara']).toBe(0);
+    expect(reset.state.history.length).toBe(0);
+  });
 });

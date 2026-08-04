@@ -237,8 +237,11 @@ class TruthOrDareService {
 
     session.state.activeCard = null;
     session.state.truthsCount = {};
+    session.state.scores = {};
+    session.state.history = [];
     session.players.forEach(p => {
       session.state.truthsCount[p.username] = 0;
+      session.state.scores[p.username] = 0;
     });
 
     if (typeof session.markModified === 'function') session.markModified('state');
