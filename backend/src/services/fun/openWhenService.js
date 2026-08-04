@@ -12,7 +12,7 @@ class OpenWhenService {
     return letters.map(letter => {
       const isCreator = letter.createdBy === username;
       if (!isCreator && !letter.isOpened) {
-        const letterObj = letter.toObject();
+        const letterObj = letter.toObject ? letter.toObject() : { ...letter };
         letterObj.content = ''; // Ocultar o texto para evitar trapaças no inspecionar elemento
         return letterObj;
       }

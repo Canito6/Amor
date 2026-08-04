@@ -24,7 +24,7 @@ class MemoryService {
         };
       }
       
-      const memObj = mem.toObject();
+      const memObj = mem.toObject ? mem.toObject() : { ...mem };
       memObj.locked = false;
       return memObj;
     });
@@ -44,7 +44,7 @@ class MemoryService {
 
     const novaMemoria = await this.memoryRepository.create(cleanData);
     
-    const memObj = novaMemoria.toObject();
+    const memObj = novaMemoria.toObject ? novaMemoria.toObject() : { ...novaMemoria };
     const isLocked = memObj.isTimeCapsule && memObj.unlockDate && new Date(memObj.unlockDate) > new Date();
     memObj.locked = isLocked;
     if (isLocked) {
@@ -82,7 +82,7 @@ class MemoryService {
 
     await memory.save();
 
-    const memObj = memory.toObject();
+    const memObj = memory.toObject ? memory.toObject() : { ...memory };
     const isLocked = memObj.isTimeCapsule && memObj.unlockDate && new Date(memObj.unlockDate) > new Date();
     memObj.locked = isLocked;
     if (isLocked) {

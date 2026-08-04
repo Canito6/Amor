@@ -14,7 +14,7 @@ class AlbumController extends BaseController {
       // Contar fotos para cada álbum
       const albumsComContagem = await Promise.all(albums.map(async (alb) => {
         const count = await this.photoRepository.countDocuments({ albumId: alb._id });
-        const albObj = alb.toObject();
+        const albObj = alb.toObject ? alb.toObject() : { ...alb };
         albObj.photoCount = count;
         return albObj;
       }));
