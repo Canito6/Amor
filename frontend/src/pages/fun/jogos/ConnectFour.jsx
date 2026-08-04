@@ -442,6 +442,28 @@ export default function ConnectFour() {
             : (language === 'pt' ? 'Reiniciar Tabuleiro' : 'Reset Board')}
         </button>
 
+        {session?.state?.activeChallenge && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)',
+            border: '2px solid #ef4444',
+            borderRadius: '20px',
+            padding: '1.25rem',
+            marginTop: '1rem',
+            textAlign: 'center',
+            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.2)'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#ef4444', fontWeight: 900 }}>
+              😈 PUNIÇÃO IA PARA O DERROTADO!
+            </h4>
+            <p style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0.5rem 0' }}>
+              "{session.state.activeChallenge.challengeText}"
+            </p>
+            <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+              👑 {session.state.activeChallenge.winner} venceu {session.state.activeChallenge.loser}! • 🤖 Gemini IA
+            </span>
+          </div>
+        )}
+
         <div className={styles.rewardInfoCard}>
           🏆 {language === 'pt' ? 'Vitória: ' : 'Victory: '}
           <span className={styles.rewardHighlight}>+50 pts</span>
@@ -449,7 +471,7 @@ export default function ConnectFour() {
           {language === 'pt' ? 'Empate: ' : 'Draw: '}
           <span className={styles.rewardHighlight}>+20 pts</span>
           {' | '}
-          {language === 'pt' ? 'Participação: ' : 'Participation: '}
+          {language === 'pt' ? 'Derrota: ' : 'Loss: '}
           <span className={styles.rewardHighlight}>+10 pts</span>
         </div>
       </div>
