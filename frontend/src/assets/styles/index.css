@@ -412,6 +412,7 @@ body {
   font-size: 32px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 8px;
   text-shadow: 0 4px 12px rgba(255, 77, 109, 0.15);
