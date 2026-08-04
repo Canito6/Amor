@@ -132,11 +132,25 @@ export default function TruthOrDare() {
   };
 
   const handleSettingsChange = async (newLevel, newMode) => {
+    setSession(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        state: {
+          ...(prev.state || {}),
+          level: newLevel,
+          mode: newMode
+        }
+      };
+    });
+
     try {
+      triggerHapticFeedback('light');
       const updated = await truthOrDareService.updateSettings(newLevel, newMode);
       setSession(updated);
     } catch (err) {
       console.error(err);
+      showToast(err.message || (language === 'pt' ? 'Erro ao atualizar definições' : 'Error updating settings'), 'error');
     }
   };
 
