@@ -80,6 +80,21 @@ function initNotificationListener(io) {
     return;
   }
 
+  io.on('connection', (socket) => {
+    socket.on('join-couple', (coupleId) => {
+      if (coupleId) {
+        socket.join(coupleId.toString());
+        socket.coupleId = coupleId.toString();
+      }
+    });
+
+    socket.on('game-invite', (data) => {
+      if (socket.coupleId) {
+        io.to(socket.coupleId).emit('game-invite', data);
+      }
+    });
+  });
+
   // Ouvinte genérico para emissão direta de eventos de socket
   eventBus.on('socket:emit', ({ room, event, data }) => {
     io.to(room).emit(event, data);

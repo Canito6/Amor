@@ -78,7 +78,11 @@ export function SocketProvider({ children }) {
     const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling'],
       withCredentials: true,
-      auth: { token }
+      auth: { token },
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000
     });
 
     newSocket.on('connect', () => {
@@ -88,6 +92,14 @@ export function SocketProvider({ children }) {
       // Solicitar permissão para Notificações do Browser
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
+      }
+    });
+
+    newSocket.on('game-invite', (data) => {
+      if (data.fromUser !== meuNome) {
+        playNotificationSound();
+        showToast(`🎮 ${data.fromUser} está a convidar-te para jogar ${data.gameName}!`, 'info');
+        triggerBrowserNotification(`🎮 Convite de Jogo!`, `${data.fromUser} está à tua espera em ${data.gameName}!`);
       }
     });
 

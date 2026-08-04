@@ -97,13 +97,14 @@ class GeminiService {
           levelDesc = 'Nível Difícil / Apimentado 🔥🔞 (extremamente sensual, erótico, fantasias íntimas, preliminares e desafios picantes de teor sexual sem tabus).';
         }
 
-        const prompt = `És um especialista em jogos românticos e sensuais de casal. Gera ${typeText} para o casal ${coupleNames[0]} e ${coupleNames[1]}.
+        const prompt = `És um especialista em jogos românticos e sensuais de casal. Gera ${typeText} para um casal de namorados (usa termos genéricos como 'o teu parceiro(a)').
 Nível de intensidade: ${levelDesc}
 Regras:
 1. Deve ser escrito em Português de Portugal (PT-PT).
-2. Se for 'truth', deve ser uma pergunta envolvente e direta para o parceiro responder.
-3. Se for 'dare', deve ser uma ação prática apaixonada/provocante para realizar na hora com o parceiro.
-4. Não incluas introduções nem saudações. Retorna apenas um JSON válido com o seguinte formato:
+2. NUNCA incluas nomes próprios nem dados pessoais. Usa 'o teu parceiro(a)'.
+3. Se for 'truth', deve ser uma pergunta envolvente para o parceiro responder.
+4. Se for 'dare', deve ser uma ação prática apaixonada/provocante para realizar na hora.
+5. Não incluas introduções nem saudações. Retorna apenas um JSON válido com o seguinte formato:
 {
   "content": "Texto da pergunta ou desafio aqui",
   "category": "${type}",
