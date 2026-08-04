@@ -225,6 +225,25 @@ class GameSessionService {
           try {
             await this.gameScoreService.recordScore(coupleId, winnerPlayer.username, gameType, 50, { result: 'win' });
           } catch (err) { /* ignore */ }
+
+          // Gerar punição divertida com a IA Gemini para o derrotado ao vencer!
+          try {
+            const geminiService = require('../ai/geminiService');
+            const coupleNames = session.players.map(p => p.username);
+            const challengeData = await geminiService.generateTruthOrDare({
+              level: 'medium',
+              type: 'dare',
+              coupleNames
+            });
+            session.state.activeChallenge = {
+              winner: winnerPlayer.username,
+              loser: loserPlayer ? loserPlayer.username : 'Parceiro',
+              challengeText: challengeData.content,
+              aiGenerated: challengeData.aiGenerated
+            };
+          } catch (err) {
+            console.error('Erro ao gerar punição IA no fim do jogo:', err.message);
+          }
         }
         if (loserPlayer) {
           try {
