@@ -67,9 +67,25 @@ const uploadLimiter = rateLimit({
 });
 
 const configureSecurity = (app) => {
-  // 1. Configuração de CORS com Credenciais em primeiro lugar (garante headers CORS mesmo em respostas 429/erros)
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'https://amor-beryl-sigma.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5000'
+  ].filter(Boolean);
+
   const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        /^http:\/\/localhost:\d+$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS não permitido para a origem: ${origin}`));
+    },
     credentials: true
   };
   app.use(cors(corsOptions));
