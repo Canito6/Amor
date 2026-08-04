@@ -75,7 +75,7 @@ class TruthOrDareController extends BaseController {
   async updateSettings(req, res, next) {
     try {
       const username = req.user.username;
-      const { level, mode } = req.body;
+      const { level, mode } = req.body || {};
 
       const session = await this.truthOrDareService.updateSettings(req.coupleId, username, { level, mode });
       res.json(session);

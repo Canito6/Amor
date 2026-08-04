@@ -181,8 +181,18 @@ class TruthOrDareService {
     return session;
   }
 
-  async updateSettings(coupleId, username, { level, mode }) {
+  async updateSettings(coupleId, username, { level, mode } = {}) {
     const session = await this.getOrCreateSession(coupleId);
+    if (!session.state) {
+      session.state = {
+        level: 'medium',
+        mode: 'ai',
+        truthsCount: {},
+        activeCard: null,
+        scores: {},
+        history: []
+      };
+    }
 
     if (level && ['easy', 'medium', 'hard'].includes(level)) {
       session.state.level = level;
