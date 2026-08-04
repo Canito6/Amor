@@ -15,53 +15,18 @@ const gameSessionSchema = new mongoose.Schema({
     username: { type: String, required: true },
     symbol: { type: String, enum: ['X', 'O'], required: true }
   }],
+  // O estado do jogo é dinâmico (Mixed) para permitir persistir as variáveis
+  // específicas de cada jogo (Jogo do Galo, 4 em Linha, Verdade ou Consequência,
+  // Batalha Naval, Wordle) como level, mode, truthsCount, activeCard, history, etc.
   state: {
-    board: {
-      type: [String],
-      default: () => Array(9).fill(null)
-    },
-    currentTurn: {
-      type: String,
-      enum: ['X', 'O'],
-      default: 'X'
-    },
-    status: {
-      type: String,
-      enum: ['waiting', 'playing', 'finished'],
-      default: 'waiting'
-    },
-    winner: {
-      type: String,
-      default: null // 'X', 'O', 'draw' ou null
-    },
-    winningLine: {
-      type: [Number],
-      default: null
-    },
-    scores: {
-      X: { type: Number, default: 0 },
-      O: { type: Number, default: 0 },
-      draws: { type: Number, default: 0 }
-    },
-    lastStarter: {
-      type: String,
-      enum: ['X', 'O'],
-      default: 'X'
-    },
-    // Personalização (emoji/cor) de cada jogador, indexada por username.
-    // Tem de ser declarada explicitamente (Mixed), senão o Mongoose ignora
-    // silenciosamente este campo ao gravar (modo strict por defeito),
-    // fazendo com que a personalização "desapareça" após um reload.
-    customizations: {
-      type: mongoose.Schema.Types.Mixed,
-      default: () => ({})
-    }
+    type: mongoose.Schema.Types.Mixed,
+    default: () => ({})
   },
   updatedAt: {
     type: Date,
     default: Date.now
   }
-});
+}, { strict: false });
 
 gameSessionSchema.index({ coupleId: 1, gameType: 1 }, { unique: true });
 
