@@ -57,6 +57,7 @@ const JogoMemoria = lazyWithRetry(routeImports['/jogos/memoria']);
 const ConnectFour = lazyWithRetry(routeImports['/jogos/4-em-linha']);
 const TruthOrDare = lazyWithRetry(routeImports['/jogos/verdade-ou-consequencia']);
 const Battleship = lazyWithRetry(routeImports['/jogos/batalha-naval']);
+const Wordle = lazyWithRetry(routeImports['/jogos/wordle']);
 const PerfilCasal = lazyWithRetry(routeImports['/perfil-casal']);
 const Desenho = lazyWithRetry(routeImports['/desenho']);
 const Timeline = lazyWithRetry(routeImports['/timeline']);
@@ -124,6 +125,7 @@ export default function AppRoutes() {
             <Route path="/jogos/4-em-linha" element={<ConnectFour />} />
             <Route path="/jogos/verdade-ou-consequencia" element={<TruthOrDare />} />
             <Route path="/jogos/batalha-naval" element={<Battleship />} />
+            <Route path="/jogos/wordle" element={<Wordle />} />
             <Route path="/date-night" element={<DateNight />} />
             <Route path="/perfil-casal" element={<PerfilCasal />} />
             <Route path="/desenho" element={<Desenho />} />

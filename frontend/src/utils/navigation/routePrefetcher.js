@@ -25,6 +25,7 @@ export const routeImports = {
   '/jogos/4-em-linha': () => import('../../pages/fun/jogos/ConnectFour'),
   '/jogos/verdade-ou-consequencia': () => import('../../pages/fun/jogos/TruthOrDare'),
   '/jogos/batalha-naval': () => import('../../pages/fun/jogos/Battleship'),
+  '/jogos/wordle': () => import('../../pages/fun/jogos/Wordle'),
   '/perfil-casal': () => import('../../pages/couple/perfil/PerfilCasal'),
   '/desenho': () => import('../../pages/fun/desenho/Desenho'),
   '/timeline': () => import('../../pages/couple/timeline/Timeline'),

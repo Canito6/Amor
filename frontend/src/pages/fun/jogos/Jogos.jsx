@@ -140,6 +140,15 @@ export default function Jogos() {
       countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
     },
     {
+      path: '/jogos/wordle',
+      title: language === 'pt' ? 'Wordle a Dois' : 'Couple Wordle',
+      desc: language === 'pt' ? 'Adivinhem a palavra secreta romântica em 6 tentativas com dicas IA ou do parceiro!' : 'Guess the secret romantic word in 6 attempts with AI or partner hints!',
+      icon: '🔤',
+      accentColor: '#10b981',
+      count: 0,
+      countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
+    },
+    {
       path: '/desenho',
       title: language === 'pt' ? 'Quadro de Desenho' : 'Drawing Board',
       desc: language === 'pt' ? 'Desenhem e rabisquem juntos em tempo real.' : 'Draw and doodle together in real-time.',
