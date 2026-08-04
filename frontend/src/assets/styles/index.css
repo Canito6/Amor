@@ -794,6 +794,34 @@ body {
 
 .glass-panel:hover {
   transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 12px 36px var(--shadow-hover) !important;
+}
+
+/* Micro-interações táteis nos botões */
+.btn, button {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease !important;
+}
+
+.btn:active, button:active {
+  transform: scale(0.96) !important;
+}
+
+/* Tema Escuro vs Claro - Suporte total a cores do sistema */
+.theme-dark .glass-panel {
+  background: rgba(22, 22, 35, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.theme-light .glass-panel {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(255, 107, 157, 0.2) !important;
+}
+
+/* Ajustes de margem inferior mobile para a FloatingBottomNav */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 80px !important;
+  }
 }
 
 

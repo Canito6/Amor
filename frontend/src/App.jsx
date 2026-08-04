@@ -11,6 +11,8 @@ import ScrollToTop from './components/shared/ScrollToTop';
 import AppRoutes from './routes/AppRoutes';
 import PWAPrompts from './components/shared/PWAPrompts';
 import AppLockModal from './components/shared/AppLockModal';
+import RomanticParticles from './components/shared/RomanticParticles';
+import FloatingBottomNav from './components/navigation/FloatingBottomNav';
 
 function App() {
   return (
@@ -23,8 +25,10 @@ function App() {
                 <TabProvider>
                   <SocketProvider>
                     <BrowserRouter>
+                      <RomanticParticles />
                       <ScrollToTop />
                       <AppRoutes />
+                      <FloatingBottomNav />
                       <AppLockModal />
                     </BrowserRouter>
                   </SocketProvider>
