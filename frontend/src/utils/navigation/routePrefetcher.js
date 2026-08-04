@@ -23,6 +23,7 @@ export const routeImports = {
   '/jogos/tic-tac-toe': () => import('../../pages/fun/jogos/TicTacToe'),
   '/jogos/memoria': () => import('../../pages/fun/jogos/JogoMemoria'),
   '/jogos/4-em-linha': () => import('../../pages/fun/jogos/ConnectFour'),
+  '/jogos/verdade-ou-consequencia': () => import('../../pages/fun/jogos/TruthOrDare'),
   '/perfil-casal': () => import('../../pages/couple/perfil/PerfilCasal'),
   '/desenho': () => import('../../pages/fun/desenho/Desenho'),
   '/timeline': () => import('../../pages/couple/timeline/Timeline'),

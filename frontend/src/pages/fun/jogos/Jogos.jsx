@@ -119,6 +119,15 @@ export default function Jogos() {
       icon: '🟡🔵',
       accentColor: '#c589e8',
       count: 0,
+      countLabel: language === 'pt' ? 'Ao Vivo!' : 'Live!'
+    },
+    {
+      path: '/jogos/verdade-ou-consequencia',
+      title: language === 'pt' ? 'Verdade ou Consequência' : 'Truth or Dare',
+      desc: language === 'pt' ? 'Níveis Fácil, Médio e Difícil 🔥🔞 com IA Gemini, limite de 3 verdades e penalização!' : 'Levels Easy, Medium, Hard 🔥🔞 with Gemini AI, 3 truths limit & penalty!',
+      icon: '🔥🔞',
+      accentColor: '#ef4444',
+      count: 0,
       countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
     },
     {
