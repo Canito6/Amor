@@ -26,6 +26,17 @@ class JarController extends BaseController {
   deleteJarNote = async (req, res, next) => {
     await this.deleteItem(req, res, next);
   };
+
+  generateAI = async (req, res, next) => {
+    try {
+      const geminiService = require('../../services/ai/geminiService');
+      const category = req.body?.category || 'amor';
+      const jarNote = await geminiService.generateJarNote({ category });
+      res.json(jarNote);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  };
 }
 
 module.exports = JarController;

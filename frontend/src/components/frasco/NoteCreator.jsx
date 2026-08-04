@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { jarService } from '../../services/fun/jarService';
 
 export default function NoteCreator({
   onClose,
@@ -10,6 +11,20 @@ export default function NoteCreator({
   const { showToast } = useToast();
   const [newContent, setNewContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('miminho'); // 'miminho' | 'piada' | 'recordacao'
+  const [generatingAi, setGeneratingAi] = useState(false);
+
+  const handleGenerateAI = async () => {
+    try {
+      setGeneratingAi(true);
+      const note = await jarService.generateAI(selectedCategory);
+      if (note.content) setNewContent(note.content);
+      showToast('Nota fofa gerada com sucesso pela IA! ✨', 'success');
+    } catch {
+      showToast('Erro ao gerar nota com IA.', 'error');
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -25,6 +40,15 @@ export default function NoteCreator({
       <div className="glass-panel jar-creator-modal">
         <div className="modal-header">
           <h3>🏺 {t.jar_create_title || 'Colocar Papelinho'}</h3>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px' }}
+            onClick={handleGenerateAI}
+            disabled={generatingAi}
+          >
+            {generatingAi ? '✨ a escrever...' : 'Nota com IA ✨'}
+          </button>
           <button className="close-modal-btn" onClick={onClose}>✕</button>
         </div>
         

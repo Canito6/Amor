@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { letterService } from '../../services/fun/letterService';
 
 const MOOD_EMOJIS_LIST = ['😊', '🥰', '😢', '😡', '😴', '😷', '🧠', '❤️', '😱'];
 
@@ -15,6 +16,22 @@ export default function LetterCreator({
   const [newContent, setNewContent] = useState('');
   const [conditionType, setConditionType] = useState('instant'); // 'instant' | 'date' | 'mood'
   const [conditionValue, setConditionValue] = useState('');
+
+  const [generatingAi, setGeneratingAi] = useState(false);
+
+  const handleGenerateAI = async () => {
+    try {
+      setGeneratingAi(true);
+      const draft = await letterService.generateAI('saudades');
+      if (draft.title) setNewTitle(draft.title);
+      if (draft.content) setNewContent(draft.content);
+      showToast('Carta gerada com sucesso pela IA! ✨', 'success');
+    } catch {
+      showToast('Erro ao gerar carta com IA.', 'error');
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -36,6 +53,15 @@ export default function LetterCreator({
       <div className="glass-panel letter-creator-modal">
         <div className="modal-header">
           <h3>✉️ {t.letter_create_title || 'Escrever Carta Surpresa'}</h3>
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px' }}
+            onClick={handleGenerateAI}
+            disabled={generatingAi}
+          >
+            {generatingAi ? '✨ a escrever...' : 'Inspirar com IA ✨'}
+          </button>
           <button className="close-modal-btn" onClick={onClose}>✕</button>
         </div>
         

@@ -55,6 +55,17 @@ class CouponController extends BaseController {
   deleteCoupon = async (req, res, next) => {
     await this.deleteItem(req, res, next);
   };
+
+  generateAI = async (req, res, next) => {
+    try {
+      const geminiService = require('../../services/ai/geminiService');
+      const type = req.body?.type || 'mimo';
+      const couponIdea = await geminiService.generateCouponIdea({ type });
+      res.json(couponIdea);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  };
 }
 
 module.exports = CouponController;

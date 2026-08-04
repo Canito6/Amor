@@ -7,6 +7,7 @@ const { couponController } = require('../../container');
 const router = express.Router();
 
 router.get('/', verificarToken, couponController.getCoupons);
+router.post('/generate-ai', verificarToken, couponController.generateAI);
 router.post('/', verificarToken, validate({ body: couponSchema }), couponController.createCoupon);
 router.patch('/:id/redeem', verificarToken, couponController.redeemCoupon);
 router.delete('/:id', verificarToken, couponController.deleteCoupon);

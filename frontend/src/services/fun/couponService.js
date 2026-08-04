@@ -22,5 +22,12 @@ export const couponService = {
     return apiFetch(`/api/fun/coupons/${id}`, {
       method: 'DELETE'
     });
+  },
+
+  generateAI: (type = 'mimo') => {
+    return apiFetch('/api/fun/coupons/generate-ai', {
+      method: 'POST',
+      body: { type }
+    });
   }
 };

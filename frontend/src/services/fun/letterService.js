@@ -22,5 +22,12 @@ export const letterService = {
     return apiFetch(`/api/fun/letters/${id}`, {
       method: 'DELETE'
     });
+  },
+
+  generateAI: (category = 'saudades') => {
+    return apiFetch('/api/fun/letters/generate-ai', {
+      method: 'POST',
+      body: { category }
+    });
   }
 };

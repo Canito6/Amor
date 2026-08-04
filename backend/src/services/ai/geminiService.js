@@ -193,6 +193,173 @@ Retorna apenas um JSON: { "content": "Texto da penalização" }`;
     const randomIndex = Math.floor(Math.random() * pool.length);
     return { content: pool[randomIndex], aiGenerated: false };
   }
+
+  /**
+   * 1. Gerar Rascunho de Carta de Amor "Abrir Quando..."
+   */
+  async generateLoveLetter({ category = 'saudades' }) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const prompt = `Gera uma carta de amor emocionante e poética em Português (PT-PT) para uma carta do tipo "Abrir quando estiveres com ${category}".
+Usa linguagem romântica e genérica (ex: 'meu amor', 'minha vida').
+Retorna apenas um JSON: { "title": "Título carinhoso", "content": "Texto emocionante da carta" }`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.content) return { ...parsed, aiGenerated: true };
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao gerar carta com Gemini:', err.message);
+      }
+    }
+    return {
+      title: `Carta para quando sentires ${category}`,
+      content: `Meu amor, escrevo-te esta carta para te lembrar do quanto és especial para mim. Mesmo nos momentos mais difíceis ou distantes, o meu coração está sempre contigo. Amo-te infinitamente! ❤️`,
+      aiGenerated: false
+    };
+  }
+
+  /**
+   * 2. Gerar Plano de Encontro Temático (Date Night AI Planner)
+   */
+  async generateDateNightPlan({ theme = 'caseiro' }) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const prompt = `Gera uma ideia criativa de encontro a dois (Date Night) em Português (PT-PT) com o tema "${theme}".
+Retorna apenas um JSON: { "title": "Nome do Encontro", "description": "Resumo do encontro", "activity": "Atividade principal a realizar juntos", "atmosphere": "Dicas de iluminação e ambiente" }`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.title) return { ...parsed, aiGenerated: true };
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao gerar encontro com Gemini:', err.message);
+      }
+    }
+    return {
+      title: '🍷 Noite de Cinema & Petiscos em Casa',
+      description: 'Uma noite relaxante na sala com luzes suaves e a vossa comida favorita.',
+      activity: 'Ver um filme romântico ou de comédia com pipocas e fondue de chocolate.',
+      atmosphere: 'Velas aromáticas e mantas confortáveis no sofá.',
+      aiGenerated: false
+    };
+  }
+
+  /**
+   * 3. Gerar Ideias de Vales & Raspadinhas do Amor
+   */
+  async generateCouponIdea({ type = 'mimo' }) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const prompt = `Gera uma ideia de Vale do Amor / Recompensa romântica em Português (PT-PT) do tipo "${type}".
+Retorna apenas um JSON: { "title": "Título do Vale (ex: Massagem)", "description": "Detalhes fofos da recompensa", "icon": "Emoji sugestivo" }`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.title) return { ...parsed, aiGenerated: true };
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao gerar vale com Gemini:', err.message);
+      }
+    }
+    return {
+      title: '💆 Massagem Relaxante Sem Limite',
+      description: 'Vale uma massagem relaxante nas costas e ombros com óleo essencial.',
+      icon: '💆‍♂️',
+      aiGenerated: false
+    };
+  }
+
+  /**
+   * 4. Gerar Nota Diária Surpresa no Frasco do Amor
+   */
+  async generateJarNote({ category = 'amor' }) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const prompt = `Gera um bilhete romântico curto (1 a 2 frases) em Português (PT-PT) para um frasco de notas do casal.
+Retorna apenas um JSON: { "content": "Texto do bilhete fofo" }`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.content) return { ...parsed, aiGenerated: true };
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao gerar nota do frasco com Gemini:', err.message);
+      }
+    }
+    return {
+      content: 'Apenas uma nota para te lembrar que o teu sorriso é a minha coisa favorita no mundo inteiro! ❤️',
+      aiGenerated: false
+    };
+  }
+
+  /**
+   * 5. Gerar Resumo Semanal de Afinidade (AI Love Insights)
+   */
+  async generateLoveInsights() {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const prompt = `Gera uma mensagem poética motivacional de 2 frases em Português (PT-PT) sobre a cumplicidade e amor de um casal que joga e celebra a sua relação juntos.
+Retorna apenas um JSON: { "insight": "Frase motivacional romântica" }`;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json' } })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.insight) return { ...parsed, aiGenerated: true };
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao gerar insights com Gemini:', err.message);
+      }
+    }
+    return {
+      insight: 'A vossa cumplicidade cresce a cada momento partilhado. Continuem a cultivar este amor único todos os dias! 💕',
+      aiGenerated: false
+    };
+  }
 }
 
 module.exports = new GeminiService();

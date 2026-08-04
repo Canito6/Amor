@@ -44,6 +44,17 @@ class OpenWhenController extends BaseController {
   deleteLetter = async (req, res, next) => {
     await this.deleteItem(req, res, next);
   };
+
+  generateAI = async (req, res, next) => {
+    try {
+      const geminiService = require('../../services/ai/geminiService');
+      const category = req.body?.category || 'saudades';
+      const letterDraft = await geminiService.generateLoveLetter({ category });
+      res.json(letterDraft);
+    } catch (error) {
+      next(this.handleError(error));
+    }
+  };
 }
 
 module.exports = OpenWhenController;

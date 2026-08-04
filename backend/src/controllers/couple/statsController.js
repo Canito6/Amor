@@ -158,3 +158,13 @@ exports.getCoupleStats = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAiInsights = async (req, res, next) => {
+  try {
+    const geminiService = require('../../services/ai/geminiService');
+    const insights = await geminiService.generateLoveInsights();
+    res.json(insights);
+  } catch (error) {
+    next(error);
+  }
+};

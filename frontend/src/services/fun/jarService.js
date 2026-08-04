@@ -21,5 +21,12 @@ export const jarService = {
     return apiFetch(`/api/fun/jar-notes/${id}`, {
       method: 'DELETE'
     });
+  },
+
+  generateAI: (category = 'amor') => {
+    return apiFetch('/api/fun/jar-notes/generate-ai', {
+      method: 'POST',
+      body: { category }
+    });
   }
 };

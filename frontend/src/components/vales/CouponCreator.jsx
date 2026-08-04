@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { couponService } from '../../services/fun/couponService';
 
 const COUPON_ICONS = ['🎟️', '💆', '🍿', '🍽️', '🚗', '🧼', '☕', '🎮', '❤️', '✈️'];
 
@@ -13,6 +14,22 @@ export default function CouponCreator({
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('🎟️');
+  const [generatingAi, setGeneratingAi] = useState(false);
+
+  const handleGenerateAI = async () => {
+    try {
+      setGeneratingAi(true);
+      const idea = await couponService.generateAI('mimo');
+      if (idea.title) setNewTitle(idea.title);
+      if (idea.description) setNewDescription(idea.description);
+      if (idea.icon) setSelectedIcon(idea.icon);
+      showToast('Ideia de vale gerada pela IA! ✨', 'success');
+    } catch {
+      showToast('Erro ao gerar vale com IA.', 'error');
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -28,6 +45,15 @@ export default function CouponCreator({
       <div className="glass-panel coupon-creator-modal">
         <div className="modal-header">
           <h3>🎁 {t.coupon_create_title || 'Oferecer Novo Vale'}</h3>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px' }}
+            onClick={handleGenerateAI}
+            disabled={generatingAi}
+          >
+            {generatingAi ? '✨ a pensar...' : 'Ideia com IA ✨'}
+          </button>
           <button className="close-modal-btn" onClick={onClose}>✕</button>
         </div>
         

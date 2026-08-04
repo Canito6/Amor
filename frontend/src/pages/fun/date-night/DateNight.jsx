@@ -136,6 +136,32 @@ export default function DateNight() {
     playSparkle();
   };
 
+  const [aiPlan, setAiPlan] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+
+  const handleGenerateAiDateNight = async () => {
+    try {
+      setLoadingAi(true);
+      const res = await fetch('/api/fun/date-night/generate-ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ theme: vibe })
+      });
+      if (res.ok) {
+        const plan = await res.json();
+        setAiPlan(plan);
+        playSparkle();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
   const handleVibeChange = (newVibe) => {
     setVibe(newVibe);
     drawDateNight(bucketItems, newVibe);
@@ -181,6 +207,28 @@ export default function DateNight() {
           </button>
         ))}
       </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <button
+          onClick={handleGenerateAiDateNight}
+          className="btn btn-primary"
+          disabled={loadingAi}
+          style={{ borderRadius: '25px', padding: '10px 24px', fontSize: '15px', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', border: 'none', boxShadow: '0 4px 15px rgba(236,72,153,0.4)' }}
+        >
+          {loadingAi ? '✨ A criar encontro mágico...' : 'Criar Encontro Único com IA ✨'}
+        </button>
+      </div>
+
+      {aiPlan && (
+        <div className="glass-panel slide-down" style={{ padding: '1.5rem', marginBottom: '20px', borderRadius: '16px', border: '1px solid rgba(236,72,153,0.3)', background: 'rgba(236,72,153,0.05)' }}>
+          <h3 style={{ color: '#ec4899', marginBottom: '8px' }}>{aiPlan.title}</h3>
+          <p style={{ fontSize: '14px', marginBottom: '12px' }}>{aiPlan.description}</p>
+          <div style={{ display: 'grid', gap: '8px', fontSize: '13px' }}>
+            {aiPlan.activity && <div>🎯 <strong>Atividade:</strong> {aiPlan.activity}</div>}
+            {aiPlan.atmosphere && <div>🕯️ <strong>Ambiente:</strong> {aiPlan.atmosphere}</div>}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', margin: '50px 0' }}>

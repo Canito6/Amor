@@ -7,6 +7,7 @@ const { openWhenController } = require('../../container');
 const router = express.Router();
 
 router.get('/', verificarToken, openWhenController.getLetters);
+router.post('/generate-ai', verificarToken, openWhenController.generateAI);
 router.post('/', verificarToken, validate({ body: openWhenSchema }), openWhenController.createLetter);
 router.patch('/:id/open', verificarToken, openWhenController.openLetter);
 router.delete('/:id', verificarToken, openWhenController.deleteLetter);

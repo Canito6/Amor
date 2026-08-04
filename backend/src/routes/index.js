@@ -50,7 +50,8 @@ const routePrefixes = {
   'gameSessionRoutes.js': '/fun/game-sessions',
   'truthOrDareRoutes.js': '/fun/truth-or-dare',
   'battleshipRoutes.js': '/fun/battleship',
-  'wordleRoutes.js': '/fun/wordle'
+  'wordleRoutes.js': '/fun/wordle',
+  'dateNightRoutes.js': '/fun/date-night'
 };
 
 // Endpoint público leve de health-check para serviços externos de ping (ex: UptimeRobot / cron-job.org)

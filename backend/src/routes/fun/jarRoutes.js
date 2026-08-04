@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/', verificarToken, jarController.getJarNotes);
 router.get('/random', verificarToken, jarController.getRandomJarNote);
+router.post('/generate-ai', verificarToken, jarController.generateAI);
 router.post('/', verificarToken, validate({ body: jarNoteSchema }), jarController.createJarNote);
 router.delete('/:id', verificarToken, jarController.deleteJarNote);
 

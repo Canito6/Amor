@@ -99,6 +99,8 @@ export default function RelationshipStats() {
 
   const currentT = localT[language] || localT['pt'];
 
+  const [aiInsight, setAiInsight] = useState('');
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -106,6 +108,19 @@ export default function RelationshipStats() {
         setError('');
         const data = await authService.getCoupleStats();
         setStats(data);
+
+        // Fetch AI Insight
+        try {
+          const res = await fetch('/api/couple-stats/ai-insights', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          });
+          if (res.ok) {
+            const parsed = await res.json();
+            if (parsed && parsed.insight) setAiInsight(parsed.insight);
+          }
+        } catch {
+          // Ignorar falha secundária da IA
+        }
       } catch (err) {
         console.error('Erro ao carregar estatísticas:', err);
         setError(language === 'en' ? 'Failed to load stats.' : 'Erro ao carregar estatísticas.');
@@ -170,6 +185,17 @@ export default function RelationshipStats() {
         <h1 className="stats-main-title">📊 {currentT.title}</h1>
         <p className="stats-subtitle">{currentT.subtitle}</p>
       </div>
+
+      {aiInsight && (
+        <div className="glass-panel slide-down" style={{ padding: '1.2rem 1.5rem', marginBottom: '20px', borderRadius: '16px', border: '1px solid rgba(255, 77, 109, 0.3)', background: 'linear-gradient(135deg, rgba(255, 77, 109, 0.08) 0%, rgba(155, 93, 229, 0.08) 100%)', textAlign: 'center' }}>
+          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#ff4d6d', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+            ✨ AI Love Insight da Semana ✨
+          </div>
+          <p style={{ fontSize: '15px', fontStyle: 'italic', color: 'var(--text-primary)', margin: 0 }}>
+            "{aiInsight}"
+          </p>
+        </div>
+      )}
 
       {/* Love counter top widget */}
       {stats?.relationshipDate && (
