@@ -131,6 +131,15 @@ export default function Jogos() {
       countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
     },
     {
+      path: '/jogos/batalha-naval',
+      title: language === 'pt' ? 'Batalha Naval do Amor' : 'Love Battleship',
+      desc: language === 'pt' ? 'Grelha 6x6 em tempo real! Afundem navios e cumpram desafios IA ou manuais!' : 'Real-time 6x6 grid! Sink ships and face AI/manual challenges!',
+      icon: '⚓',
+      accentColor: '#3b82f6',
+      count: 0,
+      countLabel: language === 'pt' ? 'Novo! 🔥' : 'New! 🔥'
+    },
+    {
       path: '/desenho',
       title: language === 'pt' ? 'Quadro de Desenho' : 'Drawing Board',
       desc: language === 'pt' ? 'Desenhem e rabisquem juntos em tempo real.' : 'Draw and doodle together in real-time.',
