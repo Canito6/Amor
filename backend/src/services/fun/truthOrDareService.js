@@ -24,6 +24,28 @@ class TruthOrDareService {
         }
       });
     }
+    return this._ensureStateDefaults(session);
+  }
+
+  _ensureStateDefaults(session) {
+    if (!session) return session;
+    if (!session.state || typeof session.state !== 'object') {
+      session.state = {};
+    }
+    if (!session.state.level) session.state.level = 'medium';
+    if (!session.state.mode) session.state.mode = 'ai';
+    if (!session.state.truthsCount || typeof session.state.truthsCount !== 'object') {
+      session.state.truthsCount = {};
+    }
+    if (!session.state.scores || typeof session.state.scores !== 'object') {
+      session.state.scores = {};
+    }
+    if (!Array.isArray(session.state.history)) {
+      session.state.history = [];
+    }
+    if (session.state.activeCard === undefined) {
+      session.state.activeCard = null;
+    }
     return session;
   }
 

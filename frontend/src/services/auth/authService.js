@@ -83,6 +83,12 @@ export const authService = {
     });
   },
 
+  getAiInsights: () => {
+    return apiFetch('/api/auth/ai-insights', {
+      method: 'GET'
+    });
+  },
+
   uploadAvatar: (formData) => {
     return apiFetch('/api/auth/profile-avatar', {
       method: 'POST',

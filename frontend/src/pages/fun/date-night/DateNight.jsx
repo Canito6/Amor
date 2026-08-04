@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bucketListService } from '../../../services/fun/bucketListService';
+import { dateNightService } from '../../../services/fun/dateNightService';
 import { usePreferences } from '../../../context/PreferencesContext';
 import PolaroidFrame from '../../../components/shared/PolaroidFrame';
 import './DateNight.css';
@@ -142,19 +143,9 @@ export default function DateNight() {
   const handleGenerateAiDateNight = async () => {
     try {
       setLoadingAi(true);
-      const res = await fetch('/api/fun/date-night/generate-ai', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ theme: vibe })
-      });
-      if (res.ok) {
-        const plan = await res.json();
-        setAiPlan(plan);
-        playSparkle();
-      }
+      const plan = await dateNightService.generateAI(vibe);
+      setAiPlan(plan);
+      playSparkle();
     } catch (err) {
       console.error(err);
     } finally {

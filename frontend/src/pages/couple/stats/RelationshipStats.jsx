@@ -111,13 +111,8 @@ export default function RelationshipStats() {
 
         // Fetch AI Insight
         try {
-          const res = await fetch('/api/couple-stats/ai-insights', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          });
-          if (res.ok) {
-            const parsed = await res.json();
-            if (parsed && parsed.insight) setAiInsight(parsed.insight);
-          }
+          const parsed = await authService.getAiInsights();
+          if (parsed && parsed.insight) setAiInsight(parsed.insight);
         } catch {
           // Ignorar falha secundária da IA
         }

@@ -32,6 +32,18 @@ class WordleService {
         }
       });
     }
+    return this._ensureStateDefaults(session);
+  }
+
+  _ensureStateDefaults(session) {
+    if (!session) return session;
+    if (!session.state || typeof session.state !== 'object') session.state = {};
+    if (!session.state.level) session.state.level = 'medium';
+    if (!session.state.mode) session.state.mode = 'ai';
+    if (!session.state.status) session.state.status = 'playing';
+    if (!session.state.scores || typeof session.state.scores !== 'object') session.state.scores = {};
+    if (!Array.isArray(session.state.attempts)) session.state.attempts = [];
+    if (!session.state.maxAttempts) session.state.maxAttempts = 6;
     return session;
   }
 

@@ -31,6 +31,23 @@ class BattleshipService {
         }
       });
     }
+    return this._ensureStateDefaults(session);
+  }
+
+  _ensureStateDefaults(session) {
+    if (!session) return session;
+    if (!session.state || typeof session.state !== 'object') session.state = {};
+    if (!session.state.level) session.state.level = 'medium';
+    if (!session.state.mode) session.state.mode = 'ai';
+    if (!session.state.status) session.state.status = 'setup';
+    if (!session.state.ready || typeof session.state.ready !== 'object') session.state.ready = {};
+    if (!session.state.boards || typeof session.state.boards !== 'object') session.state.boards = {};
+    if (!session.state.ships || typeof session.state.ships !== 'object') session.state.ships = {};
+    if (!session.state.attacks || typeof session.state.attacks !== 'object') session.state.attacks = {};
+    if (!session.state.scores || typeof session.state.scores !== 'object') session.state.scores = {};
+    if (session.state.currentTurn === undefined) session.state.currentTurn = null;
+    if (session.state.activeChallenge === undefined) session.state.activeChallenge = null;
+    if (session.state.winner === undefined) session.state.winner = null;
     return session;
   }
 
