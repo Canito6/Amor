@@ -5,6 +5,8 @@ import { useToast } from '../../../context/ToastContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { gameSessionService } from '../../../services/fun/gameSessionService';
 import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
+import InvitePartnerButton from '../../../components/fun/InvitePartnerButton';
+import { triggerHapticFeedback } from '../../../utils/hapticUtils';
 import styles from './ConnectFour.module.css';
 
 const EMOJI_OPTIONS = ['💖', '💙', '⭐', '👑', '🐱', '🐶', '🔥', '🍓', '🦄', '💎', '⚡', '🥑', '🍕', '🐻', '🌸'];
@@ -177,6 +179,7 @@ export default function ConnectFour() {
 
     try {
       setSubmitting(true);
+      triggerHapticFeedback('medium');
       const updated = await gameSessionService.makeMove('connect-four', colIndex);
       setSession(updated);
     } catch (err) {
@@ -273,9 +276,9 @@ export default function ConnectFour() {
           ⬅ {language === 'pt' ? 'Jogos' : 'Games'}
         </button>
         <h1 className={styles.headerTitle}>
-          <span>🟡🔵</span> {language === 'pt' ? '4 em Linha' : 'Connect 4'}
+          <span>🟡🔵</span> {language === 'pt' ? '4 em Linha de Casal' : 'Connect 4'}
         </h1>
-        <div className={styles.headerSpacer}></div>
+        <InvitePartnerButton gameName="4 em Linha" gameRoute="/jogos/4-em-linha" />
       </div>
 
       {/* Placares e Jogadores */}

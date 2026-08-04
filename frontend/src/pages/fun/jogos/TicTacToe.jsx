@@ -4,6 +4,8 @@ import { useSocket } from '../../../context/SocketContext';
 import { useToast } from '../../../context/ToastContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { gameSessionService } from '../../../services/fun/gameSessionService';
+import InvitePartnerButton from '../../../components/fun/InvitePartnerButton';
+import { triggerHapticFeedback } from '../../../utils/hapticUtils';
 import styles from './TicTacToe.module.css';
 
 export default function TicTacToe() {
@@ -69,6 +71,7 @@ export default function TicTacToe() {
 
     try {
       setSubmitting(true);
+      triggerHapticFeedback('light');
       const updated = await gameSessionService.makeMove('tic-tac-toe', index);
       setSession(updated);
     } catch (err) {
@@ -150,7 +153,7 @@ export default function TicTacToe() {
         <h1 className={styles.headerTitle}>
           <span>❌⭕</span> {language === 'pt' ? 'Jogo do Galo' : 'Tic-Tac-Toe'}
         </h1>
-        <div className={styles.headerSpacer}></div>
+        <InvitePartnerButton gameName="Jogo do Galo" gameRoute="/jogos/tic-tac-toe" />
       </div>
 
       {/* Placares e Jogadores */}

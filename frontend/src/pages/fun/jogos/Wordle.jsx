@@ -5,6 +5,8 @@ import { useToast } from '../../../context/ToastContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { wordleService } from '../../../services/fun/wordleService';
 import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
+import InvitePartnerButton from '../../../components/fun/InvitePartnerButton';
+import { triggerHapticFeedback } from '../../../utils/hapticUtils';
 import styles from './Wordle.module.css';
 
 const KEYBOARD_ROWS = [
@@ -69,6 +71,7 @@ export default function Wordle() {
   const handleKeyPress = (key) => {
     if (submitting || !session || session.state?.status !== 'playing') return;
 
+    triggerHapticFeedback('light');
     const targetLength = session.state?.wordLength || 5;
 
     if (key === 'DEL' || key === 'BACKSPACE') {
@@ -177,7 +180,7 @@ export default function Wordle() {
         <h1 className={styles.headerTitle}>
           <span>🔤</span> {language === 'pt' ? 'Wordle a Dois' : 'Couple Wordle'}
         </h1>
-        <div className={styles.headerSpacer}></div>
+        <InvitePartnerButton gameName="Wordle a Dois" gameRoute="/jogos/wordle" />
       </div>
 
       {/* Card de Dica */}

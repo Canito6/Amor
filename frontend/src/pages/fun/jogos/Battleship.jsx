@@ -5,6 +5,8 @@ import { useToast } from '../../../context/ToastContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { battleshipService } from '../../../services/fun/battleshipService';
 import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
+import InvitePartnerButton from '../../../components/fun/InvitePartnerButton';
+import { triggerHapticFeedback } from '../../../utils/hapticUtils';
 import styles from './Battleship.module.css';
 
 export default function Battleship() {
@@ -112,6 +114,7 @@ export default function Battleship() {
 
     try {
       setSubmitting(true);
+      triggerHapticFeedback('heavy');
       const updated = await battleshipService.attack(idx);
       setSession(updated);
     } catch (err) {
@@ -184,7 +187,7 @@ export default function Battleship() {
         <h1 className={styles.headerTitle}>
           <span>⚓</span> {language === 'pt' ? 'Batalha Naval do Amor' : 'Love Battleship'}
         </h1>
-        <div className={styles.headerSpacer}></div>
+        <InvitePartnerButton gameName="Batalha Naval" gameRoute="/jogos/batalha-naval" />
       </div>
 
       {/* Banner de Estado */}

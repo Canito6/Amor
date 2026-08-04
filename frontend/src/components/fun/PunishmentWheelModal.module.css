@@ -1,0 +1,112 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalCard {
+  background: linear-gradient(135deg, #180924 0%, #0c0414 100%);
+  border: 2.5px solid #ff4d8d;
+  border-radius: 28px;
+  padding: 2rem 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(255, 77, 141, 0.4);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.modalTitle {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ff4d8d;
+  text-shadow: 0 0 16px rgba(255, 77, 141, 0.6);
+  margin: 0;
+}
+
+.wheelContainer {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  margin: 1rem 0;
+}
+
+.wheelSvg {
+  width: 100%;
+  height: 100%;
+  transition: transform 3s cubic-bezier(0.15, 0.9, 0.2, 1);
+}
+
+.wheelPointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  z-index: 10;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+}
+
+.spinBtn {
+  padding: 1rem 2rem;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ff4d8d 0%, #ef4444 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255, 77, 141, 0.5);
+  transition: all 0.2s ease;
+}
+
+.spinBtn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(255, 77, 141, 0.7);
+}
+
+.spinBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resultBox {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 77, 141, 0.4);
+  border-radius: 20px;
+  padding: 1.25rem;
+  width: 100%;
+  animation: flipCard 0.4s ease-out;
+}
+
+@keyframes flipCard {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.resultText {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}

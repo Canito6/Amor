@@ -5,6 +5,8 @@ import { useToast } from '../../../context/ToastContext';
 import { usePreferences } from '../../../context/PreferencesContext';
 import { truthOrDareService } from '../../../services/fun/truthOrDareService';
 import { triggerVictoryConfetti } from '../../../utils/confettiUtils';
+import InvitePartnerButton from '../../../components/fun/InvitePartnerButton';
+import { triggerHapticFeedback } from '../../../utils/hapticUtils';
 import styles from './TruthOrDare.module.css';
 
 export default function TruthOrDare() {
@@ -76,6 +78,7 @@ export default function TruthOrDare() {
 
     try {
       setSubmitting(true);
+      triggerHapticFeedback('heavy');
       const updated = await truthOrDareService.drawCard(type, customText);
       setSession(updated);
       setCustomText('');
@@ -176,7 +179,7 @@ export default function TruthOrDare() {
         <h1 className={styles.headerTitle}>
           <span>🔥</span> {language === 'pt' ? 'Verdade ou Consequência' : 'Truth or Dare'}
         </h1>
-        <div className={styles.headerSpacer}></div>
+        <InvitePartnerButton gameName="Verdade ou Consequência" gameRoute="/jogos/verdade-ou-consequencia" />
       </div>
 
       {/* Placares e Fichas de Verdades */}
