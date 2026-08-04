@@ -41,7 +41,7 @@ for (const file of serviceFiles) {
   const serviceInstanceName = baseName + 'Service';
   const repoInstanceName = baseName + 'Repository';
   
-  const repoInstance = repositories[repoInstanceName];
+  const repoInstance = repositories[repoInstanceName] || repositories['gameSessionRepository'];
   if (repoInstance) {
     if (typeof ServiceClass === 'function') {
       services[serviceInstanceName] = new ServiceClass(repoInstance);
@@ -76,7 +76,7 @@ for (const file of controllerFiles) {
   const serviceInstanceName = baseName + 'Service';
   const repoInstanceName = baseName + 'Repository';
 
-  const repoInstance = repositories[repoInstanceName];
+  const repoInstance = repositories[repoInstanceName] || repositories['gameSessionRepository'];
   const serviceInstance = services[serviceInstanceName];
 
   // Caso especial: AlbumController necessita do albumRepository e photoRepository
